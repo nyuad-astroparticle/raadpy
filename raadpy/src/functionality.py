@@ -155,7 +155,7 @@ def get_bit_idx(n:int):
     return BYTE - 1 - n%BYTE + (n//BYTE) * BYTE
 
 # Get range of bits
-def get_bits(start:int,length:int,string):
+def get_bits(start:int,length:int,string,STUPID:bool=False):
     '''
     Gets length bits after and including index start
 
@@ -168,12 +168,13 @@ def get_bits(start:int,length:int,string):
     # Collect the bytes and add them up
     digit_sum = 0
     for i in range(start,start+length):
-        digit_sum += 2**(i-start) * get_bit(get_bit_idx(i),string)
+        bit = get_bit(get_bit_idx(i),string) if not STUPID else get_bit(2*start+length -i-1,string)
+        digit_sum += 2**(i-start) * bit
 
     return digit_sum
 
 # Create a dictionary of orbits from a file
-def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None):
+def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID:bool=False):
     # Read the raw data
     file = open(filename,'rb')  # Open the file in read binary mode
     raw = file.read()           # Read all the file
@@ -196,7 +197,7 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None):
 
         # If not create an orbit
         for name,length in struct.items():
-            data[name] = np.append(data[name],[get_bits(bits_read,length,event)])
+            data[name] = np.append(data[name],[get_bits(bits_read,length,event,STUPID=STUPID)])
             bits_read += length
     
     if condition is not None:
