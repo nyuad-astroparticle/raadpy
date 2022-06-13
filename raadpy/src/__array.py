@@ -8,7 +8,7 @@ from event import *
 # Since we will be working with tgf arrays so much we will create
 # Another class called TGF Array that has methods to handle an array of TGFs
 class array:
-    event_types = ['fermi','light-1','lightning']
+    event_types = ['fermi','light-1','lightning','location']
 
     # Constructor
     def __init__(self,events=None,filename='',event_type=event_types[0]):
@@ -113,14 +113,14 @@ class array:
         data    = pd.read_csv(filename).to_numpy()
         lights  = []                                   # List to store the ligtnigs
 
-        # For all the TGFs in the loaded dataset
+        # For all the lightings in the loaded dataset
         for datum in data:
             # Create a TGF and append it to the array
             lights.append(event(timestamp   = float(datum[0]) * 1e-9,
                                 longitude   = in_range(float(datum[2])), 
                                 latitude    = float(datum[1]),
                                 detector_id = 'Blitz',
-                                event_id    = datum[2],
+                                event_id    = 'li',
                                 mission     = 'Blitzurtong',
                                 time_format = 'unix',
                                 event_type  = 'Lightning'))
@@ -130,6 +130,29 @@ class array:
 
         # Otherwise return them as a different tgf_array
         else: return array(lights)
+
+    # Generate an array of cubesat locations
+    def location_from_file(self,filename:str,append:bool=True):
+        # Load the location data
+        data    = pd.read_csv(filename).to_numpy()
+        locs    = []
+
+        # For all the possible rows
+        for datum in data:
+            locs.append(event(timestamp     = Time.strptime(datum[0],'%d/%m/%Y %H:%M:%S.%f').to_value(format='unix'),
+                                longitude   = in_range(float(datum[2])), 
+                                latitude    = float(datum[1]),
+                                detector_id = 'NA',
+                                event_id    = 'id',
+                                mission     = 'NanoAvionics',
+                                time_format = 'unix',
+                                event_type  = 'cubesat-location'))
+
+        # If you want to append the data to the original array do so here
+        if append: self.events += locs
+
+        # Otherwise return them as a different location_array
+        else: return array(locs)
     
     def from_file(self,filename:str,event_type:str=event_types[0],append:bool=True):
         # Choose the appropriate function to load the data
@@ -138,3 +161,6 @@ class array:
         
         elif event_type == array.event_types[2]:
             return self.lightning_from_file(filename=filename, append=append)
+        
+        elif event_type == array.event_types[3]:
+            return self.location_from_file(filename=filename,append=append)

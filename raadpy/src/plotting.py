@@ -3,12 +3,14 @@
 #############################
 
 from core import *
-from array import *
+from __array import array
 from event import *
 from functionality import *
 
 # Visualize a set of TGFs on a map
 def map(tgfs,lightnings:array=None):
+    gv.extension('bokeh', 'matplotlib');
+    
     # If it is a single point, convert it into an array
     if type(tgfs)   == list:        tgfs = array(tgfs)
     elif type(tgfs) == event:       tgfs = array([tgfs])

@@ -16,7 +16,6 @@ import requests
 from lxml import html
 from gzip import decompress
 from tqdm.notebook import tqdm
-gv.extension('bokeh', 'matplotlib')
 
 ##################################################################################
 # Useful Constants
@@ -61,6 +60,9 @@ NONVETO_STRUCT  = {
 def in_range(longitude):
     return longitude if longitude <= 180 else longitude - 360
 
+# Get a list and return its unique elements
+def unique(l:list):
+    return list(dict.fromkeys(l))
 
 # Get an astropy time object, and return a string with the timestamp in epoch
 def get_epoch_date(date_time):

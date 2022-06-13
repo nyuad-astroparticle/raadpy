@@ -3,7 +3,7 @@
 #############################
 
 from core import *
-from array import *
+from __array import array
 from event import *
 
 # Print the closest lightnings
@@ -11,14 +11,15 @@ def get_nearby_lightning(tgf,lightnings:array,threshold:float=1):
     # If we are given an array of TGFs
     if type(tgf) == array:
         # Create a list to output the lighning arrays for each event
-        lightnings = []
+        lights = []
 
         # For all the events
-        for T in tqdm(tgf):
+        for T in tqdm(tgf,desc='Event'):
             # Calculate the closest ones
-            lightnings.append(get_nearby_lightning(T))
+            lights.append(get_nearby_lightning(T,lightnings,threshold))
 
-        return lightnings
+
+        return array(unique(lights))
     
     # If we are given a lightning
     elif type(tgf) == event:
@@ -35,7 +36,7 @@ def get_nearby_lightning(tgf,lightnings:array,threshold:float=1):
         idx = [i for i,time in enumerate(timestamps) if abs(time - tgf_time) < threshold]
 
         # Get the appropriate subarray
-        return lightnings[idx]
+        return array(lightnings[idx])
 
     # if it is not of type event of array then raise an error
     else:
