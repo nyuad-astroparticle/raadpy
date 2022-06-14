@@ -6,9 +6,11 @@ from core import *
 from __array import array
 from event import *
 from functionality import *
+from cartopy import crs
+
 
 # Visualize a set of TGFs on a map
-def map(tgfs,lightnings:array=None):
+def map(tgfs,lightnings:array=None,size:int=500,long=-90,lat=30):
     gv.extension('bokeh', 'matplotlib');
     
     # If it is a single point, convert it into an array
@@ -18,12 +20,15 @@ def map(tgfs,lightnings:array=None):
 
     # Convert the points to GeoViews points
     points = gv.Points([tgfs.get_coords()])
+    features = gv.Overlay([gv.feature.ocean, gv.feature.land, gv.feature.rivers, gv.feature.lakes, gv.feature.borders, gv.feature.coastline])
+    # gv.tile_sources.OSM
 
     # Create the tgf map
-    tgf_map = (gv.tile_sources.OSM * points).opts(gv.opts.Points(
+    tgf_map = ( features * points).options(gv.opts.Points(
+                projection=crs.Orthographic(central_longitude=long, central_latitude=lat),
                 global_extent=True, 
-                width=1300, 
-                height=900, 
+                width=size, 
+                height=size, 
                 size=7,
                 color='Blue',
                 marker='+'))
@@ -32,10 +37,11 @@ def map(tgfs,lightnings:array=None):
     if lightnings is not None:
         points_lightning = gv.Points([lightnings.get_coords()])
         
-        lightning_map = (gv.tile_sources.OSM * points_lightning).opts(gv.opts.Points(
+        lightning_map = (points_lightning).opts(gv.opts.Points(
+                projection=crs.Orthographic(central_longitude=long, central_latitude=lat),
                 global_extent=True, 
-                width=1300, 
-                height=900, 
+                width=size, 
+                height=size, 
                 size=7,
                 color='red',
                 marker='+'))
