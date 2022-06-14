@@ -132,3 +132,25 @@ def plot_timestamps(data,struct=NONVETO_STRUCT,RANGE=None):
         ax[i].grid(axis='both', which='minor', lw=0.2, ls=':')
 
     return fig,ax
+
+# Plot the timestamp of a data dictionary
+def plot_timestamp(data,struct=NONVETO_STRUCT,RANGE=None):
+    # Create a figure
+    fig     = plt.figure(figsize=(15,4),dpi=200)
+    ax      = fig.add_subplot(111)
+    colors  = cm.get_cmap('Dark2').colors
+
+    length   = len(data['stimestamp'])
+    if RANGE is None: RANGE = (0,length)
+
+    ax.plot   (range(*RANGE),data['stimestamp'][RANGE[0]:RANGE[1]],c='k',lw=0.4)
+    ax.scatter(range(*RANGE),data['stimestamp'][RANGE[0]:RANGE[1]],c='k',marker='o',s=2)
+
+    ax.set_title('Timestamps vs event number')
+    ax.tick_params(axis='both',which='both',direction='in',top=True,right=True)
+    ax.xaxis.set_minor_locator(AutoMinorLocator())
+    ax.yaxis.set_minor_locator(AutoMinorLocator())
+    ax.grid(axis='both', which='major', lw=0.25)
+    ax.grid(axis='both', which='minor', lw=0.2, ls=':')
+
+    return fig,ax
