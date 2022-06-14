@@ -18,7 +18,7 @@ def get_nearby_lightning(tgf,lightnings:array,threshold:float=1):
             # Calculate the closest ones
             lights.append(get_nearby_lightning(T,lightnings,threshold))
 
-
+        lights = [light for sublist in lights for light in sublist]
         return array(unique(lights))
     
     # If we are given a lightning
