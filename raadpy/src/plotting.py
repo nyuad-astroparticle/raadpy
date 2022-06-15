@@ -58,7 +58,7 @@ def plot_buffer(data,title='Plots of Buffer data'):
     colors  = cm.get_cmap('Dark2').colors
 
     # Create a figure
-    fig, axes = plt.subplots((len(keys)+1)//2,2,sharex=True,figsize=(20,4*len(keys)//2),dpi=200)
+    fig, axes = plt.subplots((len(keys)+1)//2,2,sharex=True,figsize=(14,4*len(keys)//2),dpi=100)
     fig.subplots_adjust(top=0.95)
     fig.suptitle(title,fontsize=18)
     axes = axes.flatten()
@@ -94,7 +94,7 @@ def plot_hists(data,struct=NONVETO_STRUCT,bins=600,RANGE=None):
     channels = split_channels(data,struct)
 
     # Create a figure
-    fig,ax  = plt.subplots(len(channels),1,figsize=(15,4*len(channels)),dpi=200,sharex=True)
+    fig,ax  = plt.subplots(len(channels),1,figsize=(14,4*len(channels)),dpi=100,sharex=True)
     ax      = ax.flatten()
     colors  = cm.get_cmap('Dark2').colors
 
@@ -117,7 +117,7 @@ def plot_timestamps(data,struct=NONVETO_STRUCT,RANGE=None):
     channels = split_channels(data,struct)
 
     # Create a figure
-    fig,ax  = plt.subplots(len(channels),1,figsize=(15,4*len(channels)),dpi=200,sharex=True)
+    fig,ax  = plt.subplots(len(channels),1,figsize=(14,4*len(channels)),dpi=100,sharex=True)
     ax      = ax.flatten()
     colors  = cm.get_cmap('Dark2').colors
 
@@ -142,7 +142,7 @@ def plot_timestamps(data,struct=NONVETO_STRUCT,RANGE=None):
 # Plot the timestamp of a data dictionary
 def plot_timestamp(data,struct=NONVETO_STRUCT,RANGE=None):
     # Create a figure
-    fig     = plt.figure(figsize=(15,4),dpi=200)
+    fig     = plt.figure(figsize=(15,4),dpi=100)
     ax      = fig.add_subplot(111)
     colors  = cm.get_cmap('Dark2').colors
 
