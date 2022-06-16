@@ -16,6 +16,7 @@ import requests
 from lxml import html
 from gzip import decompress
 from tqdm.notebook import tqdm
+from cartopy import crs
 
 ##################################################################################
 # Useful Constants

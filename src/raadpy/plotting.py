@@ -6,7 +6,6 @@ from core import *
 from __array import array
 from event import *
 from functionality import *
-from cartopy import crs
 
 
 # Visualize a set of TGFs on a map
