@@ -229,5 +229,8 @@ data = rp.array(filename=path_filename,event_type='locations')
 # Plot the first 10000 events
 path = rp.array(data[:10000])   # Get the first 10000 events
 rp.map(path,long=-80,lat=20)    # Plot them
-
 ```
+
+The output looks like this
+
+![plotly-earth](https://user-images.githubusercontent.com/31447975/174152009-2bc3573a-a54e-4ff5-b393-c9a84b4c441f.png)
