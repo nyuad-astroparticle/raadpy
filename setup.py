@@ -16,7 +16,7 @@ setuptools.setup(
         "Bug Tracker": "https://github.com/nyuad-astroparticle/raadpy/issues",
     },
     classifiers=[
-        "Development Status :: 3 - Alpha"
+        "Development Status :: 3 - Alpha",
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
@@ -29,7 +29,7 @@ setuptools.setup(
         'numpy>=1.22.3',
         'astropy>=5.0.2',
         'pandas>=1.4.1',
-        'bokeh=2.4.2',
+        'bokeh>=2.4.2',
         'geoviews-core>=1.9.5',
         'geopandas>=0.10.2',
         'requests>=2.27.1',
