@@ -16,6 +16,7 @@ This is a python package with the necessary libraries to conduct an analysis on 
 - [Basic Usage](#basic-usage)
   - [Load arrays of events from filenames](#load-arrays-of-events-from-filenames)
   - [Plot events on interactive maps](#plot-events-on-interactive-maps)
+  - [Automatically obtain lighting strikes near events](#automatically-obtain-lighting-strikes-near-events)
 
 
 # Features
@@ -23,7 +24,7 @@ This is a python package with the necessary libraries to conduct an analysis on 
 Here are some of the things you can do with ``raadpy``. Clicking the link will take you to tutorials on how to do any of these tasks.
 
 1. [Load arrays of events from filenames](#load-arrays-of-events-from-filenames): ``raadpy`` can load different types of ecents, from lightning strikes to TGF events, to locations of the satellite, etc. Basically there is built-in support for everything that has longitude, latitude, and a timestamp. These arrays have extra features, such as automatic precision in storing timestamps and easy to use conversion between timestamp formats.
-2. [Plot events on interactive maps](): After loading types of events one can plot them on interactive globes that can be exported as animations, interactive html files, or simply publication quality plots
+2. [Plot events on interactive maps](#plot-events-on-interactive-maps): After loading types of events one can plot them on interactive globes that can be exported as animations, interactive html files, or simply publication quality plots
 3. [Automatically obtain lighting strikes near events](): Given a set of events (such as TGF events) ``raadpy`` can automatically detect nearby lightnings and download them in a python friendly format for computation.
 4. [One-line reading of the Light-1 payload buffers](): the package can be used to decode the binary files from the buffers with 1 line of python code.
 5. [Easy timestamp correction](): We all know what happened with the timestamps and the PPS signal. ``raadpy`` offers a simple way to estimate the timestamp using the order of the data in the payload buffers. 
@@ -234,3 +235,55 @@ rp.map(path,long=-80,lat=20)    # Plot them
 The output looks like this
 
 ![plotly-earth](https://user-images.githubusercontent.com/31447975/174152009-2bc3573a-a54e-4ff5-b393-c9a84b4c441f.png)
+
+But the only difference is that in the python environment this is actually a 3D model that you can move, export into an image, html interactive file, or even an animation!
+
+
+## Automatically obtain lighting strikes near events
+
+To automatically obtain lightning strikes near events one can simply load a set of events, just like the *Fermi* TGFs loaded in the first example, and with a couple more commands the nearest lightnings will show up. This is at the code below
+
+```python
+# Pick a TFG from the data in the first example
+TGF = data[10]
+
+# Find all the ligtnings within 10s of it
+lights = rp.download_lightnings(TGF.timestamp,threshold=10)
+
+# Filter those lightnings to find the ones that are closest in time from the TGF
+near = rp.get_nearby_lightning(TGF,lightnings=lights,threshold=1)
+print(near)
+
+# Finally plot the outcome on the map
+rp.map(TGF,near,name1='TGF',name2='Lightning')
+```
+
+The output should look something like this
+
+```
+Warning! Threshold: 10.000000 s, is too small to be detected by Blitzortung! Using threshold = 6 * 60 s instead.
+Searching for Lightnings between:
+	 start-time: 2021-06-28 01:31:54.440
+	 end-time:   2021-06-28 01:43:54.440
+Found Lightning data at: https://www.blitzortung.org/en/archive_data.php?stations_users=0&selected_numbers=*&end_date=1624838400&end_time=6234&start_date=1624838400&start_time=5514&rawdata_image=0&north=90&west=-180&east=180&south=-90&map=0&width_orig=640&width_result=640&agespan=60&frames=12&delay=100&last_delay=1000&show_result=1
+Data Downloaded Successfully
+    0 Lightning: -79.891498 | Mission: Blitzurtong
+        Timestamp (ISO): 2021-06-28 01:37:54.938
+        Lat:   14.9226 	 Long:  -79.8915
+        Detector_id: Blitz
+        
+    1 Lightning: -90.06834 | Mission: Blitzurtong
+        Timestamp (ISO): 2021-06-28 01:37:53.891
+        Lat:   33.1204 	 Long:  -90.0683
+        Detector_id: Blitz
+        
+    2 Lightning: -90.026664 | Mission: Blitzurtong
+        Timestamp (ISO): 2021-06-28 01:37:53.892
+        Lat:   33.2297 	 Long:  -90.0267
+        Detector_id: Blitz
+...
+```
+
+IMAGE
+
+The warning is not a big deal as it is simply saying that the website the data is downloaded from can only get the lightnings at intervals of 5 minutes. Therefore it is rebsing the search of lightnings to a 5 minute interval between them. Then the nearest lightnings are printed, and finally an interactive map of the lightnings is shown.
