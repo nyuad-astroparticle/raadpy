@@ -234,7 +234,7 @@ rp.map(path,long=-80,lat=20)    # Plot them
 
 The output looks like this
 
-![globe](https://user-images.githubusercontent.com/31447975/174157124-390287c3-5efc-405d-85b5-1e5ab33709a3.gif)
+<img src="https://user-images.githubusercontent.com/31447975/174157124-390287c3-5efc-405d-85b5-1e5ab33709a3.gif" alt="globe" width="400"/>
 
 But the only difference is that in the python environment this is actually a 3D model that you can move, export into an image, html interactive file, or even an animation!
 
