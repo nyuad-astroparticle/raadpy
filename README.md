@@ -234,7 +234,7 @@ rp.map(path,long=-80,lat=20)    # Plot them
 
 The output looks like this
 
-![plotly-earth](https://user-images.githubusercontent.com/31447975/174152009-2bc3573a-a54e-4ff5-b393-c9a84b4c441f.png)
+![globe](https://user-images.githubusercontent.com/31447975/174157124-390287c3-5efc-405d-85b5-1e5ab33709a3.gif)
 
 But the only difference is that in the python environment this is actually a 3D model that you can move, export into an image, html interactive file, or even an animation!
 
@@ -284,6 +284,6 @@ Data Downloaded Successfully
 ...
 ```
 
-IMAGE
+<img width="417" alt="Screen Shot 2022-06-16 at 22 17 01" src="https://user-images.githubusercontent.com/31447975/174157153-4dcc75e3-9dc7-41d5-894c-f62ce6d03255.png">
 
 The warning is not a big deal as it is simply saying that the website the data is downloaded from can only get the lightnings at intervals of 5 minutes. Therefore it is rebsing the search of lightnings to a 5 minute interval between them. Then the nearest lightnings are printed, and finally an interactive map of the lightnings is shown.
