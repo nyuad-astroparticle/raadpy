@@ -341,7 +341,7 @@ So these can be used directly out of the box. An in-depth application of reading
 
 The output of the previous code looks like this
 
-IMAGE
+![orbit](https://user-images.githubusercontent.com/31447975/174181428-3a06ce0a-7481-4e49-b5ca-0b097685c074.png)
 
 > **_NOTE:_**  There are two different ways that the buffers are encoded. If one wants to decode the Buffers for the VETO and NONVETO they must include ``STUPID=True`` as an argument on ``rp.get_dict()`` to specify the decoding method.
 
