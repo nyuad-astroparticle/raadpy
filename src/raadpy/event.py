@@ -2,7 +2,7 @@
 #     RAAD event Class      #
 #############################
 
-from core import *
+from .core import *
 
 # Event Class
 class event: 

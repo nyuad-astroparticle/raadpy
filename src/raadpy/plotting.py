@@ -2,10 +2,10 @@
 #  RAAD Plotting functions  #
 #############################
 
-from core import *
-from __array import array
-from event import *
-from functionality import *
+from .core import *
+from .__array import array
+from .event import *
+from .functionality import *
 
 
 # Visualize a set of TGFs on a map

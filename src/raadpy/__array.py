@@ -2,8 +2,8 @@
 #     RAAD ARRAY class      #
 #############################
 
-from core import *
-from event import *
+from .core import *
+from .event import *
 
 # Since we will be working with tgf arrays so much we will create
 # Another class called TGF Array that has methods to handle an array of TGFs

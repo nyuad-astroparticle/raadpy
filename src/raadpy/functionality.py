@@ -2,9 +2,9 @@
 #     RAAD Functionality    #
 #############################
 
-from core import *
-from __array import array
-from event import *
+from .core import *
+from .__array import array
+from .event import *
 
 # Print the closest lightnings
 def get_nearby_lightning(tgf,lightnings:array,threshold:float=1):
