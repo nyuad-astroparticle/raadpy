@@ -8,46 +8,47 @@ from .event import *
 from .functionality import *
 
 
-# Visualize a set of TGFs on a map
-def map(tgfs,lightnings:array=None,size:int=500,long=-90,lat=30):
-    gv.extension('bokeh', 'matplotlib');
-    
+# Visualize 2 sets of points on a map
+def map(list1,list2:array=None,name1='',name2='',size:int=500,long=-90,lat=30):
     # If it is a single point, convert it into an array
-    if type(tgfs)   == list:        tgfs = array(tgfs)
-    elif type(tgfs) == event:       tgfs = array([tgfs])
-    elif type(tgfs) != array: raise Exception("type %s is not an event object nor a list. Please enter a TGF object"%type(tgfs))
+    if type(list1)   == list:        list1 = array(list1)
+    elif type(list1) == event:       list1 = array([list1])
+    elif type(list1) != array: raise Exception("type %s is not an event object nor a list. Please enter a TGF object"%type(list1))
 
-    # Convert the points to GeoViews points
-    points = gv.Points([tgfs.get_coords()])
-    features = gv.Overlay([gv.feature.ocean, gv.feature.land, gv.feature.rivers, gv.feature.lakes, gv.feature.borders, gv.feature.coastline])
-    # gv.tile_sources.OSM
-
-    # Create the tgf map
-    tgf_map = ( features * points).options(gv.opts.Points(
-                projection=crs.Orthographic(central_longitude=long, central_latitude=lat),
-                global_extent=True, 
-                width=size, 
-                height=size, 
-                size=7,
-                color='Blue',
-                marker='+'))
+    # Create the map
+    fig = go.Figure(data = go.Scattergeo(
+        name=name1,
+        lon=list1.get_coords().T[0],
+        lat=list1.get_coords().T[1],
+        text=list1.get_timestamps(format='iso'),
+        mode = 'markers',
+        marker=dict(
+            size=4,
+            color='blue',
+            symbol = 'circle-dot'
+        ),
+    ))
     
     # if there are lightnings create the lighning map and add it to the TGF map
-    if lightnings is not None:
-        points_lightning = gv.Points([lightnings.get_coords()])
-        
-        lightning_map = (points_lightning).opts(gv.opts.Points(
-                projection=crs.Orthographic(central_longitude=long, central_latitude=lat),
-                global_extent=True, 
-                width=size, 
-                height=size, 
-                size=7,
+    if list2 is not None:
+        fig.add_trace(go.Scattergeo(
+            name=name2,
+            lon=list2.get_coords().T[0],
+            lat=list2.get_coords().T[1],
+            text=list2.get_timestamps(format='iso'),
+            mode = 'markers',
+            marker=dict(
+                size=4,
                 color='red',
-                marker='+'))
+                symbol = 'circle-dot'
+            ),
+        ))
+        
 
-        tgf_map *= lightning_map
+    fig.update_geos(projection_type="orthographic",projection_rotation=dict(lon=long, lat=lat))
+    fig.update_layout(height=size,width=size, margin={"r":0,"t":0,"l":0,"b":0})
 
-    return tgf_map
+    return fig
 
 # Plot the dictionary data obtained from a buffer:
 def plot_buffer(data,title='Plots of Buffer data'):

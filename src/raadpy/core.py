@@ -8,15 +8,14 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib.ticker import AutoMinorLocator
 from matplotlib.colors import to_hex
+import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
-import geoviews as gv
 import datetime as dt
 import requests
 from lxml import html
 from gzip import decompress
 from tqdm.notebook import tqdm
-from cartopy import crs
 
 ##################################################################################
 # Useful Constants
