@@ -210,3 +210,138 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
 
     # Return the dictionary
     return data
+
+# Corrects the timestamp based on orbit rate
+def correct_time_orbit(orbit:dict,TIME:int=20,RANGE=(0,100)):
+    # Some variables
+    total_cnt   = 0     # Stores the total number of events
+    timestamp   = [0]   # New timestamp
+
+    # For each count in the orbit
+    for count in orbit['ratev'][RANGE[0]:RANGE[1]]:
+        # Get the next number of counts
+        count *= TIME
+        if count == 0:
+            timestamp[-1] += TIME
+            continue
+
+        # Linearly distribute the timestamps in between
+        for item in np.linspace(timestamp[-1],timestamp[-1] + TIME,int(count)+1)[1:]: timestamp.append(item)
+        total_cnt += count
+
+    # remove the last element of the timestamp
+    timestamp = timestamp[:-1]
+
+    # Fix the total number of entries we have
+    total_cnt = int(total_cnt)
+
+    return timestamp, total_cnt
+
+# To auditionally correct for the rest of the data we want to so using the stimestamp
+# Correct based on FPGA counter
+def correct_time_FPGA(data:dict,RIZE_TIME:int=1,CONST_TIME:int=1,TMAX:int=10000-1,RANGE=(0,1600),return_endpoints:bool=False):
+    # Find all the ramps
+    # Array to store the beginning each ramp
+    starting = []
+
+    # Find all the starting points
+    for i in range(RANGE[0],RANGE[1]-2):
+        # Get the triplet
+        A = data['stimestamp'][i]
+        B = data['stimestamp'][i+1]
+        
+        # Examine cases
+        if B-A < 0: starting.append(i+1)
+
+    # Array to store the endings of each ramp
+    ending = []
+
+    # Find all the ending points
+    for i in range(RANGE[0],RANGE[1]-2):
+        # Get the triplet
+        A = data['stimestamp'][i]
+        B = data['stimestamp'][i+1]
+        C = data['stimestamp'][i+2]
+
+        # Examine cases
+        if C-B < 0 and B-A != 0: 
+            if B==TMAX: ending.append(i)
+            else: ending.append(i+1)
+        
+        elif A == B and B != TMAX and C-B < 0: ending.append(i+1)
+
+        elif C==B and B==TMAX and B-A > 0: ending.append(i)
+
+    # Add the first point
+    if starting[0] > ending[0]: starting.insert(0,RANGE[0])
+
+    # Create the pairs of start and end points
+    ramps = list(zip(starting,ending))
+
+    # Now that we have all the ramps we assign one second to each ramp and we place the points accordingly
+    curr_second = 0     # Current second
+    timestamp   = []    # Timestamps
+    valid_data  = []    # List to store the data on the rize or fall
+
+    # For each ramp
+    for ramp in ramps:
+        # Take the elements of the ramp and append them to timestamp
+        for i in range(ramp[0],ramp[1]+1):
+            timestamp.append(curr_second+data['stimestamp'][i]*RIZE_TIME/(TMAX+1))
+            valid_data.append(i)
+
+        # Increase the timestamp
+        curr_second+=RIZE_TIME+CONST_TIME
+    
+    if return_endpoints: return timestamp, valid_data, ramps
+    return timestamp, valid_data 
+
+# Now putting everything together
+def correct_time(data:dict,orbit:dict,TIME:int=20,RANGE_ORBIT=(0,100),RIZE_TIME:int=1,CONST_TIME:int=1,TMAX:int=10000-1):
+    # First collect the timstamp based on the orbit data
+    # Some variables
+    total_cnt       = 0                     # Stores the total number of events
+    processed_cnt   = 0                     # Stores the number of events processed
+    current_time    = TIME*RANGE_ORBIT[0]   # The current time 
+    timestamp       = []                    # New timestamp
+    valid_events    = []                    # Stores the indices of the events that can be timestamped
+
+    oops = 0
+    # For each count in the orbit
+    for count in orbit['ratev'][RANGE_ORBIT[0]:RANGE_ORBIT[1]]:
+        # Get the next number of counts
+        count = int(count*TIME)
+        if count == 0:
+            current_time += TIME
+            continue
+
+        # Now filter the events that can be placed in the timestamp and
+        timestamp_veto, valid_data = correct_time_FPGA(data,RIZE_TIME=RIZE_TIME,CONST_TIME=CONST_TIME,TMAX=TMAX,RANGE=(processed_cnt,processed_cnt+count))
+
+        # Add the new data on the timestamp
+        for valid,time in zip(valid_data,timestamp_veto):
+            timestamp.append(current_time + time)
+            valid_events.append(valid)
+            
+        # Update the current time to the last used time
+        if timestamp[-1] - current_time > TIME: 
+            # print('Oops: ',oops,current_time,timestamp[-1])
+            oops+=1
+            current_time = timestamp[-1]
+            # current_time += TIME
+        else:
+            current_time += TIME
+        
+        # Update the total count
+        total_cnt       += len(valid_data)
+        processed_cnt   += count
+
+    print("Oops': ",oops/(RANGE_ORBIT[1]-RANGE_ORBIT[0]))
+
+    # # remove the last element of the timestamp
+    # timestamp = timestamp[:-1]
+
+    # Fix the total number of entries we have
+    total_cnt = int(total_cnt)
+
+    return timestamp, total_cnt, valid_events
