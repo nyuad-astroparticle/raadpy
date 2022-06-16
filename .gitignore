@@ -1,1 +1,3 @@
 src/raadpy/__pycache__/*
+dist/*
+src/raadpy.egg-info/*
