@@ -17,6 +17,8 @@ This is a python package with the necessary libraries to conduct an analysis on 
   - [Load arrays of events from filenames](#load-arrays-of-events-from-filenames)
   - [Plot events on interactive maps](#plot-events-on-interactive-maps)
   - [Automatically obtain lighting strikes near events](#automatically-obtain-lighting-strikes-near-events)
+  - [One-line reading of the Light-1 payload buffers](#one-line-reading-of-the-light-1-payload-buffers)
+  - [Easy timestamp correction](#easy-timestamp-correction)
 
 
 # Features
@@ -25,9 +27,9 @@ Here are some of the things you can do with ``raadpy``. Clicking the link will t
 
 1. [Load arrays of events from filenames](#load-arrays-of-events-from-filenames): ``raadpy`` can load different types of ecents, from lightning strikes to TGF events, to locations of the satellite, etc. Basically there is built-in support for everything that has longitude, latitude, and a timestamp. These arrays have extra features, such as automatic precision in storing timestamps and easy to use conversion between timestamp formats.
 2. [Plot events on interactive maps](#plot-events-on-interactive-maps): After loading types of events one can plot them on interactive globes that can be exported as animations, interactive html files, or simply publication quality plots
-3. [Automatically obtain lighting strikes near events](): Given a set of events (such as TGF events) ``raadpy`` can automatically detect nearby lightnings and download them in a python friendly format for computation.
-4. [One-line reading of the Light-1 payload buffers](): the package can be used to decode the binary files from the buffers with 1 line of python code.
-5. [Easy timestamp correction](): We all know what happened with the timestamps and the PPS signal. ``raadpy`` offers a simple way to estimate the timestamp using the order of the data in the payload buffers. 
+3. [Automatically obtain lighting strikes near events](#automatically-obtain-lighting-strikes-near-events): Given a set of events (such as TGF events) ``raadpy`` can automatically detect nearby lightnings and download them in a python friendly format for computation.
+4. [One-line reading of the Light-1 payload buffers](#one-line-reading-of-the-light-1-payload-buffers): the package can be used to decode the binary files from the buffers with 1 line of python code.
+5. [Easy timestamp correction](#easy-timestamp-correction): We all know what happened with the timestamps and the PPS signal. ``raadpy`` offers a simple way to estimate the timestamp using the order of the data in the payload buffers. 
 
 These are only some things that the library can do, for a full list of the functions and capabilities please look at the [source code](https://github.com/nyuad-astroparticle/raadpy/tree/main/src/raadpy).
 
@@ -287,3 +289,80 @@ Data Downloaded Successfully
 <img width="417" alt="Screen Shot 2022-06-16 at 22 17 01" src="https://user-images.githubusercontent.com/31447975/174157153-4dcc75e3-9dc7-41d5-894c-f62ce6d03255.png">
 
 The warning is not a big deal as it is simply saying that the website the data is downloaded from can only get the lightnings at intervals of 5 minutes. Therefore it is rebsing the search of lightnings to a 5 minute interval between them. Then the nearest lightnings are printed, and finally an interactive map of the lightnings is shown.
+
+## One-line reading of the Light-1 payload buffers
+
+Perhaps one of the most useful features of the ``raadpy`` library is that it can read the buffers of the Light-1 Payload with one-line commands, as well as filter the events accordingly. 
+
+In this example we load the data for the orbit buffer and filter for the PMT signal only, then plot.
+
+```python
+# Import the library
+import raadpy as rp
+
+# Define the filename of the data
+filename = 'PATH-TO-ORBIT/data.dat'  # Change this for your data
+
+# Load the orbit buffer and apply a filter for the PMT data only
+data = rp.get_dict(filename,struct=rp.ORBIT_STRUCT,condition="data['id_bit'] == 1")
+
+# Plot the decoded data
+fig, axes = rp.plot_buffer(data)
+```
+
+Note that the ``get_dict`` function returns a dictionary. Each entry of the dictionary is a numpy array of all the measurements on the file, and the entries of the dictionary are decided by predifined constants, in this case ``rp.ORBIT_STRUCT``. As a resutl, to read a buffer, one has to specify the structure of the file in a dictionary using the ``struct`` argument. The dictionary looks like the example shown below for the orbit buffer.
+
+```python
+ORBIT_STRUCT    = {
+    'timestamp'     : 32,
+    'temperature'   : 8,
+    'rate0'         : 12,
+    'rate1'         : 12,
+    'rate2'         : 12,
+    'rate3'         : 12,
+    'ratev'         : 8,
+    'hv_level'      : 12,
+    'veto_level'    : 12,
+    'id_bit'        : 1,
+    'pps_active'    : 1,
+    'suspended'     : 1,
+    'power_on'      : 1,
+    'scenario'      : 4,
+}
+```
+
+The library however, has three structures predefined these are as follows so that the user doesn't have to do it from scratch:
+
+1. **Orbit Buffer**: ``rp.ORBIT_STRUCT``
+2. **Veto Buffer**: ``rp.VETO_STRUCT``
+3. **Non-Veto Buffer**: ``rp.NONVETO_STRUCT``
+
+So these can be used directly out of the box. An in-depth application of reading all the buffers is shown [here](https://github.com/nyuad-astroparticle/raad/blob/main/Data_Analysis/Decoders/buffer_reader.ipynb).
+
+The output of the previous code looks like this
+
+IMAGE
+
+> **_NOTE:_**  There are two different ways that the buffers are encoded. If one wants to decode the Buffers for the VETO and NONVETO they must include ``STUPID=True`` as an argument on ``rp.get_dict()`` to specify the decoding method.
+
+
+## Easy timestamp correction
+
+As we know the corruption of the timestamp signal poses a major issue for the analysis of the Light-1 data. The algorithm derived to correct the timestamps is included in the library and can be invoked on a set of ``orbit`` data and ``buffer`` data like so
+
+```python
+# Filter events and correct timestamp based on orbit rate and buffer order
+timestamp, total_cnt, valid_events = rp.correct_time(buffer,orbit,TIME,RANGE_ORBIT,RIZE_TIME,CONST_TIME,TMAX)
+```
+
+The arguments to ``rp.correct_time()`` are as follows:
+   
+1. ``buffer``: The decoded buffer that contains the events we are interested in correting their timestamp
+2. ``orbit``: The equivalent orbit buffer
+3. ``TIME``: The Period of the orbit data collection in seconds (normally set to 20s)
+4. ``RANGE_ORBIT``: A tuple of indices that mark the beggining and end of the orbit data we want to look at (e.g. (300,5000))
+5. ``RIZE_TIME``: The time it takes for the FPGA counter to reach saturation
+6. ``CONST_TIME``: The time it the FPGA counter is saturated per cycle
+7. ``TMAX``: The maximum number reached by the FPGA (999 for VETO and 9999 for NONVETO)
+
+An example of using this function to correct the timestamp is shown [here](https://github.com/nyuad-astroparticle/raad/blob/main/Data_Analysis/Timestamp/rate.ipynb).
