@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="raadpy",
-    version="0.0.2",
+    version="0.0.7",
     author="NYUAD Astroparticle Lab (Panos Oikonomou)",
     author_email="po524@nyu.edu",
     description="Python wrapper for data analysis of the RAAD detector",
@@ -29,13 +29,11 @@ setuptools.setup(
         'numpy>=1.22.3',
         'astropy>=5.0.2',
         'pandas>=1.4.1',
-        'bokeh>=2.4.2',
-        'geoviews-core>=1.9.5',
-        'geopandas>=0.10.2',
+        'fitsio>=1.1.7',
         'requests>=2.27.1',
-        'cartopy>=0.20.2',
         'tqdm',
         'lxml>=4.8.0',
         'holoviews>=1.14.8'
+	'plotly>=5.8.2'
     ],
 )
