@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="raadpy",
-    version="0.0.8",
+    version="0.0.10",
     author="NYUAD Astroparticle Lab (Panos Oikonomou)",
     author_email="po524@nyu.edu",
     description="Python wrapper for data analysis of the RAAD detector",
