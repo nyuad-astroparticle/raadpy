@@ -214,28 +214,37 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
 # Corrects the timestamp based on orbit rate
 def correct_time_orbit(orbit:dict,TIME:int=20,RANGE=(0,100)):
     # Some variables
-    total_cnt   = 0     # Stores the total number of events
+    start_cnt   = 0
+    end_cnt     = 0     # Stores the total number of events
     timestamp   = [0]   # New timestamp
+
+    # Start counting events from the correct timestamp
+    if RANGE[0] != 0:
+        for counts in orbit['ratev'][0:RANGE[0]]:
+            start_cnt += int(counts * TIME)
+        
+        # Start counting from this value
+        end_cnt += start_cnt
 
     # For each count in the orbit
     for count in orbit['ratev'][RANGE[0]:RANGE[1]]:
         # Get the next number of counts
-        count *= TIME
+        count = int(count*TIME)
         if count == 0:
             timestamp[-1] += TIME
             continue
 
         # Linearly distribute the timestamps in between
-        for item in np.linspace(timestamp[-1],timestamp[-1] + TIME,int(count)+1)[1:]: timestamp.append(item)
-        total_cnt += count
+        for item in np.linspace(timestamp[-1],timestamp[-1] + TIME, int(count)+1)[1:]: timestamp.append(item)
+        end_cnt += count
 
     # remove the last element of the timestamp
     timestamp = timestamp[:-1]
 
     # Fix the total number of entries we have
-    total_cnt = int(total_cnt)
+    end_cnt = int(end_cnt)
 
-    return timestamp, total_cnt
+    return timestamp, start_cnt, end_cnt
 
 # To auditionally correct for the rest of the data we want to so using the stimestamp
 # Correct based on FPGA counter
@@ -273,7 +282,7 @@ def correct_time_FPGA(data:dict,RIZE_TIME:int=1,CONST_TIME:int=1,TMAX:int=10000-
         elif C==B and B==TMAX and B-A > 0: ending.append(i)
 
     # Add the first point
-    if starting[0] > ending[0]: starting.insert(0,RANGE[0])
+    if (len(starting)!=0 and len(ending)!=0) and starting[0] > ending[0]: starting.insert(0,RANGE[0])
 
     # Create the pairs of start and end points
     ramps = list(zip(starting,ending))
@@ -293,8 +302,8 @@ def correct_time_FPGA(data:dict,RIZE_TIME:int=1,CONST_TIME:int=1,TMAX:int=10000-
         # Increase the timestamp
         curr_second+=RIZE_TIME+CONST_TIME
     
-    if return_endpoints: return timestamp, valid_data, ramps
-    return timestamp, valid_data 
+    if return_endpoints: return timestamp, valid_data, np.array(ramps)
+    return timestamp, valid_data
 
 # Now putting everything together
 def correct_time(data:dict,orbit:dict,TIME:int=20,RANGE_ORBIT=(0,100),RIZE_TIME:int=1,CONST_TIME:int=1,TMAX:int=10000-1):
@@ -306,6 +315,12 @@ def correct_time(data:dict,orbit:dict,TIME:int=20,RANGE_ORBIT=(0,100),RIZE_TIME:
     timestamp       = []                    # New timestamp
     valid_events    = []                    # Stores the indices of the events that can be timestamped
 
+    # Start counting events from the correct timestamp
+    if RANGE_ORBIT[0] != 0:
+        for counts in orbit['ratev'][0:RANGE_ORBIT[0]]:
+            processed_cnt += int(counts * TIME)
+
+    # Error flag
     oops = 0
     # For each count in the orbit
     for count in orbit['ratev'][RANGE_ORBIT[0]:RANGE_ORBIT[1]]:
