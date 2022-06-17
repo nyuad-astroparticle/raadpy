@@ -1,5 +1,27 @@
 # raadpy | RAAD Data Analysis Framework
 
+<p align="center">
+	<img src="https://img.shields.io/badge/raadpy-Active-green?style=for-the-badge" alt="raadpy">
+</p>
+
+<p align="center">
+	<img src="https://img.shields.io/pypi/format/raadpy?style=flat-square" alt="Format">
+	<img src="https://img.shields.io/pypi/v/raadpy?style=flat-square" alt="PyPI Release">
+	<img src="https://img.shields.io/pypi/pyversions/raadpy?style=flat-square" alt="PyPI - Python Version">
+	<img src="https://img.shields.io/github/v/release/nyuad-astroparticle/raadpy?style=flat-square" alt="GitHub release (latest SemVer)">
+	<img src="https://img.shields.io/github/license/nyuad-astroparticle/raadpy?style=flat-square" alt="GitHub">
+</p>
+
+<!-- 
+![raadpy](https://img.shields.io/badge/raadpy-Active-green?style=for-the-badge)
+
+![Format](https://img.shields.io/pypi/format/raadpy?style=flat-square) 
+![PyPI Release](https://img.shields.io/pypi/v/raadpy?style=flat-square)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/raadpy?style=flat-square)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/nyuad-astroparticle/raadpy?style=flat-square)
+![GitHub](https://img.shields.io/github/license/nyuad-astroparticle/raadpy?style=flat-square)
+ -->
+
 This is a python package with the necessary libraries to conduct an analysis on the raw data obtained from the RAAD detector onboard the Light-1 cubesat mission.
 
 # Table of contents
