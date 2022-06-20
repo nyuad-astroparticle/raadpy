@@ -303,7 +303,7 @@ def correct_time_orbit(orbit:dict,TIME:int=20,RANGE=(0,100)):
 
 # To auditionally correct for the rest of the data we want to so using the stimestamp
 # Correct based on FPGA counter
-def correct_time_FPGA(data:dict,RIZE_TIME:int=1,CONST_TIME:int=1,TMAX:int=10000-1,RANGE=(0,1600),return_endpoints:bool=False):
+def correct_time_FPGA(data:dict,RIZE_TIME:float=1,CONST_TIME:float=1,TMAX:int=10000-1,RANGE=(0,1600),return_endpoints:bool=False):
     """Correct the time on the VETO or NONVETO buffer according to FPGA counter reconstruction
 
     Args:
@@ -376,7 +376,7 @@ def correct_time_FPGA(data:dict,RIZE_TIME:int=1,CONST_TIME:int=1,TMAX:int=10000-
     return timestamp, valid_data
 
 # Now putting everything together
-def correct_time(data:dict,orbit:dict,TIME:int=20,RANGE_ORBIT=(0,100),RIZE_TIME:int=1,CONST_TIME:int=1,TMAX:int=10000-1):
+def correct_time(data:dict,orbit:dict,TIME:int=20,RANGE_ORBIT=(0,100),RIZE_TIME:float=1,CONST_TIME:float=1,TMAX:int=10000-1):
     """Correct time using both FPGA and Orbit corrections simultaneously and generate a timestamp for the valid_data
 
     Args:
