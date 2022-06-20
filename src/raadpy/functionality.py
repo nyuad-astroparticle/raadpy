@@ -8,6 +8,17 @@ from .event import *
 
 # Print the closest lightnings
 def get_nearby_lightning(tgf,lightnings:array,threshold:float=1):
+    """Given an array, or a single event object filter a raadpy array that contains lightnings within a threshold.
+
+    Args:
+        tgf (_type_): A single Event object, or an array of events of which to find the near lightnings
+        lightnings (array): Raadpy array of lightnings of which to filter
+        threshold (float, optional): Threshold in time to filter the lightings. Defaults to 1.
+
+    Returns:
+        lightnings (array): A filtered array of lightnings
+    """
+
     # If we are given an array of TGFs
     if type(tgf) == array:
         # Create a list to output the lighning arrays for each event
@@ -44,6 +55,16 @@ def get_nearby_lightning(tgf,lightnings:array,threshold:float=1):
 
 # Give it two astropy Time objects and get back a raadpy list for the lighnings
 def download_lightnings_range(start_Time:Time, end_Time:Time,VERBOSE=True):
+    """Download lightnings in a given time range from blitzortung.com
+
+    Args:
+        start_Time (Time): The starting time of the events
+        end_Time (Time): The ending time of the events
+        VERBOSE (bool, optional): Print description if needed. Defaults to True.
+
+    Returns:
+        lightnings (array): Ligtnings in time range
+    """
     # Get the strings for the timestamps
     start_time  = get_epoch_time(start_Time)
     start_date  = get_epoch_date(start_Time)
@@ -118,6 +139,16 @@ def download_lightnings_range(start_Time:Time, end_Time:Time,VERBOSE=True):
 
 # Give a timestamp and a threshold, and then the code will download close (in time) lightnings
 def download_lightnings(event_time:Time,threshold:float = 6*60,VERBOSE=True):
+    """Given an event time download lightings around it for a given time threshold
+
+    Args:
+        event_time (Time): Timestamp of the event
+        threshold (float, optional): Seconds around the event time to look for lightnings. Defaults to 6*60.
+        VERBOSE (bool, optional): Print a description of the process. Defaults to True.
+
+    Returns:
+        lightnings (array): The array of lightnings downloaded.
+    """
     # Check if the threhsold is within the range
     if threshold <= 5*60:
         print(bcolors.WARNING+"Warning!"+bcolors.ENDC+" Threshold: %f s, is too small to be detected by Blitzortung! Using threshold = 6 * 60 s instead."%(threshold))
@@ -176,6 +207,18 @@ def get_bits(start:int,length:int,string,STUPID:bool=False):
 
 # Create a dictionary of orbits from a file
 def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID:bool=False):
+    """Decode the data of a buffer with a given structure into a dictionary
+
+    Args:
+        filename (str): The filename where the buffer is
+        struct (_type_, optional): The structure of the bits of the buffer represented in a dictionary. Defaults to ORBIT_STRUCT.
+        condition (str, optional): If you want you can add a condition such as data['id_bit']==1 to filter the data as they're being loaded. Defaults to None.
+        MAX (_type_, optional): Maximum number of lines to read, if None then read all of them. Defaults to None.
+        STUPID (bool, optional): Should be set to True if you are reading VETO and NONVETO. Defaults to False.
+
+    Returns:
+        data (dict): Dictionary with the decoded arrays of measurements
+    """
     # Read the raw data
     file = open(filename,'rb')  # Open the file in read binary mode
     raw = file.read()           # Read all the file
@@ -213,6 +256,18 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
 
 # Corrects the timestamp based on orbit rate
 def correct_time_orbit(orbit:dict,TIME:int=20,RANGE=(0,100)):
+    """Corrects the time of events based on the data of the orbit buffer
+
+    Args:
+        orbit (dict): The orbit buffer
+        TIME (int, optional): The period of the rate measurements. Defaults to 20.
+        RANGE (tuple, optional): a range of indices to translate of the orbit buffer. Defaults to (0,100).
+
+    Returns:
+        timestamp (np.array): Array with the corrected timestamps
+        start_cnt (int): Starting index on the corresponding buffer
+        end_cnt (int): Ending index on the corresponding buffer
+    """
     # Some variables
     start_cnt   = 0
     end_cnt     = 0     # Stores the total number of events
@@ -249,6 +304,21 @@ def correct_time_orbit(orbit:dict,TIME:int=20,RANGE=(0,100)):
 # To auditionally correct for the rest of the data we want to so using the stimestamp
 # Correct based on FPGA counter
 def correct_time_FPGA(data:dict,RIZE_TIME:int=1,CONST_TIME:int=1,TMAX:int=10000-1,RANGE=(0,1600),return_endpoints:bool=False):
+    """Correct the time on the VETO or NONVETO buffer according to FPGA counter reconstruction
+
+    Args:
+        data (dict): The buffer data
+        RIZE_TIME (int, optional): Time in seconds it takes for the FPGA to rize. Defaults to 1.
+        CONST_TIME (int, optional): Time in seconds it takes for the FPGA to reset after it has risen to the saturation value. Defaults to 1.
+        TMAX (int, optional): The staturation value of the FPGA. Defaults to 10000-1.
+        RANGE (tuple, optional): The indices on the buffer to correct within. Defaults to (0,1600).
+        return_endpoints (bool, optional): Return the start and end indices of the selected events. Defaults to False.
+
+    Returns:
+        timestamp (np.array): Array with the corrected timstamp for each valid entry
+        valid_entries (list): Indices of the valid entries within the dataset (AKA. The nonsaturated entries)
+        ramps (np.array): Array of tuples each with the start and end of a rising segment
+    """
     # Find all the ramps
     # Array to store the beginning each ramp
     starting = []
@@ -307,6 +377,22 @@ def correct_time_FPGA(data:dict,RIZE_TIME:int=1,CONST_TIME:int=1,TMAX:int=10000-
 
 # Now putting everything together
 def correct_time(data:dict,orbit:dict,TIME:int=20,RANGE_ORBIT=(0,100),RIZE_TIME:int=1,CONST_TIME:int=1,TMAX:int=10000-1):
+    """Correct time using both FPGA and Orbit corrections simultaneously and generate a timestamp for the valid_data
+
+    Args:
+        data (dict): The data buffer to correct the timestamp of
+        orbit (dict): The corresponding orbit buffer
+        TIME (int, optional): Period of the orbit buffer measurments. Defaults to 20.
+        RANGE_ORBIT (tuple, optional): The range of indices in the orbit buffer to translate. Defaults to (0,100).
+        RIZE_TIME (int, optional): The time it takes for the FPGA counter to saturate. Defaults to 1.
+        CONST_TIME (int, optional): The time the FPGA counter spends saturated. Defaults to 1.
+        TMAX (int, optional): The maximum value of the FPGA counter. Defaults to 10000-1.
+
+    Returns:
+        timestamp (np.array): New timestamp values
+        total_cnt (int): Number of datapoints translated
+        valid_events (list): list of indices of valid events
+    """
     # First collect the timstamp based on the orbit data
     # Some variables
     total_cnt       = 0                     # Stores the total number of events
