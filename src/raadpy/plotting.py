@@ -10,6 +10,20 @@ from .functionality import *
 
 # Visualize 2 sets of points on a map
 def map(list1,list2:array=None,name1='',name2='',size:int=500,long=-90,lat=30):
+    """Plot up to two lists of raadpy events on an interactive globe
+
+    Args:
+        list1 (_type_): Either a single event object or a raadpy array of events
+        list2 (array, optional): A raadpy array of events. If None it will only plot the first argument. Defaults to None.
+        name1 (str, optional): Label for the first list. Defaults to ''.
+        name2 (str, optional): Label for the second list. Defaults to ''.
+        size (int, optional): Figure size in pixels. Defaults to 500.
+        long (int, optional): Longitude of the center of the map. Defaults to -90.
+        lat (int, optional): Latitude of the center of them. Defaults to 30.
+
+    Returns:
+        fig (plotly): Plotly interactive figure
+    """
     # If it is a single point, convert it into an array
     if type(list1)   == list:        list1 = array(list1)
     elif type(list1) == event:       list1 = array([list1])
@@ -52,6 +66,15 @@ def map(list1,list2:array=None,name1='',name2='',size:int=500,long=-90,lat=30):
 
 # Plot the dictionary data obtained from a buffer:
 def plot_buffer(data,title='Plots of Buffer data'):
+    """Plot buffer automatically
+
+    Args:
+        data (_type_): Buffer that we want to plot
+        title (str, optional): Title of the plot. Defaults to 'Plots of Buffer data'.
+
+    Returns:
+        fig,ax: Matplotlib figure and axis
+    """
     # Get the keys and event numbers
     keys    = list(data.keys())
     events  = range(len(data[keys[0]]))
@@ -80,6 +103,15 @@ def plot_buffer(data,title='Plots of Buffer data'):
 
 # Split the dataset in channels
 def split_channels(data,struct=NONVETO_STRUCT):
+    """Split the data based on their channels
+
+    Args:
+        data (_type_): Buffer data
+        struct (_type_, optional): Structure to decode them as. Defaults to NONVETO_STRUCT.
+
+    Returns:
+        channels: List of lists for all the channels
+    """
     # Split the data based on their channels
     channels    = []
     for channel in np.unique(data['channel']):
@@ -90,6 +122,17 @@ def split_channels(data,struct=NONVETO_STRUCT):
 
 # Plot histograms of the energies
 def plot_hists(data,struct=NONVETO_STRUCT,bins=600,RANGE=None):
+    """Plot histograms of the charge (ADC counts) given decoded data from one of the dictionaries
+
+    Args:
+        data (dict): The decoded data
+        struct (dict, optional): The structure dictionaryof the data in bits. Defaults to NONVETO_STRUCT.
+        bins (int, optional): Number of bins for the histograms. Defaults to 600.
+        RANGE (tuple, optional): Tuple of floats for the x-axis range. Defaults to None.
+
+    Returns:
+        fig,ax: matplotlib figure descriptions
+    """
     # Get the splitted channels
     channels = split_channels(data,struct)
 
@@ -113,6 +156,16 @@ def plot_hists(data,struct=NONVETO_STRUCT,bins=600,RANGE=None):
 
 # Plots the timestamps of the measurements by channel
 def plot_timestamps(data,struct=NONVETO_STRUCT,RANGE=None):
+    """Plot timestamps of the measurements by channel number
+
+    Args:
+        data (_type_): Decoded dictionary of the data buffers
+        struct (_type_, optional): The stucture dictionary of the data in bits. Defaults to NONVETO_STRUCT.
+        RANGE (_type_, optional): Tuple of integets to define the index range of the plots . Defaults to None.
+
+    Returns:
+        fig,ax: matplotlib figure descriptions
+    """
     # Get the splitted channels
     channels = split_channels(data,struct)
 
@@ -141,6 +194,16 @@ def plot_timestamps(data,struct=NONVETO_STRUCT,RANGE=None):
 
 # Plot the timestamp of a data dictionary
 def plot_timestamp(data,struct=NONVETO_STRUCT,RANGE=None):
+    """Plot the timstamp of a buffer
+
+    Args:
+        data (_type_): Decoded dictionary of the data buffers
+        struct (_type_, optional): The structure of the dictionary of the data in bits. Defaults to NONVETO_STRUCT.
+        RANGE (_type_, optional): Index range of the plot. Defaults to None.
+
+    Returns:
+        fig,ax: matplotlib figure descriptions
+    """
     # Create a figure
     fig     = plt.figure(figsize=(15,4),dpi=100)
     ax      = fig.add_subplot(111)
