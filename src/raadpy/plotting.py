@@ -3,7 +3,7 @@
 #############################
 
 from .core import *
-from .__array import array
+from .rparray import array
 from .event import *
 from .functionality import *
 
