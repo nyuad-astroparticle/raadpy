@@ -12,7 +12,13 @@ class array:
 
     # Constructor
     def __init__(self,events=None,filename='',event_type=event_types[0]):
-        
+        """Array of events
+
+        Args:
+            events (_type_, optional): A list of event objects. If None the array is initialized with other methods. Defaults to None.
+            filename (str, optional): Filenmae from which to draw the events from. If '' the array is initialized with other methods. Defaults to ''.
+            event_type (_type_, optional): What type of event is it? Certain keywords can be used to define special events for imports ('fermi','light-1','lightning','location'). Defaults to event_types[0].
+        """
         # Add the tgfs as an array
         self.events = [] if events is None else events
 
@@ -23,6 +29,11 @@ class array:
 
     # Method to append
     def append(self,ev):
+        """Appends an event to the array
+
+        Args:
+            ev (event): the event to append
+        """
         self.events.append(ev)
     
     # Method to convert this into a string
@@ -60,6 +71,11 @@ class array:
     
     # Get longitude and latitude as numpy arrays
     def get_coords(self):
+        """Get a numpy array of the coordinates of the events in the list
+
+        Returns:
+            Coordinates (np.array): List of tuples of type (long,lat) for all the events in the array
+        """
         coords = []
         for event in self.events:
             coords.append([event.longitude,event.latitude])
@@ -68,6 +84,14 @@ class array:
 
     # Get array of timestamps
     def get_timestamps(self,format=None):
+        """Get the timestamps of all of the events in the array
+
+        Args:
+            format (str, optional): The time format that you want to export the events to. Defaults to None.
+
+        Returns:
+            timestamps (np.array): The timestamps of all of the events in the predefined format
+        """
         times = []
         for event in self.events:
             if format is None:
@@ -85,6 +109,15 @@ class array:
 
     # Generate an array of tgfs from a file
     def fermi_from_file(self,filename,append:bool=True):
+        """Load events from a file from the FERMI data
+
+        Args:
+            filename (str): The filename of the file to load
+            append (bool, optional): If True then appends them to the current array, if False it returns an additional array. Defaults to True.
+
+        Returns:
+            events (array) : If append is False then return the array of events
+        """
         # Load the TGF data
         data = pd.read_csv(filename).to_numpy()
         tgfs = []                                   # List to store the TGFs
@@ -109,6 +142,15 @@ class array:
 
     # Generate an array of lightnings from a file
     def lightning_from_file(self,filename:str,append:bool=True):
+        """Load events from a file from the lightnings data
+
+        Args:
+            filename (str): The filename of the file to load
+            append (bool, optional): If True then appends them to the current array, if False it returns an additional array. Defaults to True.
+
+        Returns:
+            events (array) : If append is False then return the array of events
+        """
         # Load the lightning data
         data    = pd.read_csv(filename).to_numpy()
         lights  = []                                   # List to store the ligtnigs
@@ -133,6 +175,15 @@ class array:
 
     # Generate an array of cubesat locations
     def location_from_file(self,filename:str,append:bool=True):
+        """Load events from a file from the cubesat locations
+
+        Args:
+            filename (str): The filename of the file to load
+            append (bool, optional): If True then appends them to the current array, if False it returns an additional array. Defaults to True.
+
+        Returns:
+            events (array) : If append is False then return the array of events
+        """
         # Load the location data
         data    = pd.read_csv(filename).to_numpy()
         locs    = []
