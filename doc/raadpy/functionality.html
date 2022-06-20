@@ -1,0 +1,1163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>raadpy.functionality API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>raadpy.functionality</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#############################
+#     RAAD Functionality    #
+#############################
+
+from .core import *
+from .rparray import array
+from .event import *
+
+# Print the closest lightnings
+def get_nearby_lightning(tgf,lightnings:array,threshold:float=1):
+    &#34;&#34;&#34;Given an array, or a single event object filter a raadpy array that contains lightnings within a threshold.
+
+    Args:
+        tgf (_type_): A single Event object, or an array of events of which to find the near lightnings
+        lightnings (array): Raadpy array of lightnings of which to filter
+        threshold (float, optional): Threshold in time to filter the lightings. Defaults to 1.
+
+    Returns:
+        lightnings (array): A filtered array of lightnings
+    &#34;&#34;&#34;
+
+    # If we are given an array of TGFs
+    if type(tgf) == array:
+        # Create a list to output the lighning arrays for each event
+        lights = []
+
+        # For all the events
+        for T in tqdm(tgf,desc=&#39;Event&#39;):
+            # Calculate the closest ones
+            lights.append(get_nearby_lightning(T,lightnings,threshold))
+
+        lights = [light for sublist in lights for light in sublist]
+        return array(unique(lights))
+    
+    # If we are given a lightning
+    elif type(tgf) == event:
+        # The threshold is the maximum time to look for lightnings from the tgf
+        threshold = TimeDelta(threshold,format=&#39;sec&#39;)
+
+        # Get the TGF&#39;s timestamp
+        tgf_time = tgf.timestamp
+
+        # Get all the timestamps
+        timestamps = lightnings.get_timestamps()
+
+        # find the indices where the timedifference is less than threshold
+        idx = [i for i,time in enumerate(timestamps) if abs(time - tgf_time) &lt; threshold]
+
+        # Get the appropriate subarray
+        return array(lightnings[idx])
+
+    # if it is not of type event of array then raise an error
+    else:
+        raise Exception(&#34;Type %s is not of type event, or array. Please use an object of type event or array for the tgf&#34;%type(tgf))
+
+# Give it two astropy Time objects and get back a raadpy list for the lighnings
+def download_lightnings_range(start_Time:Time, end_Time:Time,VERBOSE=True):
+    &#34;&#34;&#34;Download lightnings in a given time range from blitzortung.com
+
+    Args:
+        start_Time (Time): The starting time of the events
+        end_Time (Time): The ending time of the events
+        VERBOSE (bool, optional): Print description if needed. Defaults to True.
+
+    Returns:
+        lightnings (array): Ligtnings in time range
+    &#34;&#34;&#34;
+    # Get the strings for the timestamps
+    start_time  = get_epoch_time(start_Time)
+    start_date  = get_epoch_date(start_Time)
+
+    end_time    = get_epoch_time(end_Time)
+    end_date    = get_epoch_date(end_Time)
+
+    
+    # Here are our login info
+    payload = {
+        &#34;login_username&#34; : &#34;nyuad_ls&#34;,
+        &#34;login_password&#34; : &#34;RAADsat3U&#34;,
+        &#34;login_try&#34; : &#34;1&#34;
+    }
+
+    # This will keep our session alive while we log in
+    session = requests.Session()
+
+    # Have our session logged in
+    url_login = &#39;https://www.blitzortung.org/en/login.php&#39;
+    url = &#39;/en/login.php&#39;
+    # result = session.get(url_login)
+    # tree = html.fromstring(result.text)f
+    result = session.post(
+        url_login,
+        data = payload
+    )
+
+
+    # Request the archived data
+    url_archive = &#34;https://www.blitzortung.org/en/archive_data.php?stations_users=0&amp;selected_numbers=*&amp;end_date=&#34;+end_date+&#34;&amp;end_time=&#34;+end_time+&#34;&amp;start_date=&#34;+start_date+&#34;&amp;start_time=&#34;+start_time+&#34;&amp;rawdata_image=0&amp;north=90&amp;west=-180&amp;east=180&amp;south=-90&amp;map=0&amp;width_orig=640&amp;width_result=640&amp;agespan=60&amp;frames=12&amp;delay=100&amp;last_delay=1000&amp;show_result=1&#34;
+    
+    # Get the data website
+    result = session.get(url_archive)
+    tree = html.fromstring(result.content)
+
+    # Find the iframe url
+    src = &#39;https://www.blitzortung.org/&#39; + np.array(tree.xpath(&#34;/html/body//iframe/@src&#34;))[0]
+
+    # request that url
+    result = session.get(src)
+    tree = html.fromstring(result.content)
+
+    # Grab the file url:
+    a = np.array(tree.xpath(&#34;/html/body//a/@href&#34;))
+    file_url = &#39;https://www.blitzortung.org/&#39; + a[[&#39;archive&#39; in url and &#39;raw.txt&#39; in url for url in a]][0]
+
+    if VERBOSE: print(bcolors.OKCYAN+&#39;Found Lightning data at: &#39;+bcolors.ENDC+url_archive)
+
+    # Get the raw file and parse it
+    raw  = decompress(requests.get(file_url).content).decode(&#39;utf-8&#39;).split(&#39;\n&#39;)
+
+    if VERBOSE: print(bcolors.OKCYAN+&#39;Data Downloaded Successfully&#39;+bcolors.ENDC)
+    
+    # Create the array
+    lights  = []
+    # For all the lightnings in the loaded dataset
+    for data in raw[1:-1]:
+        # Create an event and append it to the array
+        datum = data.split(&#39;,&#39;)
+        lights.append(event(timestamp   = float(datum[0]) * 1e-9,
+                            longitude   = in_range(float(datum[2])), 
+                            latitude    = float(datum[1]),
+                            detector_id = &#39;Blitz&#39;,
+                            event_id    = datum[2],
+                            mission     = &#39;Blitzurtong&#39;,
+                            time_format = &#39;unix&#39;,
+                            event_type  = &#39;Lightning&#39;))
+ 
+    # Return the numpy array for the file
+    return array(lights)
+
+# Give a timestamp and a threshold, and then the code will download close (in time) lightnings
+def download_lightnings(event_time:Time,threshold:float = 6*60,VERBOSE=True):
+    &#34;&#34;&#34;Given an event time download lightings around it for a given time threshold
+
+    Args:
+        event_time (Time): Timestamp of the event
+        threshold (float, optional): Seconds around the event time to look for lightnings. Defaults to 6*60.
+        VERBOSE (bool, optional): Print a description of the process. Defaults to True.
+
+    Returns:
+        lightnings (array): The array of lightnings downloaded.
+    &#34;&#34;&#34;
+    # Check if the threhsold is within the range
+    if threshold &lt;= 5*60:
+        print(bcolors.WARNING+&#34;Warning!&#34;+bcolors.ENDC+&#34; Threshold: %f s, is too small to be detected by Blitzortung! Using threshold = 6 * 60 s instead.&#34;%(threshold))
+        threshold = 6*60
+
+    # Get the timedelta object that corresponds to the threshold
+    threshold = TimeDelta(threshold,format=&#39;sec&#39;)
+
+    if VERBOSE:
+        print(bcolors.OKCYAN+&#39;Searching for Lightnings between:&#39;+bcolors.ENDC+&#39;\n\t start-time: %s\n\t end-time:   %s&#39;
+                %((event_time-threshold).to_value(&#39;iso&#39;),(event_time+threshold).to_value(&#39;iso&#39;)))
+
+    return download_lightnings_range(event_time-threshold,event_time+threshold,VERBOSE=VERBOSE)
+
+# We create a function that given a bytestring extracts the ith bit:
+def get_bit(i:int,string):
+    &#39;&#39;&#39;
+    Gets the ith bit from a python bytestring from the left
+
+    Input:
+    i: int --&gt; index (frist bit is 0)
+    string --&gt; the bytestring 
+    &#39;&#39;&#39;
+
+    # Which byte does the bit lie into?
+    byte_idx    = i//BYTE               # Integer division
+    assert(byte_idx &lt; len(string))      # Assert that the index is in the bytestring
+    byte        = string[byte_idx]      # Get the appropriate byte
+    bit_idx     = i - byte_idx * BYTE   # Get the index within the byte
+
+    # Get the ith bit
+    return (byte &amp; (1 &lt;&lt; (BYTE - bit_idx - 1))) &gt;&gt; (BYTE - bit_idx - 1)
+
+# Helper function to give the index of the nth bit in a Bytestring
+def get_bit_idx(n:int):
+    return BYTE - 1 - n%BYTE + (n//BYTE) * BYTE
+
+# Get range of bits
+def get_bits(start:int,length:int,string,STUPID:bool=False):
+    &#39;&#39;&#39;
+    Gets length bits after and including index start
+
+    Input:
+    start:  int --&gt; Start index included
+    length: int --&gt; Length of bits to obtain
+    string      --&gt; The bytestring
+    &#39;&#39;&#39;
+
+    # Collect the bytes and add them up
+    digit_sum = 0
+    for i in range(start,start+length):
+        bit = get_bit(get_bit_idx(i),string) if not STUPID else get_bit(2*start+length -i-1,string)
+        digit_sum += 2**(i-start) * bit
+
+    return digit_sum
+
+# Create a dictionary of orbits from a file
+def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID:bool=False):
+    &#34;&#34;&#34;Decode the data of a buffer with a given structure into a dictionary
+
+    Args:
+        filename (str): The filename where the buffer is
+        struct (_type_, optional): The structure of the bits of the buffer represented in a dictionary. Defaults to ORBIT_STRUCT.
+        condition (str, optional): If you want you can add a condition such as data[&#39;id_bit&#39;]==1 to filter the data as they&#39;re being loaded. Defaults to None.
+        MAX (_type_, optional): Maximum number of lines to read, if None then read all of them. Defaults to None.
+        STUPID (bool, optional): Should be set to True if you are reading VETO and NONVETO. Defaults to False.
+
+    Returns:
+        data (dict): Dictionary with the decoded arrays of measurements
+    &#34;&#34;&#34;
+    # Read the raw data
+    file = open(filename,&#39;rb&#39;)  # Open the file in read binary mode
+    raw = file.read()           # Read all the file
+    file.close()                # Close the file
+
+    # Initialize the dictionary
+    data = dict(zip(struct.keys(),[np.array(list()) for _ in range(len(ORBIT_STRUCT.keys()))]))
+
+    # Number of bytes per line
+    bytes_per_line  = sum(list(struct.values()))//8
+    length          = len(raw)//bytes_per_line
+    if MAX is None: MAX = length
+
+    for i in tqdm(range(MAX),desc=&#39;Line: &#39;):
+        # Get the required number of bytes to an event
+        event = raw[i*bytes_per_line:(i+1)*bytes_per_line]
+
+        # Keep track of the number of bits read
+        bits_read = 0
+
+        # If not create an orbit
+        for name,length in struct.items():
+            data[name] = np.append(data[name],[get_bits(bits_read,length,event,STUPID=STUPID)])
+            bits_read += length
+    
+    if condition is not None:
+        try:
+            idx     = np.where(eval(condition))[0]
+            data    = dict(zip(struct.keys(),[arr[idx] for arr in data.values()]))
+        except:
+            print(bcolors.WARNING+&#39;WARNING!&#39; + bcolors.ENDC +&#39; Condition &#39; + condition + &#39; is not valid for the dataset you requested. The data returned will not be filtered&#39;)
+
+    # Return the dictionary
+    return data
+
+# Corrects the timestamp based on orbit rate
+def correct_time_orbit(orbit:dict,TIME:int=20,RANGE=(0,100)):
+    &#34;&#34;&#34;Corrects the time of events based on the data of the orbit buffer
+
+    Args:
+        orbit (dict): The orbit buffer
+        TIME (int, optional): The period of the rate measurements. Defaults to 20.
+        RANGE (tuple, optional): a range of indices to translate of the orbit buffer. Defaults to (0,100).
+
+    Returns:
+        timestamp (np.array): Array with the corrected timestamps
+        start_cnt (int): Starting index on the corresponding buffer
+        end_cnt (int): Ending index on the corresponding buffer
+    &#34;&#34;&#34;
+    # Some variables
+    start_cnt   = 0
+    end_cnt     = 0     # Stores the total number of events
+    timestamp   = [0]   # New timestamp
+
+    # Start counting events from the correct timestamp
+    if RANGE[0] != 0:
+        for counts in orbit[&#39;ratev&#39;][0:RANGE[0]]:
+            start_cnt += int(counts * TIME)
+        
+        # Start counting from this value
+        end_cnt += start_cnt
+
+    # For each count in the orbit
+    for count in orbit[&#39;ratev&#39;][RANGE[0]:RANGE[1]]:
+        # Get the next number of counts
+        count = int(count*TIME)
+        if count == 0:
+            timestamp[-1] += TIME
+            continue
+
+        # Linearly distribute the timestamps in between
+        for item in np.linspace(timestamp[-1],timestamp[-1] + TIME, int(count)+1)[1:]: timestamp.append(item)
+        end_cnt += count
+
+    # remove the last element of the timestamp
+    timestamp = timestamp[:-1]
+
+    # Fix the total number of entries we have
+    end_cnt = int(end_cnt)
+
+    return timestamp, start_cnt, end_cnt
+
+# To auditionally correct for the rest of the data we want to so using the stimestamp
+# Correct based on FPGA counter
+def correct_time_FPGA(data:dict,RIZE_TIME:float=1,CONST_TIME:float=1,TMAX:int=10000-1,RANGE=(0,1600),return_endpoints:bool=False):
+    &#34;&#34;&#34;Correct the time on the VETO or NONVETO buffer according to FPGA counter reconstruction
+
+    Args:
+        data (dict): The buffer data
+        RIZE_TIME (int, optional): Time in seconds it takes for the FPGA to rize. Defaults to 1.
+        CONST_TIME (int, optional): Time in seconds it takes for the FPGA to reset after it has risen to the saturation value. Defaults to 1.
+        TMAX (int, optional): The staturation value of the FPGA. Defaults to 10000-1.
+        RANGE (tuple, optional): The indices on the buffer to correct within. Defaults to (0,1600).
+        return_endpoints (bool, optional): Return the start and end indices of the selected events. Defaults to False.
+
+    Returns:
+        timestamp (np.array): Array with the corrected timstamp for each valid entry
+        valid_entries (list): Indices of the valid entries within the dataset (AKA. The nonsaturated entries)
+        ramps (np.array): Array of tuples each with the start and end of a rising segment
+    &#34;&#34;&#34;
+    # Find all the ramps
+    # Array to store the beginning each ramp
+    starting = []
+
+    # Find all the starting points
+    for i in range(RANGE[0],RANGE[1]-2):
+        # Get the triplet
+        A = data[&#39;stimestamp&#39;][i]
+        B = data[&#39;stimestamp&#39;][i+1]
+        
+        # Examine cases
+        if B-A &lt; 0: starting.append(i+1)
+
+    # Array to store the endings of each ramp
+    ending = []
+
+    # Find all the ending points
+    for i in range(RANGE[0],RANGE[1]-2):
+        # Get the triplet
+        A = data[&#39;stimestamp&#39;][i]
+        B = data[&#39;stimestamp&#39;][i+1]
+        C = data[&#39;stimestamp&#39;][i+2]
+
+        # Examine cases
+        if C-B &lt; 0 and B-A != 0: 
+            if B==TMAX: ending.append(i)
+            else: ending.append(i+1)
+        
+        elif A == B and B != TMAX and C-B &lt; 0: ending.append(i+1)
+
+        elif C==B and B==TMAX and B-A &gt; 0: ending.append(i)
+
+    # Add the first point
+    if (len(starting)!=0 and len(ending)!=0) and starting[0] &gt; ending[0]: starting.insert(0,RANGE[0])
+
+    # Create the pairs of start and end points
+    ramps = list(zip(starting,ending))
+
+    # Now that we have all the ramps we assign one second to each ramp and we place the points accordingly
+    curr_second = 0     # Current second
+    timestamp   = []    # Timestamps
+    valid_data  = []    # List to store the data on the rize or fall
+
+    # For each ramp
+    for ramp in ramps:
+        # Take the elements of the ramp and append them to timestamp
+        for i in range(ramp[0],ramp[1]+1):
+            timestamp.append(curr_second+data[&#39;stimestamp&#39;][i]*RIZE_TIME/(TMAX+1))
+            valid_data.append(i)
+
+        # Increase the timestamp
+        curr_second+=RIZE_TIME+CONST_TIME
+    
+    if return_endpoints: return timestamp, valid_data, np.array(ramps)
+    return timestamp, valid_data
+
+# Now putting everything together
+def correct_time(data:dict,orbit:dict,TIME:int=20,RANGE_ORBIT=(0,100),RIZE_TIME:float=1,CONST_TIME:float=1,TMAX:int=10000-1):
+    &#34;&#34;&#34;Correct time using both FPGA and Orbit corrections simultaneously and generate a timestamp for the valid_data
+
+    Args:
+        data (dict): The data buffer to correct the timestamp of
+        orbit (dict): The corresponding orbit buffer
+        TIME (int, optional): Period of the orbit buffer measurments. Defaults to 20.
+        RANGE_ORBIT (tuple, optional): The range of indices in the orbit buffer to translate. Defaults to (0,100).
+        RIZE_TIME (int, optional): The time it takes for the FPGA counter to saturate. Defaults to 1.
+        CONST_TIME (int, optional): The time the FPGA counter spends saturated. Defaults to 1.
+        TMAX (int, optional): The maximum value of the FPGA counter. Defaults to 10000-1.
+
+    Returns:
+        timestamp (np.array): New timestamp values
+        total_cnt (int): Number of datapoints translated
+        valid_events (list): list of indices of valid events
+    &#34;&#34;&#34;
+    # First collect the timstamp based on the orbit data
+    # Some variables
+    total_cnt       = 0                     # Stores the total number of events
+    processed_cnt   = 0                     # Stores the number of events processed
+    current_time    = TIME*RANGE_ORBIT[0]   # The current time 
+    timestamp       = []                    # New timestamp
+    valid_events    = []                    # Stores the indices of the events that can be timestamped
+
+    # Start counting events from the correct timestamp
+    if RANGE_ORBIT[0] != 0:
+        for counts in orbit[&#39;ratev&#39;][0:RANGE_ORBIT[0]]:
+            processed_cnt += int(counts * TIME)
+
+    # Error flag
+    oops = 0
+    # For each count in the orbit
+    for count in orbit[&#39;ratev&#39;][RANGE_ORBIT[0]:RANGE_ORBIT[1]]:
+        # Get the next number of counts
+        count = int(count*TIME)
+        if count == 0:
+            current_time += TIME
+            continue
+
+        # Now filter the events that can be placed in the timestamp and
+        timestamp_veto, valid_data = correct_time_FPGA(data,RIZE_TIME=RIZE_TIME,CONST_TIME=CONST_TIME,TMAX=TMAX,RANGE=(processed_cnt,processed_cnt+count))
+
+        # Add the new data on the timestamp
+        for valid,time in zip(valid_data,timestamp_veto):
+            timestamp.append(current_time + time)
+            valid_events.append(valid)
+            
+        # Update the current time to the last used time
+        if timestamp[-1] - current_time &gt; TIME: 
+            # print(&#39;Oops: &#39;,oops,current_time,timestamp[-1])
+            oops+=1
+            current_time = timestamp[-1]
+            # current_time += TIME
+        else:
+            current_time += TIME
+        
+        # Update the total count
+        total_cnt       += len(valid_data)
+        processed_cnt   += count
+
+    print(&#34;Oops&#39;: &#34;,oops/(RANGE_ORBIT[1]-RANGE_ORBIT[0]))
+
+    # # remove the last element of the timestamp
+    # timestamp = timestamp[:-1]
+
+    # Fix the total number of entries we have
+    total_cnt = int(total_cnt)
+
+    return timestamp, total_cnt, valid_events</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="raadpy.functionality.correct_time"><code class="name flex">
+<span>def <span class="ident">correct_time</span></span>(<span>data: dict, orbit: dict, TIME: int = 20, RANGE_ORBIT=(0, 100), RIZE_TIME: float = 1, CONST_TIME: float = 1, TMAX: int = 9999)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Correct time using both FPGA and Orbit corrections simultaneously and generate a timestamp for the valid_data</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>dict</code></dt>
+<dd>The data buffer to correct the timestamp of</dd>
+<dt><strong><code>orbit</code></strong> :&ensp;<code>dict</code></dt>
+<dd>The corresponding orbit buffer</dd>
+<dt><strong><code>TIME</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Period of the orbit buffer measurments. Defaults to 20.</dd>
+<dt><strong><code>RANGE_ORBIT</code></strong> :&ensp;<code>tuple</code>, optional</dt>
+<dd>The range of indices in the orbit buffer to translate. Defaults to (0,100).</dd>
+<dt><strong><code>RIZE_TIME</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The time it takes for the FPGA counter to saturate. Defaults to 1.</dd>
+<dt><strong><code>CONST_TIME</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The time the FPGA counter spends saturated. Defaults to 1.</dd>
+<dt><strong><code>TMAX</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The maximum value of the FPGA counter. Defaults to 10000-1.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>timestamp (np.array): New timestamp values
+total_cnt (int): Number of datapoints translated
+valid_events (list): list of indices of valid events</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def correct_time(data:dict,orbit:dict,TIME:int=20,RANGE_ORBIT=(0,100),RIZE_TIME:float=1,CONST_TIME:float=1,TMAX:int=10000-1):
+    &#34;&#34;&#34;Correct time using both FPGA and Orbit corrections simultaneously and generate a timestamp for the valid_data
+
+    Args:
+        data (dict): The data buffer to correct the timestamp of
+        orbit (dict): The corresponding orbit buffer
+        TIME (int, optional): Period of the orbit buffer measurments. Defaults to 20.
+        RANGE_ORBIT (tuple, optional): The range of indices in the orbit buffer to translate. Defaults to (0,100).
+        RIZE_TIME (int, optional): The time it takes for the FPGA counter to saturate. Defaults to 1.
+        CONST_TIME (int, optional): The time the FPGA counter spends saturated. Defaults to 1.
+        TMAX (int, optional): The maximum value of the FPGA counter. Defaults to 10000-1.
+
+    Returns:
+        timestamp (np.array): New timestamp values
+        total_cnt (int): Number of datapoints translated
+        valid_events (list): list of indices of valid events
+    &#34;&#34;&#34;
+    # First collect the timstamp based on the orbit data
+    # Some variables
+    total_cnt       = 0                     # Stores the total number of events
+    processed_cnt   = 0                     # Stores the number of events processed
+    current_time    = TIME*RANGE_ORBIT[0]   # The current time 
+    timestamp       = []                    # New timestamp
+    valid_events    = []                    # Stores the indices of the events that can be timestamped
+
+    # Start counting events from the correct timestamp
+    if RANGE_ORBIT[0] != 0:
+        for counts in orbit[&#39;ratev&#39;][0:RANGE_ORBIT[0]]:
+            processed_cnt += int(counts * TIME)
+
+    # Error flag
+    oops = 0
+    # For each count in the orbit
+    for count in orbit[&#39;ratev&#39;][RANGE_ORBIT[0]:RANGE_ORBIT[1]]:
+        # Get the next number of counts
+        count = int(count*TIME)
+        if count == 0:
+            current_time += TIME
+            continue
+
+        # Now filter the events that can be placed in the timestamp and
+        timestamp_veto, valid_data = correct_time_FPGA(data,RIZE_TIME=RIZE_TIME,CONST_TIME=CONST_TIME,TMAX=TMAX,RANGE=(processed_cnt,processed_cnt+count))
+
+        # Add the new data on the timestamp
+        for valid,time in zip(valid_data,timestamp_veto):
+            timestamp.append(current_time + time)
+            valid_events.append(valid)
+            
+        # Update the current time to the last used time
+        if timestamp[-1] - current_time &gt; TIME: 
+            # print(&#39;Oops: &#39;,oops,current_time,timestamp[-1])
+            oops+=1
+            current_time = timestamp[-1]
+            # current_time += TIME
+        else:
+            current_time += TIME
+        
+        # Update the total count
+        total_cnt       += len(valid_data)
+        processed_cnt   += count
+
+    print(&#34;Oops&#39;: &#34;,oops/(RANGE_ORBIT[1]-RANGE_ORBIT[0]))
+
+    # # remove the last element of the timestamp
+    # timestamp = timestamp[:-1]
+
+    # Fix the total number of entries we have
+    total_cnt = int(total_cnt)
+
+    return timestamp, total_cnt, valid_events</code></pre>
+</details>
+</dd>
+<dt id="raadpy.functionality.correct_time_FPGA"><code class="name flex">
+<span>def <span class="ident">correct_time_FPGA</span></span>(<span>data: dict, RIZE_TIME: float = 1, CONST_TIME: float = 1, TMAX: int = 9999, RANGE=(0, 1600), return_endpoints: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Correct the time on the VETO or NONVETO buffer according to FPGA counter reconstruction</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>dict</code></dt>
+<dd>The buffer data</dd>
+<dt><strong><code>RIZE_TIME</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Time in seconds it takes for the FPGA to rize. Defaults to 1.</dd>
+<dt><strong><code>CONST_TIME</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Time in seconds it takes for the FPGA to reset after it has risen to the saturation value. Defaults to 1.</dd>
+<dt><strong><code>TMAX</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The staturation value of the FPGA. Defaults to 10000-1.</dd>
+<dt><strong><code>RANGE</code></strong> :&ensp;<code>tuple</code>, optional</dt>
+<dd>The indices on the buffer to correct within. Defaults to (0,1600).</dd>
+<dt><strong><code>return_endpoints</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>Return the start and end indices of the selected events. Defaults to False.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>timestamp (np.array): Array with the corrected timstamp for each valid entry
+valid_entries (list): Indices of the valid entries within the dataset (AKA. The nonsaturated entries)
+ramps (np.array): Array of tuples each with the start and end of a rising segment</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def correct_time_FPGA(data:dict,RIZE_TIME:float=1,CONST_TIME:float=1,TMAX:int=10000-1,RANGE=(0,1600),return_endpoints:bool=False):
+    &#34;&#34;&#34;Correct the time on the VETO or NONVETO buffer according to FPGA counter reconstruction
+
+    Args:
+        data (dict): The buffer data
+        RIZE_TIME (int, optional): Time in seconds it takes for the FPGA to rize. Defaults to 1.
+        CONST_TIME (int, optional): Time in seconds it takes for the FPGA to reset after it has risen to the saturation value. Defaults to 1.
+        TMAX (int, optional): The staturation value of the FPGA. Defaults to 10000-1.
+        RANGE (tuple, optional): The indices on the buffer to correct within. Defaults to (0,1600).
+        return_endpoints (bool, optional): Return the start and end indices of the selected events. Defaults to False.
+
+    Returns:
+        timestamp (np.array): Array with the corrected timstamp for each valid entry
+        valid_entries (list): Indices of the valid entries within the dataset (AKA. The nonsaturated entries)
+        ramps (np.array): Array of tuples each with the start and end of a rising segment
+    &#34;&#34;&#34;
+    # Find all the ramps
+    # Array to store the beginning each ramp
+    starting = []
+
+    # Find all the starting points
+    for i in range(RANGE[0],RANGE[1]-2):
+        # Get the triplet
+        A = data[&#39;stimestamp&#39;][i]
+        B = data[&#39;stimestamp&#39;][i+1]
+        
+        # Examine cases
+        if B-A &lt; 0: starting.append(i+1)
+
+    # Array to store the endings of each ramp
+    ending = []
+
+    # Find all the ending points
+    for i in range(RANGE[0],RANGE[1]-2):
+        # Get the triplet
+        A = data[&#39;stimestamp&#39;][i]
+        B = data[&#39;stimestamp&#39;][i+1]
+        C = data[&#39;stimestamp&#39;][i+2]
+
+        # Examine cases
+        if C-B &lt; 0 and B-A != 0: 
+            if B==TMAX: ending.append(i)
+            else: ending.append(i+1)
+        
+        elif A == B and B != TMAX and C-B &lt; 0: ending.append(i+1)
+
+        elif C==B and B==TMAX and B-A &gt; 0: ending.append(i)
+
+    # Add the first point
+    if (len(starting)!=0 and len(ending)!=0) and starting[0] &gt; ending[0]: starting.insert(0,RANGE[0])
+
+    # Create the pairs of start and end points
+    ramps = list(zip(starting,ending))
+
+    # Now that we have all the ramps we assign one second to each ramp and we place the points accordingly
+    curr_second = 0     # Current second
+    timestamp   = []    # Timestamps
+    valid_data  = []    # List to store the data on the rize or fall
+
+    # For each ramp
+    for ramp in ramps:
+        # Take the elements of the ramp and append them to timestamp
+        for i in range(ramp[0],ramp[1]+1):
+            timestamp.append(curr_second+data[&#39;stimestamp&#39;][i]*RIZE_TIME/(TMAX+1))
+            valid_data.append(i)
+
+        # Increase the timestamp
+        curr_second+=RIZE_TIME+CONST_TIME
+    
+    if return_endpoints: return timestamp, valid_data, np.array(ramps)
+    return timestamp, valid_data</code></pre>
+</details>
+</dd>
+<dt id="raadpy.functionality.correct_time_orbit"><code class="name flex">
+<span>def <span class="ident">correct_time_orbit</span></span>(<span>orbit: dict, TIME: int = 20, RANGE=(0, 100))</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Corrects the time of events based on the data of the orbit buffer</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>orbit</code></strong> :&ensp;<code>dict</code></dt>
+<dd>The orbit buffer</dd>
+<dt><strong><code>TIME</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The period of the rate measurements. Defaults to 20.</dd>
+<dt><strong><code>RANGE</code></strong> :&ensp;<code>tuple</code>, optional</dt>
+<dd>a range of indices to translate of the orbit buffer. Defaults to (0,100).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>timestamp (np.array): Array with the corrected timestamps
+start_cnt (int): Starting index on the corresponding buffer
+end_cnt (int): Ending index on the corresponding buffer</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def correct_time_orbit(orbit:dict,TIME:int=20,RANGE=(0,100)):
+    &#34;&#34;&#34;Corrects the time of events based on the data of the orbit buffer
+
+    Args:
+        orbit (dict): The orbit buffer
+        TIME (int, optional): The period of the rate measurements. Defaults to 20.
+        RANGE (tuple, optional): a range of indices to translate of the orbit buffer. Defaults to (0,100).
+
+    Returns:
+        timestamp (np.array): Array with the corrected timestamps
+        start_cnt (int): Starting index on the corresponding buffer
+        end_cnt (int): Ending index on the corresponding buffer
+    &#34;&#34;&#34;
+    # Some variables
+    start_cnt   = 0
+    end_cnt     = 0     # Stores the total number of events
+    timestamp   = [0]   # New timestamp
+
+    # Start counting events from the correct timestamp
+    if RANGE[0] != 0:
+        for counts in orbit[&#39;ratev&#39;][0:RANGE[0]]:
+            start_cnt += int(counts * TIME)
+        
+        # Start counting from this value
+        end_cnt += start_cnt
+
+    # For each count in the orbit
+    for count in orbit[&#39;ratev&#39;][RANGE[0]:RANGE[1]]:
+        # Get the next number of counts
+        count = int(count*TIME)
+        if count == 0:
+            timestamp[-1] += TIME
+            continue
+
+        # Linearly distribute the timestamps in between
+        for item in np.linspace(timestamp[-1],timestamp[-1] + TIME, int(count)+1)[1:]: timestamp.append(item)
+        end_cnt += count
+
+    # remove the last element of the timestamp
+    timestamp = timestamp[:-1]
+
+    # Fix the total number of entries we have
+    end_cnt = int(end_cnt)
+
+    return timestamp, start_cnt, end_cnt</code></pre>
+</details>
+</dd>
+<dt id="raadpy.functionality.download_lightnings"><code class="name flex">
+<span>def <span class="ident">download_lightnings</span></span>(<span>event_time: astropy.time.core.Time, threshold: float = 360, VERBOSE=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Given an event time download lightings around it for a given time threshold</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>event_time</code></strong> :&ensp;<code>Time</code></dt>
+<dd>Timestamp of the event</dd>
+<dt><strong><code>threshold</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Seconds around the event time to look for lightnings. Defaults to 6*60.</dd>
+<dt><strong><code>VERBOSE</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>Print a description of the process. Defaults to True.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>lightnings (array): The array of lightnings downloaded.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def download_lightnings(event_time:Time,threshold:float = 6*60,VERBOSE=True):
+    &#34;&#34;&#34;Given an event time download lightings around it for a given time threshold
+
+    Args:
+        event_time (Time): Timestamp of the event
+        threshold (float, optional): Seconds around the event time to look for lightnings. Defaults to 6*60.
+        VERBOSE (bool, optional): Print a description of the process. Defaults to True.
+
+    Returns:
+        lightnings (array): The array of lightnings downloaded.
+    &#34;&#34;&#34;
+    # Check if the threhsold is within the range
+    if threshold &lt;= 5*60:
+        print(bcolors.WARNING+&#34;Warning!&#34;+bcolors.ENDC+&#34; Threshold: %f s, is too small to be detected by Blitzortung! Using threshold = 6 * 60 s instead.&#34;%(threshold))
+        threshold = 6*60
+
+    # Get the timedelta object that corresponds to the threshold
+    threshold = TimeDelta(threshold,format=&#39;sec&#39;)
+
+    if VERBOSE:
+        print(bcolors.OKCYAN+&#39;Searching for Lightnings between:&#39;+bcolors.ENDC+&#39;\n\t start-time: %s\n\t end-time:   %s&#39;
+                %((event_time-threshold).to_value(&#39;iso&#39;),(event_time+threshold).to_value(&#39;iso&#39;)))
+
+    return download_lightnings_range(event_time-threshold,event_time+threshold,VERBOSE=VERBOSE)</code></pre>
+</details>
+</dd>
+<dt id="raadpy.functionality.download_lightnings_range"><code class="name flex">
+<span>def <span class="ident">download_lightnings_range</span></span>(<span>start_Time: astropy.time.core.Time, end_Time: astropy.time.core.Time, VERBOSE=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Download lightnings in a given time range from blitzortung.com</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start_Time</code></strong> :&ensp;<code>Time</code></dt>
+<dd>The starting time of the events</dd>
+<dt><strong><code>end_Time</code></strong> :&ensp;<code>Time</code></dt>
+<dd>The ending time of the events</dd>
+<dt><strong><code>VERBOSE</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>Print description if needed. Defaults to True.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>lightnings (array): Ligtnings in time range</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def download_lightnings_range(start_Time:Time, end_Time:Time,VERBOSE=True):
+    &#34;&#34;&#34;Download lightnings in a given time range from blitzortung.com
+
+    Args:
+        start_Time (Time): The starting time of the events
+        end_Time (Time): The ending time of the events
+        VERBOSE (bool, optional): Print description if needed. Defaults to True.
+
+    Returns:
+        lightnings (array): Ligtnings in time range
+    &#34;&#34;&#34;
+    # Get the strings for the timestamps
+    start_time  = get_epoch_time(start_Time)
+    start_date  = get_epoch_date(start_Time)
+
+    end_time    = get_epoch_time(end_Time)
+    end_date    = get_epoch_date(end_Time)
+
+    
+    # Here are our login info
+    payload = {
+        &#34;login_username&#34; : &#34;nyuad_ls&#34;,
+        &#34;login_password&#34; : &#34;RAADsat3U&#34;,
+        &#34;login_try&#34; : &#34;1&#34;
+    }
+
+    # This will keep our session alive while we log in
+    session = requests.Session()
+
+    # Have our session logged in
+    url_login = &#39;https://www.blitzortung.org/en/login.php&#39;
+    url = &#39;/en/login.php&#39;
+    # result = session.get(url_login)
+    # tree = html.fromstring(result.text)f
+    result = session.post(
+        url_login,
+        data = payload
+    )
+
+
+    # Request the archived data
+    url_archive = &#34;https://www.blitzortung.org/en/archive_data.php?stations_users=0&amp;selected_numbers=*&amp;end_date=&#34;+end_date+&#34;&amp;end_time=&#34;+end_time+&#34;&amp;start_date=&#34;+start_date+&#34;&amp;start_time=&#34;+start_time+&#34;&amp;rawdata_image=0&amp;north=90&amp;west=-180&amp;east=180&amp;south=-90&amp;map=0&amp;width_orig=640&amp;width_result=640&amp;agespan=60&amp;frames=12&amp;delay=100&amp;last_delay=1000&amp;show_result=1&#34;
+    
+    # Get the data website
+    result = session.get(url_archive)
+    tree = html.fromstring(result.content)
+
+    # Find the iframe url
+    src = &#39;https://www.blitzortung.org/&#39; + np.array(tree.xpath(&#34;/html/body//iframe/@src&#34;))[0]
+
+    # request that url
+    result = session.get(src)
+    tree = html.fromstring(result.content)
+
+    # Grab the file url:
+    a = np.array(tree.xpath(&#34;/html/body//a/@href&#34;))
+    file_url = &#39;https://www.blitzortung.org/&#39; + a[[&#39;archive&#39; in url and &#39;raw.txt&#39; in url for url in a]][0]
+
+    if VERBOSE: print(bcolors.OKCYAN+&#39;Found Lightning data at: &#39;+bcolors.ENDC+url_archive)
+
+    # Get the raw file and parse it
+    raw  = decompress(requests.get(file_url).content).decode(&#39;utf-8&#39;).split(&#39;\n&#39;)
+
+    if VERBOSE: print(bcolors.OKCYAN+&#39;Data Downloaded Successfully&#39;+bcolors.ENDC)
+    
+    # Create the array
+    lights  = []
+    # For all the lightnings in the loaded dataset
+    for data in raw[1:-1]:
+        # Create an event and append it to the array
+        datum = data.split(&#39;,&#39;)
+        lights.append(event(timestamp   = float(datum[0]) * 1e-9,
+                            longitude   = in_range(float(datum[2])), 
+                            latitude    = float(datum[1]),
+                            detector_id = &#39;Blitz&#39;,
+                            event_id    = datum[2],
+                            mission     = &#39;Blitzurtong&#39;,
+                            time_format = &#39;unix&#39;,
+                            event_type  = &#39;Lightning&#39;))
+ 
+    # Return the numpy array for the file
+    return array(lights)</code></pre>
+</details>
+</dd>
+<dt id="raadpy.functionality.get_bit"><code class="name flex">
+<span>def <span class="ident">get_bit</span></span>(<span>i: int, string)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Gets the ith bit from a python bytestring from the left</p>
+<p>Input:
+i: int &ndash;&gt; index (frist bit is 0)
+string &ndash;&gt; the bytestring</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_bit(i:int,string):
+    &#39;&#39;&#39;
+    Gets the ith bit from a python bytestring from the left
+
+    Input:
+    i: int --&gt; index (frist bit is 0)
+    string --&gt; the bytestring 
+    &#39;&#39;&#39;
+
+    # Which byte does the bit lie into?
+    byte_idx    = i//BYTE               # Integer division
+    assert(byte_idx &lt; len(string))      # Assert that the index is in the bytestring
+    byte        = string[byte_idx]      # Get the appropriate byte
+    bit_idx     = i - byte_idx * BYTE   # Get the index within the byte
+
+    # Get the ith bit
+    return (byte &amp; (1 &lt;&lt; (BYTE - bit_idx - 1))) &gt;&gt; (BYTE - bit_idx - 1)</code></pre>
+</details>
+</dd>
+<dt id="raadpy.functionality.get_bit_idx"><code class="name flex">
+<span>def <span class="ident">get_bit_idx</span></span>(<span>n: int)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_bit_idx(n:int):
+    return BYTE - 1 - n%BYTE + (n//BYTE) * BYTE</code></pre>
+</details>
+</dd>
+<dt id="raadpy.functionality.get_bits"><code class="name flex">
+<span>def <span class="ident">get_bits</span></span>(<span>start: int, length: int, string, STUPID: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Gets length bits after and including index start</p>
+<p>Input:
+start:
+int &ndash;&gt; Start index included
+length: int &ndash;&gt; Length of bits to obtain
+string
+&ndash;&gt; The bytestring</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_bits(start:int,length:int,string,STUPID:bool=False):
+    &#39;&#39;&#39;
+    Gets length bits after and including index start
+
+    Input:
+    start:  int --&gt; Start index included
+    length: int --&gt; Length of bits to obtain
+    string      --&gt; The bytestring
+    &#39;&#39;&#39;
+
+    # Collect the bytes and add them up
+    digit_sum = 0
+    for i in range(start,start+length):
+        bit = get_bit(get_bit_idx(i),string) if not STUPID else get_bit(2*start+length -i-1,string)
+        digit_sum += 2**(i-start) * bit
+
+    return digit_sum</code></pre>
+</details>
+</dd>
+<dt id="raadpy.functionality.get_dict"><code class="name flex">
+<span>def <span class="ident">get_dict</span></span>(<span>filename: str, struct={'timestamp': 32, 'temperature': 8, 'rate0': 12, 'rate1': 12, 'rate2': 12, 'rate3': 12, 'ratev': 8, 'hv_level': 12, 'veto_level': 12, 'id_bit': 1, 'pps_active': 1, 'suspended': 1, 'power_on': 1, 'scenario': 4}, condition: str = None, MAX=None, STUPID: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Decode the data of a buffer with a given structure into a dictionary</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filename</code></strong> :&ensp;<code>str</code></dt>
+<dd>The filename where the buffer is</dd>
+<dt><strong><code>struct</code></strong> :&ensp;<code>_type_</code>, optional</dt>
+<dd>The structure of the bits of the buffer represented in a dictionary. Defaults to ORBIT_STRUCT.</dd>
+<dt><strong><code>condition</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>If you want you can add a condition such as data['id_bit']==1 to filter the data as they're being loaded. Defaults to None.</dd>
+<dt><strong><code>MAX</code></strong> :&ensp;<code>_type_</code>, optional</dt>
+<dd>Maximum number of lines to read, if None then read all of them. Defaults to None.</dd>
+<dt><strong><code>STUPID</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>Should be set to True if you are reading VETO and NONVETO. Defaults to False.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>data (dict): Dictionary with the decoded arrays of measurements</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID:bool=False):
+    &#34;&#34;&#34;Decode the data of a buffer with a given structure into a dictionary
+
+    Args:
+        filename (str): The filename where the buffer is
+        struct (_type_, optional): The structure of the bits of the buffer represented in a dictionary. Defaults to ORBIT_STRUCT.
+        condition (str, optional): If you want you can add a condition such as data[&#39;id_bit&#39;]==1 to filter the data as they&#39;re being loaded. Defaults to None.
+        MAX (_type_, optional): Maximum number of lines to read, if None then read all of them. Defaults to None.
+        STUPID (bool, optional): Should be set to True if you are reading VETO and NONVETO. Defaults to False.
+
+    Returns:
+        data (dict): Dictionary with the decoded arrays of measurements
+    &#34;&#34;&#34;
+    # Read the raw data
+    file = open(filename,&#39;rb&#39;)  # Open the file in read binary mode
+    raw = file.read()           # Read all the file
+    file.close()                # Close the file
+
+    # Initialize the dictionary
+    data = dict(zip(struct.keys(),[np.array(list()) for _ in range(len(ORBIT_STRUCT.keys()))]))
+
+    # Number of bytes per line
+    bytes_per_line  = sum(list(struct.values()))//8
+    length          = len(raw)//bytes_per_line
+    if MAX is None: MAX = length
+
+    for i in tqdm(range(MAX),desc=&#39;Line: &#39;):
+        # Get the required number of bytes to an event
+        event = raw[i*bytes_per_line:(i+1)*bytes_per_line]
+
+        # Keep track of the number of bits read
+        bits_read = 0
+
+        # If not create an orbit
+        for name,length in struct.items():
+            data[name] = np.append(data[name],[get_bits(bits_read,length,event,STUPID=STUPID)])
+            bits_read += length
+    
+    if condition is not None:
+        try:
+            idx     = np.where(eval(condition))[0]
+            data    = dict(zip(struct.keys(),[arr[idx] for arr in data.values()]))
+        except:
+            print(bcolors.WARNING+&#39;WARNING!&#39; + bcolors.ENDC +&#39; Condition &#39; + condition + &#39; is not valid for the dataset you requested. The data returned will not be filtered&#39;)
+
+    # Return the dictionary
+    return data</code></pre>
+</details>
+</dd>
+<dt id="raadpy.functionality.get_nearby_lightning"><code class="name flex">
+<span>def <span class="ident">get_nearby_lightning</span></span>(<span>tgf, lightnings: <a title="raadpy.rparray.array" href="rparray.html#raadpy.rparray.array">array</a>, threshold: float = 1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Given an array, or a single event object filter a raadpy array that contains lightnings within a threshold.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>tgf</code></strong> :&ensp;<code>_type_</code></dt>
+<dd>A single Event object, or an array of events of which to find the near lightnings</dd>
+<dt><strong><code>lightnings</code></strong> :&ensp;<code>array</code></dt>
+<dd>Raadpy array of lightnings of which to filter</dd>
+<dt><strong><code>threshold</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Threshold in time to filter the lightings. Defaults to 1.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>lightnings (array): A filtered array of lightnings</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_nearby_lightning(tgf,lightnings:array,threshold:float=1):
+    &#34;&#34;&#34;Given an array, or a single event object filter a raadpy array that contains lightnings within a threshold.
+
+    Args:
+        tgf (_type_): A single Event object, or an array of events of which to find the near lightnings
+        lightnings (array): Raadpy array of lightnings of which to filter
+        threshold (float, optional): Threshold in time to filter the lightings. Defaults to 1.
+
+    Returns:
+        lightnings (array): A filtered array of lightnings
+    &#34;&#34;&#34;
+
+    # If we are given an array of TGFs
+    if type(tgf) == array:
+        # Create a list to output the lighning arrays for each event
+        lights = []
+
+        # For all the events
+        for T in tqdm(tgf,desc=&#39;Event&#39;):
+            # Calculate the closest ones
+            lights.append(get_nearby_lightning(T,lightnings,threshold))
+
+        lights = [light for sublist in lights for light in sublist]
+        return array(unique(lights))
+    
+    # If we are given a lightning
+    elif type(tgf) == event:
+        # The threshold is the maximum time to look for lightnings from the tgf
+        threshold = TimeDelta(threshold,format=&#39;sec&#39;)
+
+        # Get the TGF&#39;s timestamp
+        tgf_time = tgf.timestamp
+
+        # Get all the timestamps
+        timestamps = lightnings.get_timestamps()
+
+        # find the indices where the timedifference is less than threshold
+        idx = [i for i,time in enumerate(timestamps) if abs(time - tgf_time) &lt; threshold]
+
+        # Get the appropriate subarray
+        return array(lightnings[idx])
+
+    # if it is not of type event of array then raise an error
+    else:
+        raise Exception(&#34;Type %s is not of type event, or array. Please use an object of type event or array for the tgf&#34;%type(tgf))</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="raadpy" href="index.html">raadpy</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="raadpy.functionality.correct_time" href="#raadpy.functionality.correct_time">correct_time</a></code></li>
+<li><code><a title="raadpy.functionality.correct_time_FPGA" href="#raadpy.functionality.correct_time_FPGA">correct_time_FPGA</a></code></li>
+<li><code><a title="raadpy.functionality.correct_time_orbit" href="#raadpy.functionality.correct_time_orbit">correct_time_orbit</a></code></li>
+<li><code><a title="raadpy.functionality.download_lightnings" href="#raadpy.functionality.download_lightnings">download_lightnings</a></code></li>
+<li><code><a title="raadpy.functionality.download_lightnings_range" href="#raadpy.functionality.download_lightnings_range">download_lightnings_range</a></code></li>
+<li><code><a title="raadpy.functionality.get_bit" href="#raadpy.functionality.get_bit">get_bit</a></code></li>
+<li><code><a title="raadpy.functionality.get_bit_idx" href="#raadpy.functionality.get_bit_idx">get_bit_idx</a></code></li>
+<li><code><a title="raadpy.functionality.get_bits" href="#raadpy.functionality.get_bits">get_bits</a></code></li>
+<li><code><a title="raadpy.functionality.get_dict" href="#raadpy.functionality.get_dict">get_dict</a></code></li>
+<li><code><a title="raadpy.functionality.get_nearby_lightning" href="#raadpy.functionality.get_nearby_lightning">get_nearby_lightning</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
