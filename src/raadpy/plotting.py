@@ -193,12 +193,11 @@ def plot_timestamps(data,struct=NONVETO_STRUCT,RANGE=None):
     return fig,ax
 
 # Plot the timestamp of a data dictionary
-def plot_timestamp(data,struct=NONVETO_STRUCT,RANGE=None):
+def plot_timestamp(data,RANGE=None):
     """Plot the timstamp of a buffer
 
     Args:
         data (_type_): Decoded dictionary of the data buffers
-        struct (_type_, optional): The structure of the dictionary of the data in bits. Defaults to NONVETO_STRUCT.
         RANGE (_type_, optional): Index range of the plot. Defaults to None.
 
     Returns:
@@ -207,7 +206,6 @@ def plot_timestamp(data,struct=NONVETO_STRUCT,RANGE=None):
     # Create a figure
     fig     = plt.figure(figsize=(15,4),dpi=100)
     ax      = fig.add_subplot(111)
-    colors  = cm.get_cmap('Dark2').colors
 
     length   = len(data['stimestamp'])
     if RANGE is None: RANGE = (0,length)
