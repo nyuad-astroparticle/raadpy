@@ -91,6 +91,7 @@ def plot_buffer(data,title='Plots of Buffer data'):
         ax.plot(events,data[key],c=colors[i%len(colors)],lw=0.7)
         ax.set_title(key.title())
 
+        # Adding x tick labels
         if i != len(axes) -1:
             ax.xaxis.set_tick_params(which='both',labelbottom=True)
 
