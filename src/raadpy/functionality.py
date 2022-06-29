@@ -255,11 +255,12 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
     return data
 
 # Corrects the timestamp based on orbit rate
-def correct_time_orbit(orbit:dict,TIME:int=20,RANGE=(0,100)):
+def correct_time_orbit(orbit:dict,key:str='rate0',TIME:int=20,RANGE=(0,100)):
     """Corrects the time of events based on the data of the orbit buffer
 
     Args:
         orbit (dict): The orbit buffer
+        key (str): Key for the corresponding event buffer rate
         TIME (int, optional): The period of the rate measurements. Defaults to 20.
         RANGE (tuple, optional): a range of indices to translate of the orbit buffer. Defaults to (0,100).
 
@@ -275,14 +276,14 @@ def correct_time_orbit(orbit:dict,TIME:int=20,RANGE=(0,100)):
 
     # Start counting events from the correct timestamp
     if RANGE[0] != 0:
-        for counts in orbit['ratev'][0:RANGE[0]]:
+        for counts in orbit[key][0:RANGE[0]]:
             start_cnt += int(counts * TIME)
         
         # Start counting from this value
         end_cnt += start_cnt
 
     # For each count in the orbit
-    for count in orbit['ratev'][RANGE[0]:RANGE[1]]:
+    for count in orbit[key][RANGE[0]:RANGE[1]]:
         # Get the next number of counts
         count = int(count*TIME)
         if count == 0:
@@ -376,12 +377,13 @@ def correct_time_FPGA(data:dict,RIZE_TIME:float=1,CONST_TIME:float=1,TMAX:int=10
     return timestamp, valid_data
 
 # Now putting everything together
-def correct_time(data:dict,orbit:dict,TIME:int=20,RANGE_ORBIT=(0,100),RIZE_TIME:float=1,CONST_TIME:float=1,TMAX:int=10000-1):
+def correct_time(data:dict,orbit:dict,key:str='rate0',TIME:int=20,RANGE_ORBIT=(0,100),RIZE_TIME:float=1,CONST_TIME:float=1,TMAX:int=10000-1):
     """Correct time using both FPGA and Orbit corrections simultaneously and generate a timestamp for the valid_data
 
     Args:
         data (dict): The data buffer to correct the timestamp of
         orbit (dict): The corresponding orbit buffer
+        key (str): Key for the corresponding event buffer rate
         TIME (int, optional): Period of the orbit buffer measurments. Defaults to 20.
         RANGE_ORBIT (tuple, optional): The range of indices in the orbit buffer to translate. Defaults to (0,100).
         RIZE_TIME (int, optional): The time it takes for the FPGA counter to saturate. Defaults to 1.
@@ -403,13 +405,13 @@ def correct_time(data:dict,orbit:dict,TIME:int=20,RANGE_ORBIT=(0,100),RIZE_TIME:
 
     # Start counting events from the correct timestamp
     if RANGE_ORBIT[0] != 0:
-        for counts in orbit['ratev'][0:RANGE_ORBIT[0]]:
+        for counts in orbit[key][0:RANGE_ORBIT[0]]:
             processed_cnt += int(counts * TIME)
 
     # Error flag
     oops = 0
     # For each count in the orbit
-    for count in orbit['ratev'][RANGE_ORBIT[0]:RANGE_ORBIT[1]]:
+    for count in orbit[key][RANGE_ORBIT[0]:RANGE_ORBIT[1]]:
         # Get the next number of counts
         count = int(count*TIME)
         if count == 0:
@@ -437,7 +439,7 @@ def correct_time(data:dict,orbit:dict,TIME:int=20,RANGE_ORBIT=(0,100),RIZE_TIME:
         total_cnt       += len(valid_data)
         processed_cnt   += count
 
-    print("Oops': ",oops/(RANGE_ORBIT[1]-RANGE_ORBIT[0]))
+    if oops != 0: print("Oops': ",oops/(RANGE_ORBIT[1]-RANGE_ORBIT[0]))
 
     # # remove the last element of the timestamp
     # timestamp = timestamp[:-1]
