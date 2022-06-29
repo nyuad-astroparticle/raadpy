@@ -65,12 +65,13 @@ def map(list1,list2:array=None,name1='',name2='',size:int=500,long=-90,lat=30):
     return fig
 
 # Plot the dictionary data obtained from a buffer:
-def plot_buffer(data,title='Plots of Buffer data'):
+def plot_buffer(data,title='Plots of Buffer data',UNITS=None):
     """Plot buffer automatically
 
     Args:
         data (_type_): Buffer that we want to plot
         title (str, optional): Title of the plot. Defaults to 'Plots of Buffer data'.
+        UNITS (_type_,optional): List of strings to be used as units for the plots.
 
     Returns:
         fig,ax: Matplotlib figure and axis
@@ -86,10 +87,14 @@ def plot_buffer(data,title='Plots of Buffer data'):
     fig.suptitle(title,fontsize=18)
     axes = axes.flatten()
 
+    # Handle units
+    if UNITS is None: UNITS = ['']*len(keys)
+    assert(len(UNITS) == len(keys))
+
     # Plot each of the data points
-    for i,key,ax in zip(range(len(axes)),keys,axes):
+    for i,key,ax,unit in zip(range(len(axes)),keys,axes,UNITS):
         ax.plot(events,data[key],c=colors[i%len(colors)],lw=0.7)
-        ax.set_title(key.title())
+        ax.set_title(key.title()+' '+unit)
 
         # Adding x tick labels
         if i != len(axes) -1:
