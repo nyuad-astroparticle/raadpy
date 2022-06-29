@@ -251,6 +251,10 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
         except:
             print(bcolors.WARNING+'WARNING!' + bcolors.ENDC +' Condition ' + condition + ' is not valid for the dataset you requested. The data returned will not be filtered')
 
+    # Specific loading changes
+    if 'temperature' in struct.keys():
+        data['temperature'] -= 55
+        
     # Return the dictionary
     return data
 
