@@ -91,6 +91,9 @@ def plot_buffer(data,title='Plots of Buffer data'):
         ax.plot(events,data[key],c=colors[i%len(colors)],lw=0.7)
         ax.set_title(key.title())
 
+        if i != len(axes) -1:
+            ax.xaxis.set_tick_params(which='both',labelbottom=True)
+
         # Customize the plot style
         ax.tick_params(axis='both',which='both',direction='in',top=True,right=True)
         ax.xaxis.set_minor_locator(AutoMinorLocator())
