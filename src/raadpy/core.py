@@ -52,7 +52,9 @@ NONVETO_STRUCT  = {
     'stimestamp'    : 36,
 }
 
-ORBIT_UNITS = ['(s)','(C)','(Hz)','(Hz)','(Hz)','(Hz)','(Hz)','(DAC ch)','(DAC ch)','(PMT 0 - SiPM 1)','(OFF 0 - ON 1)',' ',' ',' ']
+ORBIT_UNITS     = ['(s)','(C)','(Hz)','(Hz)','(Hz)','(Hz)','(Hz)','(DAC ch)','(DAC ch)','(PMT 0 - SiPM 1)','(OFF 0 - ON 1)',' ',' ',' ']
+VETO_UNITS      = ['','','','(ms)']
+NONVETO_UNITS   = ['','','(ms)']
 
 ##################################################################################
 # Helper functions
