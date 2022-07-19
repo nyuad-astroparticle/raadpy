@@ -12,10 +12,14 @@ import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
 import datetime as dt
-import requests
 from lxml import html
 from gzip import decompress
 from tqdm.notebook import tqdm
+import json
+import requests
+from requests.auth import HTTPBasicAuth
+from requests.auth import HTTPDigestAuth
+from requests_oauthlib import OAuth1
 
 ##################################################################################
 # Useful Constants
