@@ -150,9 +150,13 @@ def plot_hists(data,struct=NONVETO_STRUCT,bins=600,RANGE=None):
     ax      = ax.flatten()
     colors  = cm.get_cmap('Dark2').colors
 
+    # Get the maximum energy
+    ADC_max = max([max(channel['adc_counts']) for channel in channels])
+
+
     # Plot the histogram of each channel
     for i,channel in enumerate(channels):
-        ax[i].hist(channel['adc_counts'],bins=bins,range=RANGE,color=colors[i%len(channels)])
+        ax[i].hist(channel['adc_counts'],bins=int(bins/ADC_max*max(channel['adc_counts'])),range=RANGE,color=colors[i%len(channels)])
 
         ax[i].set_title('Energy of Channel: %d'%i)
         ax[i].set_yscale('log')

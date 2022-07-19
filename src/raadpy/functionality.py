@@ -452,3 +452,113 @@ def correct_time(data:dict,orbit:dict,key:str='rate0',TIME:int=20,RANGE_ORBIT=(0
     total_cnt = int(total_cnt)
 
     return timestamp, total_cnt, valid_events
+
+
+# Order the data according to entry number
+def sort(data,field='entry_nr'):
+    """Sort the data based on a metadata field
+
+    Args:
+        data (array of dictionaries): The array of dictionaries from the downloaded data
+        field (str, optional): The metadata field to sort according to. Defaults to 'entry_nr'.
+
+    Returns:
+        sorted: Sorted list of lists
+    """
+    if len(data) <= 1: return data
+    
+    # Get the indices
+    idx = np.argsort([d[field] for d in data])
+    
+    # Sorted array
+    sorted = [data[idx[i]] for i in range(len(data))]
+
+    return sorted
+
+# Download data based on various keys
+def download_file_ver(buffer:int = 1, file_ver=1):
+    """Download a data from NA server with a common file version
+
+    Args:
+        buffer (int, optional): The buffer to download. Defaults to 1.
+        file_ver (int, optional): The file version number. Defaults to 1.
+
+    Returns:
+        data: list of dictionaries with the rows
+    """
+    # Generate some variables
+    fileName="pc_buff"+str(buffer)
+    host=HOST
+    token=TOKEN
+
+    # Create a rest request
+    rest = RestOperations(f'{host}/{fileName}_download?file_ver=eq.{file_ver}', authType = 'token', token = token)
+   
+    # Download the data using the request
+    data = rest.SendGetReq()
+
+    # Sort the data
+    data = sort(data)
+
+    return data
+
+# Download data based on time range
+def download_time_delta(buffer:int = 1, start:str='2022-06-01T00:00:00', end:str='2022-06-07T00:00:00'):
+    """Download NA data on a time interval 
+
+    Args:
+        buffer (int, optional): The buffer number. Defaults to 1.
+        start (str, optional): String with iso date to start. Defaults to '2022-06-01T00:00:00'.
+        end (str, optional): String with iso date to end. Defaults to '2022-06-07T00:00:00'.
+
+    Returns:
+        data: list of dictionaries with the rows
+    """
+    # Generate some variables
+    fileName="pc_buff"+str(buffer)
+    host=HOST
+    token=TOKEN
+    
+    # Create a rest request
+    rest = RestOperations(f'{host}/{fileName}_download?file_ver=archived_ts=gte.{start}&archived_ts=lt.{end}', authType = 'token', token = token)
+
+    # Download the data using the request
+    data = rest.SendGetReq()
+
+    # Sort the data
+    data = sort(data)
+
+    return data
+
+# Save this data to a file to avoid having them in memory
+def save_raw_data(data,filepath:str='./',buffer:int=1):
+    """Save the raw data to a file in the computer
+
+    Args:
+        data (_type_): The raw data downloaded from NA server
+        filepath (str, optional): The path that you want to save the file to. Defaults to './'.
+        buffer (int, optional): The buffer number. Defaults to 1.
+
+    Returns:
+        string: The filename of the file.
+    """
+    # Create the filename
+    timestamp   = data[0]['archived_ts']
+    date        = timestamp[0:timestamp.index('T')]
+    filename    = filepath + f'Light1_{date}_Buff{buffer}.dat'
+
+    # Load the file to write the output
+    file = open(filename,'wb')
+
+    # Append the data
+    for row in data:
+        # Convert the hexadecimal entry to bytes
+        entry = bytes.fromhex(row['entry_data'][2:])
+        file.write(entry)
+    
+    # Close the file
+    file.close()
+
+    # Return the filename if you need it
+    return filename
+

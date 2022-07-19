@@ -56,6 +56,9 @@ ORBIT_UNITS     = ['(s)','(C)','(Hz)','(Hz)','(Hz)','(Hz)','(Hz)','(DAC ch)','(D
 VETO_UNITS      = ['','','','(ms)']
 NONVETO_UNITS   = ['','','(ms)']
 
+HOST            = "https://light1.mcs.nanoavionics.com"
+TOKEN           = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoia2hhbGlmYSIsImV4cCI6MTcwNDA2NzIwMCwiZW1haWwiOiJhZGcxMUBueXUuZWR1In0.LiV8bfKb2JUG2eIIxouXKebQpPFLXewO1BqoOD22xS4"
+
 ##################################################################################
 # Helper functions
 ##################################################################################
@@ -98,3 +101,92 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
+# Send a data download request using REST
+class RestOperations:
+    """Send a data download request using the REST Protocol
+    """
+    # Initialize with the link
+    def __init__(self, apiEndPoint, **kwargs):
+        """Constructor
+
+        Args:
+            apiEndPoint (string): the url needed to make the request
+        """
+        self.apiEndPoint = apiEndPoint
+        self.kwargs = kwargs
+    
+    def SendGetReq(self):
+        """Send a download request to the URL
+
+        Returns:
+            json: A json file with all the downloaded data
+        """
+        # Get the needed authorization information
+        auth = self.CallAuth(self.kwargs)
+
+        # Make the request
+        RespGetReq = requests.get(self.apiEndPoint, auth = auth, stream=True)
+
+        # Check for errors
+        if RespGetReq.status_code != 200:
+            RespGetReq.raise_for_status()
+            raise RuntimeError(f"Request to {self.apiEndPoint} returned status code {RespGetReq.status_code}")
+
+        # Convert the output to a json and return
+        return json.loads(RespGetReq.text)
+
+    def CallAuth(self, OptionalAttrs):
+        """Handle authorization stuff
+
+        Args:
+            OptionalAttrs (_type_): The necessary arguments needed for the type of authorization
+
+        Returns:
+            auth: An authorization object
+        """
+        authType = self.ValidateAuthAttrs(OptionalAttrs)
+        if not authType:
+            auth = None            
+        elif authType == 'token':
+            auth = HTTPBearerAuth(OptionalAttrs.get('token'))
+        elif authType == 'basic':
+            auth = HTTPBasicAuth(OptionalAttrs.get('username'), OptionalAttrs.get('password'))
+        elif authType  == 'digest':
+            auth = HTTPDigestAuth(OptionalAttrs.get('username'), OptionalAttrs.get('password'))
+        elif authType  == 'oa1':
+            auth = OAuth1(OptionalAttrs.get('AppKey'), OptionalAttrs.get('AppSecret'), OptionalAttrs.get('UserToken'), OptionalAttrs.get('UserSecret'))
+        return auth
+    
+    def ValidateAuthAttrs(self, OptionalAttrs):
+        """Make sure the optinal attributes of this class exist
+        """
+        if 'authType' not in OptionalAttrs:
+            authType = None
+        else:
+            if OptionalAttrs.get('authType') not in ['token', 'digest', 'basic', 'oa1']:
+                raise ValueError("Unknown authType received", OptionalAttrs.get('authType'))
+            else:
+                if OptionalAttrs.get('authType') == 'token' and 'token' not in OptionalAttrs:
+                    raise ValueError("authType 'token' requires token")
+                elif OptionalAttrs.get('authType') == 'basic' and not all(attr in OptionalAttrs for attr in ['username', 'password']):
+                    raise ValueError("authType 'basic' requires username, password")
+                elif OptionalAttrs.get('authType') == 'digest' and not all(attr in OptionalAttrs for attr in ['username', 'password']):
+                    raise ValueError("authType 'digest' requires username, password")
+                elif OptionalAttrs.get('authType') == 'oa1' and not all(attr in OptionalAttrs for attr in ['AppKey', 'AppSecret', 'UserToken' 'UserSecret']):
+                    raise ValueError("authType 'oa1' requires AppKey, AppSecret, UserToken, UserSecret")
+                else:
+                    authType = OptionalAttrs.get('authType')
+        return authType
+
+class HTTPBearerAuth(requests.auth.AuthBase):
+    '''requests() does not support HTTP Bearer tokens authentication, create one'''
+    def __init__(self, token):
+        self.token = token
+    def __eq__(self, other):
+        return self.token == getattr(other, 'token', None)
+    def __ne__(self, other):
+        return not self == other
+    def __call__(self, r):
+        r.headers['Authorization'] = 'Bearer ' + self.token
+        return r
