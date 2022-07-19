@@ -93,12 +93,13 @@ def map(list1,list2:array=None,name1=&#39;&#39;,name2=&#39;&#39;,size:int=500,lo
     return fig
 
 # Plot the dictionary data obtained from a buffer:
-def plot_buffer(data,title=&#39;Plots of Buffer data&#39;):
+def plot_buffer(data,title=&#39;Plots of Buffer data&#39;,UNITS=None):
     &#34;&#34;&#34;Plot buffer automatically
 
     Args:
         data (_type_): Buffer that we want to plot
         title (str, optional): Title of the plot. Defaults to &#39;Plots of Buffer data&#39;.
+        UNITS (_type_,optional): List of strings to be used as units for the plots.
 
     Returns:
         fig,ax: Matplotlib figure and axis
@@ -114,10 +115,18 @@ def plot_buffer(data,title=&#39;Plots of Buffer data&#39;):
     fig.suptitle(title,fontsize=18)
     axes = axes.flatten()
 
+    # Handle units
+    if UNITS is None: UNITS = [&#39;&#39;]*len(keys)
+    assert(len(UNITS) == len(keys))
+
     # Plot each of the data points
-    for i,key,ax in zip(range(len(axes)),keys,axes):
+    for i,key,ax,unit in zip(range(len(axes)),keys,axes,UNITS):
         ax.plot(events,data[key],c=colors[i%len(colors)],lw=0.7)
-        ax.set_title(key.title())
+        ax.set_title(key.title()+&#39; &#39;+unit)
+
+        # Adding x tick labels
+        if i != len(axes) -1:
+            ax.xaxis.set_tick_params(which=&#39;both&#39;,labelbottom=True)
 
         # Customize the plot style
         ax.tick_params(axis=&#39;both&#39;,which=&#39;both&#39;,direction=&#39;in&#39;,top=True,right=True)
@@ -169,9 +178,13 @@ def plot_hists(data,struct=NONVETO_STRUCT,bins=600,RANGE=None):
     ax      = ax.flatten()
     colors  = cm.get_cmap(&#39;Dark2&#39;).colors
 
+    # Get the maximum energy
+    ADC_max = max([max(channel[&#39;adc_counts&#39;]) for channel in channels])
+
+
     # Plot the histogram of each channel
     for i,channel in enumerate(channels):
-        ax[i].hist(channel[&#39;adc_counts&#39;],bins=bins,range=RANGE,color=colors[i%len(channels)])
+        ax[i].hist(channel[&#39;adc_counts&#39;],bins=int(bins/ADC_max*max(channel[&#39;adc_counts&#39;])),range=RANGE,color=colors[i%len(channels)])
 
         ax[i].set_title(&#39;Energy of Channel: %d&#39;%i)
         ax[i].set_yscale(&#39;log&#39;)
@@ -343,7 +356,7 @@ def plot_timestamp(data,RANGE=None):
 </details>
 </dd>
 <dt id="raadpy.plotting.plot_buffer"><code class="name flex">
-<span>def <span class="ident">plot_buffer</span></span>(<span>data, title='Plots of Buffer data')</span>
+<span>def <span class="ident">plot_buffer</span></span>(<span>data, title='Plots of Buffer data', UNITS=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Plot buffer automatically</p>
@@ -353,6 +366,8 @@ def plot_timestamp(data,RANGE=None):
 <dd>Buffer that we want to plot</dd>
 <dt><strong><code>title</code></strong> :&ensp;<code>str</code>, optional</dt>
 <dd>Title of the plot. Defaults to 'Plots of Buffer data'.</dd>
+<dt><strong><code>UNITS</code></strong> :&ensp;<code>_type_</code>,optional</dt>
+<dd>List of strings to be used as units for the plots.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -363,12 +378,13 @@ def plot_timestamp(data,RANGE=None):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def plot_buffer(data,title=&#39;Plots of Buffer data&#39;):
+<pre><code class="python">def plot_buffer(data,title=&#39;Plots of Buffer data&#39;,UNITS=None):
     &#34;&#34;&#34;Plot buffer automatically
 
     Args:
         data (_type_): Buffer that we want to plot
         title (str, optional): Title of the plot. Defaults to &#39;Plots of Buffer data&#39;.
+        UNITS (_type_,optional): List of strings to be used as units for the plots.
 
     Returns:
         fig,ax: Matplotlib figure and axis
@@ -384,10 +400,18 @@ def plot_timestamp(data,RANGE=None):
     fig.suptitle(title,fontsize=18)
     axes = axes.flatten()
 
+    # Handle units
+    if UNITS is None: UNITS = [&#39;&#39;]*len(keys)
+    assert(len(UNITS) == len(keys))
+
     # Plot each of the data points
-    for i,key,ax in zip(range(len(axes)),keys,axes):
+    for i,key,ax,unit in zip(range(len(axes)),keys,axes,UNITS):
         ax.plot(events,data[key],c=colors[i%len(colors)],lw=0.7)
-        ax.set_title(key.title())
+        ax.set_title(key.title()+&#39; &#39;+unit)
+
+        # Adding x tick labels
+        if i != len(axes) -1:
+            ax.xaxis.set_tick_params(which=&#39;both&#39;,labelbottom=True)
 
         # Customize the plot style
         ax.tick_params(axis=&#39;both&#39;,which=&#39;both&#39;,direction=&#39;in&#39;,top=True,right=True)
@@ -445,9 +469,13 @@ def plot_timestamp(data,RANGE=None):
     ax      = ax.flatten()
     colors  = cm.get_cmap(&#39;Dark2&#39;).colors
 
+    # Get the maximum energy
+    ADC_max = max([max(channel[&#39;adc_counts&#39;]) for channel in channels])
+
+
     # Plot the histogram of each channel
     for i,channel in enumerate(channels):
-        ax[i].hist(channel[&#39;adc_counts&#39;],bins=bins,range=RANGE,color=colors[i%len(channels)])
+        ax[i].hist(channel[&#39;adc_counts&#39;],bins=int(bins/ADC_max*max(channel[&#39;adc_counts&#39;])),range=RANGE,color=colors[i%len(channels)])
 
         ax[i].set_title(&#39;Energy of Channel: %d&#39;%i)
         ax[i].set_yscale(&#39;log&#39;)

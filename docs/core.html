@@ -80,6 +80,13 @@ NONVETO_STRUCT  = {
     &#39;stimestamp&#39;    : 36,
 }
 
+ORBIT_UNITS     = [&#39;(s)&#39;,&#39;(C)&#39;,&#39;(Hz)&#39;,&#39;(Hz)&#39;,&#39;(Hz)&#39;,&#39;(Hz)&#39;,&#39;(Hz)&#39;,&#39;(DAC ch)&#39;,&#39;(DAC ch)&#39;,&#39;(PMT 0 - SiPM 1)&#39;,&#39;(OFF 0 - ON 1)&#39;,&#39; &#39;,&#39; &#39;,&#39; &#39;]
+VETO_UNITS      = [&#39;&#39;,&#39;&#39;,&#39;&#39;,&#39;(ms)&#39;]
+NONVETO_UNITS   = [&#39;&#39;,&#39;&#39;,&#39;(ms)&#39;]
+
+HOST            = &#34;https://light1.mcs.nanoavionics.com&#34;
+TOKEN           = &#34;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoia2hhbGlmYSIsImV4cCI6MTcwNDA2NzIwMCwiZW1haWwiOiJhZGcxMUBueXUuZWR1In0.LiV8bfKb2JUG2eIIxouXKebQpPFLXewO1BqoOD22xS4&#34;
+
 ##################################################################################
 # Helper functions
 ##################################################################################
@@ -121,7 +128,96 @@ class bcolors:
     FAIL = &#39;\033[91m&#39;
     ENDC = &#39;\033[0m&#39;
     BOLD = &#39;\033[1m&#39;
-    UNDERLINE = &#39;\033[4m&#39;</code></pre>
+    UNDERLINE = &#39;\033[4m&#39;
+
+# Send a data download request using REST
+class RestOperations:
+    &#34;&#34;&#34;Send a data download request using the REST Protocol
+    &#34;&#34;&#34;
+    # Initialize with the link
+    def __init__(self, apiEndPoint, **kwargs):
+        &#34;&#34;&#34;Constructor
+
+        Args:
+            apiEndPoint (string): the url needed to make the request
+        &#34;&#34;&#34;
+        self.apiEndPoint = apiEndPoint
+        self.kwargs = kwargs
+    
+    def SendGetReq(self):
+        &#34;&#34;&#34;Send a download request to the URL
+
+        Returns:
+            json: A json file with all the downloaded data
+        &#34;&#34;&#34;
+        # Get the needed authorization information
+        auth = self.CallAuth(self.kwargs)
+
+        # Make the request
+        RespGetReq = requests.get(self.apiEndPoint, auth = auth, stream=True)
+
+        # Check for errors
+        if RespGetReq.status_code != 200:
+            RespGetReq.raise_for_status()
+            raise RuntimeError(f&#34;Request to {self.apiEndPoint} returned status code {RespGetReq.status_code}&#34;)
+
+        # Convert the output to a json and return
+        return json.loads(RespGetReq.text)
+
+    def CallAuth(self, OptionalAttrs):
+        &#34;&#34;&#34;Handle authorization stuff
+
+        Args:
+            OptionalAttrs (_type_): The necessary arguments needed for the type of authorization
+
+        Returns:
+            auth: An authorization object
+        &#34;&#34;&#34;
+        authType = self.ValidateAuthAttrs(OptionalAttrs)
+        if not authType:
+            auth = None            
+        elif authType == &#39;token&#39;:
+            auth = HTTPBearerAuth(OptionalAttrs.get(&#39;token&#39;))
+        elif authType == &#39;basic&#39;:
+            auth = HTTPBasicAuth(OptionalAttrs.get(&#39;username&#39;), OptionalAttrs.get(&#39;password&#39;))
+        elif authType  == &#39;digest&#39;:
+            auth = HTTPDigestAuth(OptionalAttrs.get(&#39;username&#39;), OptionalAttrs.get(&#39;password&#39;))
+        elif authType  == &#39;oa1&#39;:
+            auth = OAuth1(OptionalAttrs.get(&#39;AppKey&#39;), OptionalAttrs.get(&#39;AppSecret&#39;), OptionalAttrs.get(&#39;UserToken&#39;), OptionalAttrs.get(&#39;UserSecret&#39;))
+        return auth
+    
+    def ValidateAuthAttrs(self, OptionalAttrs):
+        &#34;&#34;&#34;Make sure the optinal attributes of this class exist
+        &#34;&#34;&#34;
+        if &#39;authType&#39; not in OptionalAttrs:
+            authType = None
+        else:
+            if OptionalAttrs.get(&#39;authType&#39;) not in [&#39;token&#39;, &#39;digest&#39;, &#39;basic&#39;, &#39;oa1&#39;]:
+                raise ValueError(&#34;Unknown authType received&#34;, OptionalAttrs.get(&#39;authType&#39;))
+            else:
+                if OptionalAttrs.get(&#39;authType&#39;) == &#39;token&#39; and &#39;token&#39; not in OptionalAttrs:
+                    raise ValueError(&#34;authType &#39;token&#39; requires token&#34;)
+                elif OptionalAttrs.get(&#39;authType&#39;) == &#39;basic&#39; and not all(attr in OptionalAttrs for attr in [&#39;username&#39;, &#39;password&#39;]):
+                    raise ValueError(&#34;authType &#39;basic&#39; requires username, password&#34;)
+                elif OptionalAttrs.get(&#39;authType&#39;) == &#39;digest&#39; and not all(attr in OptionalAttrs for attr in [&#39;username&#39;, &#39;password&#39;]):
+                    raise ValueError(&#34;authType &#39;digest&#39; requires username, password&#34;)
+                elif OptionalAttrs.get(&#39;authType&#39;) == &#39;oa1&#39; and not all(attr in OptionalAttrs for attr in [&#39;AppKey&#39;, &#39;AppSecret&#39;, &#39;UserToken&#39; &#39;UserSecret&#39;]):
+                    raise ValueError(&#34;authType &#39;oa1&#39; requires AppKey, AppSecret, UserToken, UserSecret&#34;)
+                else:
+                    authType = OptionalAttrs.get(&#39;authType&#39;)
+        return authType
+
+class HTTPBearerAuth(requests.auth.AuthBase):
+    &#39;&#39;&#39;requests() does not support HTTP Bearer tokens authentication, create one&#39;&#39;&#39;
+    def __init__(self, token):
+        self.token = token
+    def __eq__(self, other):
+        return self.token == getattr(other, &#39;token&#39;, None)
+    def __ne__(self, other):
+        return not self == other
+    def __call__(self, r):
+        r.headers[&#39;Authorization&#39;] = &#39;Bearer &#39; + self.token
+        return r</code></pre>
 </details>
 </section>
 <section>
@@ -200,6 +296,237 @@ class bcolors:
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="raadpy.core.HTTPBearerAuth"><code class="flex name class">
+<span>class <span class="ident">HTTPBearerAuth</span></span>
+<span>(</span><span>token)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>requests() does not support HTTP Bearer tokens authentication, create one</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class HTTPBearerAuth(requests.auth.AuthBase):
+    &#39;&#39;&#39;requests() does not support HTTP Bearer tokens authentication, create one&#39;&#39;&#39;
+    def __init__(self, token):
+        self.token = token
+    def __eq__(self, other):
+        return self.token == getattr(other, &#39;token&#39;, None)
+    def __ne__(self, other):
+        return not self == other
+    def __call__(self, r):
+        r.headers[&#39;Authorization&#39;] = &#39;Bearer &#39; + self.token
+        return r</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>requests.auth.AuthBase</li>
+</ul>
+</dd>
+<dt id="raadpy.core.RestOperations"><code class="flex name class">
+<span>class <span class="ident">RestOperations</span></span>
+<span>(</span><span>apiEndPoint, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Send a data download request using the REST Protocol</p>
+<p>Constructor</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>apiEndPoint</code></strong> :&ensp;<code>string</code></dt>
+<dd>the url needed to make the request</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RestOperations:
+    &#34;&#34;&#34;Send a data download request using the REST Protocol
+    &#34;&#34;&#34;
+    # Initialize with the link
+    def __init__(self, apiEndPoint, **kwargs):
+        &#34;&#34;&#34;Constructor
+
+        Args:
+            apiEndPoint (string): the url needed to make the request
+        &#34;&#34;&#34;
+        self.apiEndPoint = apiEndPoint
+        self.kwargs = kwargs
+    
+    def SendGetReq(self):
+        &#34;&#34;&#34;Send a download request to the URL
+
+        Returns:
+            json: A json file with all the downloaded data
+        &#34;&#34;&#34;
+        # Get the needed authorization information
+        auth = self.CallAuth(self.kwargs)
+
+        # Make the request
+        RespGetReq = requests.get(self.apiEndPoint, auth = auth, stream=True)
+
+        # Check for errors
+        if RespGetReq.status_code != 200:
+            RespGetReq.raise_for_status()
+            raise RuntimeError(f&#34;Request to {self.apiEndPoint} returned status code {RespGetReq.status_code}&#34;)
+
+        # Convert the output to a json and return
+        return json.loads(RespGetReq.text)
+
+    def CallAuth(self, OptionalAttrs):
+        &#34;&#34;&#34;Handle authorization stuff
+
+        Args:
+            OptionalAttrs (_type_): The necessary arguments needed for the type of authorization
+
+        Returns:
+            auth: An authorization object
+        &#34;&#34;&#34;
+        authType = self.ValidateAuthAttrs(OptionalAttrs)
+        if not authType:
+            auth = None            
+        elif authType == &#39;token&#39;:
+            auth = HTTPBearerAuth(OptionalAttrs.get(&#39;token&#39;))
+        elif authType == &#39;basic&#39;:
+            auth = HTTPBasicAuth(OptionalAttrs.get(&#39;username&#39;), OptionalAttrs.get(&#39;password&#39;))
+        elif authType  == &#39;digest&#39;:
+            auth = HTTPDigestAuth(OptionalAttrs.get(&#39;username&#39;), OptionalAttrs.get(&#39;password&#39;))
+        elif authType  == &#39;oa1&#39;:
+            auth = OAuth1(OptionalAttrs.get(&#39;AppKey&#39;), OptionalAttrs.get(&#39;AppSecret&#39;), OptionalAttrs.get(&#39;UserToken&#39;), OptionalAttrs.get(&#39;UserSecret&#39;))
+        return auth
+    
+    def ValidateAuthAttrs(self, OptionalAttrs):
+        &#34;&#34;&#34;Make sure the optinal attributes of this class exist
+        &#34;&#34;&#34;
+        if &#39;authType&#39; not in OptionalAttrs:
+            authType = None
+        else:
+            if OptionalAttrs.get(&#39;authType&#39;) not in [&#39;token&#39;, &#39;digest&#39;, &#39;basic&#39;, &#39;oa1&#39;]:
+                raise ValueError(&#34;Unknown authType received&#34;, OptionalAttrs.get(&#39;authType&#39;))
+            else:
+                if OptionalAttrs.get(&#39;authType&#39;) == &#39;token&#39; and &#39;token&#39; not in OptionalAttrs:
+                    raise ValueError(&#34;authType &#39;token&#39; requires token&#34;)
+                elif OptionalAttrs.get(&#39;authType&#39;) == &#39;basic&#39; and not all(attr in OptionalAttrs for attr in [&#39;username&#39;, &#39;password&#39;]):
+                    raise ValueError(&#34;authType &#39;basic&#39; requires username, password&#34;)
+                elif OptionalAttrs.get(&#39;authType&#39;) == &#39;digest&#39; and not all(attr in OptionalAttrs for attr in [&#39;username&#39;, &#39;password&#39;]):
+                    raise ValueError(&#34;authType &#39;digest&#39; requires username, password&#34;)
+                elif OptionalAttrs.get(&#39;authType&#39;) == &#39;oa1&#39; and not all(attr in OptionalAttrs for attr in [&#39;AppKey&#39;, &#39;AppSecret&#39;, &#39;UserToken&#39; &#39;UserSecret&#39;]):
+                    raise ValueError(&#34;authType &#39;oa1&#39; requires AppKey, AppSecret, UserToken, UserSecret&#34;)
+                else:
+                    authType = OptionalAttrs.get(&#39;authType&#39;)
+        return authType</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="raadpy.core.RestOperations.CallAuth"><code class="name flex">
+<span>def <span class="ident">CallAuth</span></span>(<span>self, OptionalAttrs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Handle authorization stuff</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>OptionalAttrs</code></strong> :&ensp;<code>_type_</code></dt>
+<dd>The necessary arguments needed for the type of authorization</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>auth</code></dt>
+<dd>An authorization object</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def CallAuth(self, OptionalAttrs):
+    &#34;&#34;&#34;Handle authorization stuff
+
+    Args:
+        OptionalAttrs (_type_): The necessary arguments needed for the type of authorization
+
+    Returns:
+        auth: An authorization object
+    &#34;&#34;&#34;
+    authType = self.ValidateAuthAttrs(OptionalAttrs)
+    if not authType:
+        auth = None            
+    elif authType == &#39;token&#39;:
+        auth = HTTPBearerAuth(OptionalAttrs.get(&#39;token&#39;))
+    elif authType == &#39;basic&#39;:
+        auth = HTTPBasicAuth(OptionalAttrs.get(&#39;username&#39;), OptionalAttrs.get(&#39;password&#39;))
+    elif authType  == &#39;digest&#39;:
+        auth = HTTPDigestAuth(OptionalAttrs.get(&#39;username&#39;), OptionalAttrs.get(&#39;password&#39;))
+    elif authType  == &#39;oa1&#39;:
+        auth = OAuth1(OptionalAttrs.get(&#39;AppKey&#39;), OptionalAttrs.get(&#39;AppSecret&#39;), OptionalAttrs.get(&#39;UserToken&#39;), OptionalAttrs.get(&#39;UserSecret&#39;))
+    return auth</code></pre>
+</details>
+</dd>
+<dt id="raadpy.core.RestOperations.SendGetReq"><code class="name flex">
+<span>def <span class="ident">SendGetReq</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Send a download request to the URL</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>json</code></dt>
+<dd>A json file with all the downloaded data</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def SendGetReq(self):
+    &#34;&#34;&#34;Send a download request to the URL
+
+    Returns:
+        json: A json file with all the downloaded data
+    &#34;&#34;&#34;
+    # Get the needed authorization information
+    auth = self.CallAuth(self.kwargs)
+
+    # Make the request
+    RespGetReq = requests.get(self.apiEndPoint, auth = auth, stream=True)
+
+    # Check for errors
+    if RespGetReq.status_code != 200:
+        RespGetReq.raise_for_status()
+        raise RuntimeError(f&#34;Request to {self.apiEndPoint} returned status code {RespGetReq.status_code}&#34;)
+
+    # Convert the output to a json and return
+    return json.loads(RespGetReq.text)</code></pre>
+</details>
+</dd>
+<dt id="raadpy.core.RestOperations.ValidateAuthAttrs"><code class="name flex">
+<span>def <span class="ident">ValidateAuthAttrs</span></span>(<span>self, OptionalAttrs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Make sure the optinal attributes of this class exist</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ValidateAuthAttrs(self, OptionalAttrs):
+    &#34;&#34;&#34;Make sure the optinal attributes of this class exist
+    &#34;&#34;&#34;
+    if &#39;authType&#39; not in OptionalAttrs:
+        authType = None
+    else:
+        if OptionalAttrs.get(&#39;authType&#39;) not in [&#39;token&#39;, &#39;digest&#39;, &#39;basic&#39;, &#39;oa1&#39;]:
+            raise ValueError(&#34;Unknown authType received&#34;, OptionalAttrs.get(&#39;authType&#39;))
+        else:
+            if OptionalAttrs.get(&#39;authType&#39;) == &#39;token&#39; and &#39;token&#39; not in OptionalAttrs:
+                raise ValueError(&#34;authType &#39;token&#39; requires token&#34;)
+            elif OptionalAttrs.get(&#39;authType&#39;) == &#39;basic&#39; and not all(attr in OptionalAttrs for attr in [&#39;username&#39;, &#39;password&#39;]):
+                raise ValueError(&#34;authType &#39;basic&#39; requires username, password&#34;)
+            elif OptionalAttrs.get(&#39;authType&#39;) == &#39;digest&#39; and not all(attr in OptionalAttrs for attr in [&#39;username&#39;, &#39;password&#39;]):
+                raise ValueError(&#34;authType &#39;digest&#39; requires username, password&#34;)
+            elif OptionalAttrs.get(&#39;authType&#39;) == &#39;oa1&#39; and not all(attr in OptionalAttrs for attr in [&#39;AppKey&#39;, &#39;AppSecret&#39;, &#39;UserToken&#39; &#39;UserSecret&#39;]):
+                raise ValueError(&#34;authType &#39;oa1&#39; requires AppKey, AppSecret, UserToken, UserSecret&#34;)
+            else:
+                authType = OptionalAttrs.get(&#39;authType&#39;)
+    return authType</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
 <dt id="raadpy.core.bcolors"><code class="flex name class">
 <span>class <span class="ident">bcolors</span></span>
 </code></dt>
@@ -284,6 +611,17 @@ class bcolors:
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="raadpy.core.HTTPBearerAuth" href="#raadpy.core.HTTPBearerAuth">HTTPBearerAuth</a></code></h4>
+</li>
+<li>
+<h4><code><a title="raadpy.core.RestOperations" href="#raadpy.core.RestOperations">RestOperations</a></code></h4>
+<ul class="">
+<li><code><a title="raadpy.core.RestOperations.CallAuth" href="#raadpy.core.RestOperations.CallAuth">CallAuth</a></code></li>
+<li><code><a title="raadpy.core.RestOperations.SendGetReq" href="#raadpy.core.RestOperations.SendGetReq">SendGetReq</a></code></li>
+<li><code><a title="raadpy.core.RestOperations.ValidateAuthAttrs" href="#raadpy.core.RestOperations.ValidateAuthAttrs">ValidateAuthAttrs</a></code></li>
+</ul>
+</li>
 <li>
 <h4><code><a title="raadpy.core.bcolors" href="#raadpy.core.bcolors">bcolors</a></code></h4>
 <ul class="two-column">

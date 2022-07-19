@@ -279,6 +279,10 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
         except:
             print(bcolors.WARNING+&#39;WARNING!&#39; + bcolors.ENDC +&#39; Condition &#39; + condition + &#39; is not valid for the dataset you requested. The data returned will not be filtered&#39;)
 
+    # Specific loading changes
+    if &#39;temperature&#39; in struct.keys():
+        data[&#39;temperature&#39;] -= 55
+        
     # Return the dictionary
     return data
 
@@ -475,7 +479,116 @@ def correct_time(data:dict,orbit:dict,key:str=&#39;rate0&#39;,TIME:int=20,RANGE_
     # Fix the total number of entries we have
     total_cnt = int(total_cnt)
 
-    return timestamp, total_cnt, valid_events</code></pre>
+    return timestamp, total_cnt, valid_events
+
+
+# Order the data according to entry number
+def sort(data,field=&#39;entry_nr&#39;):
+    &#34;&#34;&#34;Sort the data based on a metadata field
+
+    Args:
+        data (array of dictionaries): The array of dictionaries from the downloaded data
+        field (str, optional): The metadata field to sort according to. Defaults to &#39;entry_nr&#39;.
+
+    Returns:
+        sorted: Sorted list of lists
+    &#34;&#34;&#34;
+    if len(data) &lt;= 1: return data
+    
+    # Get the indices
+    idx = np.argsort([d[field] for d in data])
+    
+    # Sorted array
+    sorted = [data[idx[i]] for i in range(len(data))]
+
+    return sorted
+
+# Download data based on various keys
+def download_file_ver(buffer:int = 1, file_ver=1):
+    &#34;&#34;&#34;Download a data from NA server with a common file version
+
+    Args:
+        buffer (int, optional): The buffer to download. Defaults to 1.
+        file_ver (int, optional): The file version number. Defaults to 1.
+
+    Returns:
+        data: list of dictionaries with the rows
+    &#34;&#34;&#34;
+    # Generate some variables
+    fileName=&#34;pc_buff&#34;+str(buffer)
+    host=HOST
+    token=TOKEN
+
+    # Create a rest request
+    rest = RestOperations(f&#39;{host}/{fileName}_download?file_ver=eq.{file_ver}&#39;, authType = &#39;token&#39;, token = token)
+   
+    # Download the data using the request
+    data = rest.SendGetReq()
+
+    # Sort the data
+    data = sort(data)
+
+    return data
+
+# Download data based on time range
+def download_time_delta(buffer:int = 1, start:str=&#39;2022-06-01T00:00:00&#39;, end:str=&#39;2022-06-07T00:00:00&#39;):
+    &#34;&#34;&#34;Download NA data on a time interval 
+
+    Args:
+        buffer (int, optional): The buffer number. Defaults to 1.
+        start (str, optional): String with iso date to start. Defaults to &#39;2022-06-01T00:00:00&#39;.
+        end (str, optional): String with iso date to end. Defaults to &#39;2022-06-07T00:00:00&#39;.
+
+    Returns:
+        data: list of dictionaries with the rows
+    &#34;&#34;&#34;
+    # Generate some variables
+    fileName=&#34;pc_buff&#34;+str(buffer)
+    host=HOST
+    token=TOKEN
+    
+    # Create a rest request
+    rest = RestOperations(f&#39;{host}/{fileName}_download?file_ver=archived_ts=gte.{start}&amp;archived_ts=lt.{end}&#39;, authType = &#39;token&#39;, token = token)
+
+    # Download the data using the request
+    data = rest.SendGetReq()
+
+    # Sort the data
+    data = sort(data)
+
+    return data
+
+# Save this data to a file to avoid having them in memory
+def save_raw_data(data,filepath:str=&#39;./&#39;,buffer:int=1):
+    &#34;&#34;&#34;Save the raw data to a file in the computer
+
+    Args:
+        data (_type_): The raw data downloaded from NA server
+        filepath (str, optional): The path that you want to save the file to. Defaults to &#39;./&#39;.
+        buffer (int, optional): The buffer number. Defaults to 1.
+
+    Returns:
+        string: The filename of the file.
+    &#34;&#34;&#34;
+    # Create the filename
+    timestamp   = data[0][&#39;archived_ts&#39;]
+    date        = timestamp[0:timestamp.index(&#39;T&#39;)]
+    filename    = filepath + f&#39;Light1_{date}_Buff{buffer}.dat&#39;
+
+    # Load the file to write the output
+    file = open(filename,&#39;wb&#39;)
+
+    # Append the data
+    for row in data:
+        # Convert the hexadecimal entry to bytes
+        entry = bytes.fromhex(row[&#39;entry_data&#39;][2:])
+        file.write(entry)
+    
+    # Close the file
+    file.close()
+
+    # Return the filename if you need it
+    return filename</code></pre>
 </details>
 </section>
 <section>
@@ -763,6 +876,54 @@ end_cnt (int): Ending index on the corresponding buffer</p></div>
     return timestamp, start_cnt, end_cnt</code></pre>
 </details>
 </dd>
+<dt id="raadpy.functionality.download_file_ver"><code class="name flex">
+<span>def <span class="ident">download_file_ver</span></span>(<span>buffer: int = 1, file_ver=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Download a data from NA server with a common file version</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>buffer</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The buffer to download. Defaults to 1.</dd>
+<dt><strong><code>file_ver</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The file version number. Defaults to 1.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>data</code></dt>
+<dd>list of dictionaries with the rows</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def download_file_ver(buffer:int = 1, file_ver=1):
+    &#34;&#34;&#34;Download a data from NA server with a common file version
+
+    Args:
+        buffer (int, optional): The buffer to download. Defaults to 1.
+        file_ver (int, optional): The file version number. Defaults to 1.
+
+    Returns:
+        data: list of dictionaries with the rows
+    &#34;&#34;&#34;
+    # Generate some variables
+    fileName=&#34;pc_buff&#34;+str(buffer)
+    host=HOST
+    token=TOKEN
+
+    # Create a rest request
+    rest = RestOperations(f&#39;{host}/{fileName}_download?file_ver=eq.{file_ver}&#39;, authType = &#39;token&#39;, token = token)
+   
+    # Download the data using the request
+    data = rest.SendGetReq()
+
+    # Sort the data
+    data = sort(data)
+
+    return data</code></pre>
+</details>
+</dd>
 <dt id="raadpy.functionality.download_lightnings"><code class="name flex">
 <span>def <span class="ident">download_lightnings</span></span>(<span>event_time: astropy.time.core.Time, threshold: float = 360, VERBOSE=True)</span>
 </code></dt>
@@ -913,6 +1074,57 @@ end_cnt (int): Ending index on the corresponding buffer</p></div>
     return array(lights)</code></pre>
 </details>
 </dd>
+<dt id="raadpy.functionality.download_time_delta"><code class="name flex">
+<span>def <span class="ident">download_time_delta</span></span>(<span>buffer: int = 1, start: str = '2022-06-01T00:00:00', end: str = '2022-06-07T00:00:00')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Download NA data on a time interval </p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>buffer</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The buffer number. Defaults to 1.</dd>
+<dt><strong><code>start</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>String with iso date to start. Defaults to '2022-06-01T00:00:00'.</dd>
+<dt><strong><code>end</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>String with iso date to end. Defaults to '2022-06-07T00:00:00'.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>data</code></dt>
+<dd>list of dictionaries with the rows</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def download_time_delta(buffer:int = 1, start:str=&#39;2022-06-01T00:00:00&#39;, end:str=&#39;2022-06-07T00:00:00&#39;):
+    &#34;&#34;&#34;Download NA data on a time interval 
+
+    Args:
+        buffer (int, optional): The buffer number. Defaults to 1.
+        start (str, optional): String with iso date to start. Defaults to &#39;2022-06-01T00:00:00&#39;.
+        end (str, optional): String with iso date to end. Defaults to &#39;2022-06-07T00:00:00&#39;.
+
+    Returns:
+        data: list of dictionaries with the rows
+    &#34;&#34;&#34;
+    # Generate some variables
+    fileName=&#34;pc_buff&#34;+str(buffer)
+    host=HOST
+    token=TOKEN
+    
+    # Create a rest request
+    rest = RestOperations(f&#39;{host}/{fileName}_download?file_ver=archived_ts=gte.{start}&amp;archived_ts=lt.{end}&#39;, authType = &#39;token&#39;, token = token)
+
+    # Download the data using the request
+    data = rest.SendGetReq()
+
+    # Sort the data
+    data = sort(data)
+
+    return data</code></pre>
+</details>
+</dd>
 <dt id="raadpy.functionality.get_bit"><code class="name flex">
 <span>def <span class="ident">get_bit</span></span>(<span>i: int, string)</span>
 </code></dt>
@@ -1060,6 +1272,10 @@ string
         except:
             print(bcolors.WARNING+&#39;WARNING!&#39; + bcolors.ENDC +&#39; Condition &#39; + condition + &#39; is not valid for the dataset you requested. The data returned will not be filtered&#39;)
 
+    # Specific loading changes
+    if &#39;temperature&#39; in struct.keys():
+        data[&#39;temperature&#39;] -= 55
+        
     # Return the dictionary
     return data</code></pre>
 </details>
@@ -1131,6 +1347,103 @@ string
         raise Exception(&#34;Type %s is not of type event, or array. Please use an object of type event or array for the tgf&#34;%type(tgf))</code></pre>
 </details>
 </dd>
+<dt id="raadpy.functionality.save_raw_data"><code class="name flex">
+<span>def <span class="ident">save_raw_data</span></span>(<span>data, filepath: str = './', buffer: int = 1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Save the raw data to a file in the computer</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>_type_</code></dt>
+<dd>The raw data downloaded from NA server</dd>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The path that you want to save the file to. Defaults to './'.</dd>
+<dt><strong><code>buffer</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The buffer number. Defaults to 1.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>string</code></dt>
+<dd>The filename of the file.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_raw_data(data,filepath:str=&#39;./&#39;,buffer:int=1):
+    &#34;&#34;&#34;Save the raw data to a file in the computer
+
+    Args:
+        data (_type_): The raw data downloaded from NA server
+        filepath (str, optional): The path that you want to save the file to. Defaults to &#39;./&#39;.
+        buffer (int, optional): The buffer number. Defaults to 1.
+
+    Returns:
+        string: The filename of the file.
+    &#34;&#34;&#34;
+    # Create the filename
+    timestamp   = data[0][&#39;archived_ts&#39;]
+    date        = timestamp[0:timestamp.index(&#39;T&#39;)]
+    filename    = filepath + f&#39;Light1_{date}_Buff{buffer}.dat&#39;
+
+    # Load the file to write the output
+    file = open(filename,&#39;wb&#39;)
+
+    # Append the data
+    for row in data:
+        # Convert the hexadecimal entry to bytes
+        entry = bytes.fromhex(row[&#39;entry_data&#39;][2:])
+        file.write(entry)
+    
+    # Close the file
+    file.close()
+
+    # Return the filename if you need it
+    return filename</code></pre>
+</details>
+</dd>
+<dt id="raadpy.functionality.sort"><code class="name flex">
+<span>def <span class="ident">sort</span></span>(<span>data, field='entry_nr')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Sort the data based on a metadata field</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code> of <code>dictionaries</code></dt>
+<dd>The array of dictionaries from the downloaded data</dd>
+<dt><strong><code>field</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The metadata field to sort according to. Defaults to 'entry_nr'.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>sorted</code></dt>
+<dd>Sorted list of lists</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sort(data,field=&#39;entry_nr&#39;):
+    &#34;&#34;&#34;Sort the data based on a metadata field
+
+    Args:
+        data (array of dictionaries): The array of dictionaries from the downloaded data
+        field (str, optional): The metadata field to sort according to. Defaults to &#39;entry_nr&#39;.
+
+    Returns:
+        sorted: Sorted list of lists
+    &#34;&#34;&#34;
+    if len(data) &lt;= 1: return data
+    
+    # Get the indices
+    idx = np.argsort([d[field] for d in data])
+    
+    # Sorted array
+    sorted = [data[idx[i]] for i in range(len(data))]
+
+    return sorted</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 <section>
@@ -1152,13 +1465,17 @@ string
 <li><code><a title="raadpy.functionality.correct_time" href="#raadpy.functionality.correct_time">correct_time</a></code></li>
 <li><code><a title="raadpy.functionality.correct_time_FPGA" href="#raadpy.functionality.correct_time_FPGA">correct_time_FPGA</a></code></li>
 <li><code><a title="raadpy.functionality.correct_time_orbit" href="#raadpy.functionality.correct_time_orbit">correct_time_orbit</a></code></li>
+<li><code><a title="raadpy.functionality.download_file_ver" href="#raadpy.functionality.download_file_ver">download_file_ver</a></code></li>
 <li><code><a title="raadpy.functionality.download_lightnings" href="#raadpy.functionality.download_lightnings">download_lightnings</a></code></li>
 <li><code><a title="raadpy.functionality.download_lightnings_range" href="#raadpy.functionality.download_lightnings_range">download_lightnings_range</a></code></li>
+<li><code><a title="raadpy.functionality.download_time_delta" href="#raadpy.functionality.download_time_delta">download_time_delta</a></code></li>
 <li><code><a title="raadpy.functionality.get_bit" href="#raadpy.functionality.get_bit">get_bit</a></code></li>
 <li><code><a title="raadpy.functionality.get_bit_idx" href="#raadpy.functionality.get_bit_idx">get_bit_idx</a></code></li>
 <li><code><a title="raadpy.functionality.get_bits" href="#raadpy.functionality.get_bits">get_bits</a></code></li>
 <li><code><a title="raadpy.functionality.get_dict" href="#raadpy.functionality.get_dict">get_dict</a></code></li>
 <li><code><a title="raadpy.functionality.get_nearby_lightning" href="#raadpy.functionality.get_nearby_lightning">get_nearby_lightning</a></code></li>
+<li><code><a title="raadpy.functionality.save_raw_data" href="#raadpy.functionality.save_raw_data">save_raw_data</a></code></li>
+<li><code><a title="raadpy.functionality.sort" href="#raadpy.functionality.sort">sort</a></code></li>
 </ul>
 </li>
 </ul>
