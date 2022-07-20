@@ -562,3 +562,30 @@ def save_raw_data(data,filepath:str='./',buffer:int=1):
     # Return the filename if you need it
     return filename
 
+# Convert from binary
+def log_to_ascii(data,fileName:str=None):
+    """Decode binary log file to ascii
+
+    Args:
+        data (dictionary): The dictionary obtained from the downloaded NA code
+        fileName (str, optional): Filename to export the logfile to. If None then the file is not exported. Defaults to None.
+
+    Returns:
+        str: The decoded logfile as a string
+    """
+    # Store the full decoded text here
+    full_text = ''
+
+    # For every line in the logfile
+    for entry in data:
+        line =  bytes.fromhex(entry['entry_data'][2:]).decode("ASCII")
+        full_text += line
+
+    # If you need to store do so
+    if fileName is not None: 
+        file = open(fileName,'w')
+        file.write(full_text)
+        file.close()
+
+    # Return the full text
+    return full_text

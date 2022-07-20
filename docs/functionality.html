@@ -548,7 +548,7 @@ def download_time_delta(buffer:int = 1, start:str=&#39;2022-06-01T00:00:00&#39;,
     token=TOKEN
     
     # Create a rest request
-    rest = RestOperations(f&#39;{host}/{fileName}_download?file_ver=archived_ts=gte.{start}&amp;archived_ts=lt.{end}&#39;, authType = &#39;token&#39;, token = token)
+    rest = RestOperations(f&#39;{host}/{fileName}_download?archived_ts=gte.{start}&amp;archived_ts=lt.{end}&#39;, authType = &#39;token&#39;, token = token)
 
     # Download the data using the request
     data = rest.SendGetReq()
@@ -588,7 +588,35 @@ def save_raw_data(data,filepath:str=&#39;./&#39;,buffer:int=1):
     file.close()
 
     # Return the filename if you need it
-    return filename</code></pre>
+    return filename
+
+# Convert from binary
+def log_to_ascii(data,fileName:str=None):
+    &#34;&#34;&#34;Decode binary log file to ascii
+
+    Args:
+        data (dictionary): The dictionary obtained from the downloaded NA code
+        fileName (str, optional): Filename to export the logfile to. If None then the file is not exported. Defaults to None.
+
+    Returns:
+        str: The decoded logfile as a string
+    &#34;&#34;&#34;
+    # Store the full decoded text here
+    full_text = &#39;&#39;
+
+    # For every line in the logfile
+    for entry in data:
+        line =  bytes.fromhex(entry[&#39;entry_data&#39;][2:]).decode(&#34;ASCII&#34;)
+        full_text += line
+
+    # If you need to store do so
+    if fileName is not None: 
+        file = open(fileName,&#39;w&#39;)
+        file.write(full_text)
+        file.close()
+
+    # Return the full text
+    return full_text</code></pre>
 </details>
 </section>
 <section>
@@ -1114,7 +1142,7 @@ end_cnt (int): Ending index on the corresponding buffer</p></div>
     token=TOKEN
     
     # Create a rest request
-    rest = RestOperations(f&#39;{host}/{fileName}_download?file_ver=archived_ts=gte.{start}&amp;archived_ts=lt.{end}&#39;, authType = &#39;token&#39;, token = token)
+    rest = RestOperations(f&#39;{host}/{fileName}_download?archived_ts=gte.{start}&amp;archived_ts=lt.{end}&#39;, authType = &#39;token&#39;, token = token)
 
     # Download the data using the request
     data = rest.SendGetReq()
@@ -1347,6 +1375,55 @@ string
         raise Exception(&#34;Type %s is not of type event, or array. Please use an object of type event or array for the tgf&#34;%type(tgf))</code></pre>
 </details>
 </dd>
+<dt id="raadpy.functionality.log_to_ascii"><code class="name flex">
+<span>def <span class="ident">log_to_ascii</span></span>(<span>data, fileName: str = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Decode binary log file to ascii</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>dictionary</code></dt>
+<dd>The dictionary obtained from the downloaded NA code</dd>
+<dt><strong><code>fileName</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>Filename to export the logfile to. If None then the file is not exported. Defaults to None.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str</code></dt>
+<dd>The decoded logfile as a string</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def log_to_ascii(data,fileName:str=None):
+    &#34;&#34;&#34;Decode binary log file to ascii
+
+    Args:
+        data (dictionary): The dictionary obtained from the downloaded NA code
+        fileName (str, optional): Filename to export the logfile to. If None then the file is not exported. Defaults to None.
+
+    Returns:
+        str: The decoded logfile as a string
+    &#34;&#34;&#34;
+    # Store the full decoded text here
+    full_text = &#39;&#39;
+
+    # For every line in the logfile
+    for entry in data:
+        line =  bytes.fromhex(entry[&#39;entry_data&#39;][2:]).decode(&#34;ASCII&#34;)
+        full_text += line
+
+    # If you need to store do so
+    if fileName is not None: 
+        file = open(fileName,&#39;w&#39;)
+        file.write(full_text)
+        file.close()
+
+    # Return the full text
+    return full_text</code></pre>
+</details>
+</dd>
 <dt id="raadpy.functionality.save_raw_data"><code class="name flex">
 <span>def <span class="ident">save_raw_data</span></span>(<span>data, filepath: str = './', buffer: int = 1)</span>
 </code></dt>
@@ -1474,6 +1551,7 @@ string
 <li><code><a title="raadpy.functionality.get_bits" href="#raadpy.functionality.get_bits">get_bits</a></code></li>
 <li><code><a title="raadpy.functionality.get_dict" href="#raadpy.functionality.get_dict">get_dict</a></code></li>
 <li><code><a title="raadpy.functionality.get_nearby_lightning" href="#raadpy.functionality.get_nearby_lightning">get_nearby_lightning</a></code></li>
+<li><code><a title="raadpy.functionality.log_to_ascii" href="#raadpy.functionality.log_to_ascii">log_to_ascii</a></code></li>
 <li><code><a title="raadpy.functionality.save_raw_data" href="#raadpy.functionality.save_raw_data">save_raw_data</a></code></li>
 <li><code><a title="raadpy.functionality.sort" href="#raadpy.functionality.sort">sort</a></code></li>
 </ul>
