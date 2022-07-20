@@ -520,7 +520,7 @@ def download_time_delta(buffer:int = 1, start:str='2022-06-01T00:00:00', end:str
     token=TOKEN
     
     # Create a rest request
-    rest = RestOperations(f'{host}/{fileName}_download?file_ver=archived_ts=gte.{start}&archived_ts=lt.{end}', authType = 'token', token = token)
+    rest = RestOperations(f'{host}/{fileName}_download?archived_ts=gte.{start}&archived_ts=lt.{end}', authType = 'token', token = token)
 
     # Download the data using the request
     data = rest.SendGetReq()
