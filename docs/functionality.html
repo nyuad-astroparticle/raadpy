@@ -616,7 +616,182 @@ def log_to_ascii(data,fileName:str=None):
         file.close()
 
     # Return the full text
-    return full_text</code></pre>
+    return full_text
+
+
+# Parse a command
+def desc_finder(line:str,cmdlist,outputs,i,time,failed_idx):
+    &#34;&#34;&#34;Parse a command and return its status and description
+
+    Args:
+        line (str): The string of the command
+        cmdlist (pd.DataFrame): pandas data frame with the commands and their equivalent messages
+        outputs (_type_): _description_
+        i (_type_): _description_
+        time (_type_): _description_
+        failed_idx (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    &#34;&#34;&#34;
+
+    # Get the description
+    status = 1
+    splt = line.split(&#39; &#39;)
+
+    # define end of log file
+    if splt[-1] == &#39;SE0&gt;&#39;:
+        # desc = &#39;LOG END&#39;
+        desc = [-1,17]
+
+    # define commands from the command file
+    elif &#39;txrx&#39; in splt[1]:
+        node,port,msg = int(splt[2]),int(splt[3]),str(splt[5])
+
+        index = cmdlist.loc[(cmdlist[&#39;NODE&#39;]==node) &amp; (cmdlist[&#39;PORT&#39;]==port) &amp; (cmdlist[&#39;Message&#39;].str.startswith(msg)),[&#39;ID_COMMAND_Proposed&#39;,&#39;ID_in_Graph&#39;]]
+        
+        # include the power shutdown
+        if node == 4:
+            index = cmdlist.loc[(cmdlist[&#39;NODE&#39;]==node) &amp; (cmdlist[&#39;PORT&#39;]==port),[&#39;ID_COMMAND_Proposed&#39;,&#39;ID_in_Graph&#39;]]
+
+        # include the custom scenario
+        if port == 9:
+            index = cmdlist.loc[(cmdlist[&#39;NODE&#39;]==node) &amp; (cmdlist[&#39;PORT&#39;]==port),[&#39;ID_COMMAND_Proposed&#39;,&#39;ID_in_Graph&#39;]]
+        
+
+        #If index did not find anything
+        if len(index) == 0:
+            desc = []
+            
+        # if command found in command list
+        else:
+            desc = list(index.to_numpy()[0])
+        
+
+        if i in [fid for fid in failed_idx]:
+            time = time + (float(splt[4])/1000)
+            status = -1
+        
+
+    elif splt[1] == &#39;delay&#39;:
+        desc = []
+
+    elif splt[1] == &#39;delayuntil&#39;:
+        time = float(splt[2])
+        desc = []
+
+    elif &#39;read&#39; in splt[1]:
+        time = float(outputs[i][0].split(&#39; &#39;)[3])
+        desc = []
+
+    else:
+        desc = []
+    
+    return desc,time,status
+
+
+
+# Decode a logfile
+def decode_log(filename:str=&#34;../../../Data/Logs/light1-SD-1016-se-log.txt&#34;):
+    &#34;&#34;&#34;Take a log file and parse its commands to uncover thier timestamps
+
+    Args:
+        filename (str, optional): The filepath and filename of the log file. Defaults to &#34;../../../Data/Logs/light1-SD-1016-se-log.txt&#34;.
+
+    Returns:
+        _type_: Log, commands, outputs, description, failed_idx, loglines_array
+    &#34;&#34;&#34;
+
+    # Load the logfile
+    logfile = open(filename)
+    cmdlist = pd.read_csv(&#34;command_list.csv&#34;)
+
+    # Load the lines
+    loglines = logfile.readlines()
+
+    # Close the file
+    logfile.close()
+
+    # Create an array with the lines
+    commands    = []
+    outputs     = []
+    idx         = []
+    description = []
+    times       = []
+    fails       = []
+    failed_idx  = []
+
+    # Get commands and their indices
+    for i, line in enumerate(loglines):
+        if &#39;SE0&gt;&#39; in line:
+            commands.append(line)
+            idx.append(i)
+
+    # Check if the last command was empty
+    if loglines[-1] != &#39;SE0&gt;&#39;:
+        commands.append(&#39;SE0&gt;&#39;)
+        idx.append(len(loglines))
+
+    # Get the command output
+    for i in range(len(idx)-1):
+        out = []
+        if &#39;SE0&gt;#&#39; not in commands[i]:
+            for j in range(idx[i]+1,idx[i+1]):
+                out.append(loglines[j])
+        
+        outputs.append(out)
+
+    # Create the dictionary
+    log = [[command,output] for command,output in zip(commands,outputs)]
+
+    # Check which commands executed correcly
+  
+
+    # Find the commands that failed
+    for i in range(len(commands)-1):
+        for output in log[i][1]:
+            if &#39;FAIL&#39; in output:
+                failed_idx.append(i)
+
+
+    # Initialize time at 0s
+    time = 0
+    
+    # Give commands and use the finder function to pull the description, time ran, and if the command failed.
+    for k, id in enumerate(idx):
+        c = commands[k]
+        cmd = c.split(&#39;\n&#39;)[0]
+        desc,time,failed = desc_finder(cmd,cmdlist,outputs,k,time,failed_idx)
+
+        if len(desc) != 0:
+            description.append(desc)
+            times.append(time)
+            fails.append(failed)
+    tempname = &#39;templog.csv&#39;
+    fileDir = os.path.join(&#39;Defined_Logs&#39;)
+
+    if not os.path.exists(fileDir):
+        os.makedirs(fileDir)
+    
+    filePath = os.path.join(fileDir, tempname)
+
+    #Name the headers of the CSV File
+    header = [&#39;status&#39;,&#39;time&#39;,&#39;description&#39;,&#39;ID_in_Graph&#39;]
+
+    loglines_array = []
+
+    #Clear the file and write from scratch
+    with open(filePath, &#39;w&#39;, newline=&#39;&#39;) as file:
+        writer = csv.writer(file)
+        writer.writerow(header)
+
+        for i in range(len(description)):
+            g = (fails[i], times[i-1], description[i][0],description[i][1])
+            loglines_array.append(g)
+            writer.writerow(g)
+
+    # Return everything else
+    return log, commands[:-1], outputs, description, failed_idx, loglines_array</code></pre>
 </details>
 </section>
 <section>
@@ -902,6 +1077,226 @@ end_cnt (int): Ending index on the corresponding buffer</p></div>
     end_cnt = int(end_cnt)
 
     return timestamp, start_cnt, end_cnt</code></pre>
+</details>
+</dd>
+<dt id="raadpy.functionality.decode_log"><code class="name flex">
+<span>def <span class="ident">decode_log</span></span>(<span>filename: str = '../../../Data/Logs/light1-SD-1016-se-log.txt')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Take a log file and parse its commands to uncover thier timestamps</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filename</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The filepath and filename of the log file. Defaults to "../../../Data/Logs/light1-SD-1016-se-log.txt".</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>_type_</code></dt>
+<dd>Log, commands, outputs, description, failed_idx, loglines_array</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def decode_log(filename:str=&#34;../../../Data/Logs/light1-SD-1016-se-log.txt&#34;):
+    &#34;&#34;&#34;Take a log file and parse its commands to uncover thier timestamps
+
+    Args:
+        filename (str, optional): The filepath and filename of the log file. Defaults to &#34;../../../Data/Logs/light1-SD-1016-se-log.txt&#34;.
+
+    Returns:
+        _type_: Log, commands, outputs, description, failed_idx, loglines_array
+    &#34;&#34;&#34;
+
+    # Load the logfile
+    logfile = open(filename)
+    cmdlist = pd.read_csv(&#34;command_list.csv&#34;)
+
+    # Load the lines
+    loglines = logfile.readlines()
+
+    # Close the file
+    logfile.close()
+
+    # Create an array with the lines
+    commands    = []
+    outputs     = []
+    idx         = []
+    description = []
+    times       = []
+    fails       = []
+    failed_idx  = []
+
+    # Get commands and their indices
+    for i, line in enumerate(loglines):
+        if &#39;SE0&gt;&#39; in line:
+            commands.append(line)
+            idx.append(i)
+
+    # Check if the last command was empty
+    if loglines[-1] != &#39;SE0&gt;&#39;:
+        commands.append(&#39;SE0&gt;&#39;)
+        idx.append(len(loglines))
+
+    # Get the command output
+    for i in range(len(idx)-1):
+        out = []
+        if &#39;SE0&gt;#&#39; not in commands[i]:
+            for j in range(idx[i]+1,idx[i+1]):
+                out.append(loglines[j])
+        
+        outputs.append(out)
+
+    # Create the dictionary
+    log = [[command,output] for command,output in zip(commands,outputs)]
+
+    # Check which commands executed correcly
+  
+
+    # Find the commands that failed
+    for i in range(len(commands)-1):
+        for output in log[i][1]:
+            if &#39;FAIL&#39; in output:
+                failed_idx.append(i)
+
+
+    # Initialize time at 0s
+    time = 0
+    
+    # Give commands and use the finder function to pull the description, time ran, and if the command failed.
+    for k, id in enumerate(idx):
+        c = commands[k]
+        cmd = c.split(&#39;\n&#39;)[0]
+        desc,time,failed = desc_finder(cmd,cmdlist,outputs,k,time,failed_idx)
+
+        if len(desc) != 0:
+            description.append(desc)
+            times.append(time)
+            fails.append(failed)
+    tempname = &#39;templog.csv&#39;
+    fileDir = os.path.join(&#39;Defined_Logs&#39;)
+
+    if not os.path.exists(fileDir):
+        os.makedirs(fileDir)
+    
+    filePath = os.path.join(fileDir, tempname)
+
+    #Name the headers of the CSV File
+    header = [&#39;status&#39;,&#39;time&#39;,&#39;description&#39;,&#39;ID_in_Graph&#39;]
+
+    loglines_array = []
+
+    #Clear the file and write from scratch
+    with open(filePath, &#39;w&#39;, newline=&#39;&#39;) as file:
+        writer = csv.writer(file)
+        writer.writerow(header)
+
+        for i in range(len(description)):
+            g = (fails[i], times[i-1], description[i][0],description[i][1])
+            loglines_array.append(g)
+            writer.writerow(g)
+
+    # Return everything else
+    return log, commands[:-1], outputs, description, failed_idx, loglines_array</code></pre>
+</details>
+</dd>
+<dt id="raadpy.functionality.desc_finder"><code class="name flex">
+<span>def <span class="ident">desc_finder</span></span>(<span>line: str, cmdlist, outputs, i, time, failed_idx)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Parse a command and return its status and description</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>line</code></strong> :&ensp;<code>str</code></dt>
+<dd>The string of the command</dd>
+<dt><strong><code>cmdlist</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dd>pandas data frame with the commands and their equivalent messages</dd>
+<dt><strong><code>outputs</code></strong> :&ensp;<code>_type_</code></dt>
+<dd><em>description</em></dd>
+<dt><strong><code>i</code></strong> :&ensp;<code>_type_</code></dt>
+<dd><em>description</em></dd>
+<dt><strong><code>time</code></strong> :&ensp;<code>_type_</code></dt>
+<dd><em>description</em></dd>
+<dt><strong><code>failed_idx</code></strong> :&ensp;<code>_type_</code></dt>
+<dd><em>description</em></dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>_type_</code></dt>
+<dd><em>description</em></dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def desc_finder(line:str,cmdlist,outputs,i,time,failed_idx):
+    &#34;&#34;&#34;Parse a command and return its status and description
+
+    Args:
+        line (str): The string of the command
+        cmdlist (pd.DataFrame): pandas data frame with the commands and their equivalent messages
+        outputs (_type_): _description_
+        i (_type_): _description_
+        time (_type_): _description_
+        failed_idx (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    &#34;&#34;&#34;
+
+    # Get the description
+    status = 1
+    splt = line.split(&#39; &#39;)
+
+    # define end of log file
+    if splt[-1] == &#39;SE0&gt;&#39;:
+        # desc = &#39;LOG END&#39;
+        desc = [-1,17]
+
+    # define commands from the command file
+    elif &#39;txrx&#39; in splt[1]:
+        node,port,msg = int(splt[2]),int(splt[3]),str(splt[5])
+
+        index = cmdlist.loc[(cmdlist[&#39;NODE&#39;]==node) &amp; (cmdlist[&#39;PORT&#39;]==port) &amp; (cmdlist[&#39;Message&#39;].str.startswith(msg)),[&#39;ID_COMMAND_Proposed&#39;,&#39;ID_in_Graph&#39;]]
+        
+        # include the power shutdown
+        if node == 4:
+            index = cmdlist.loc[(cmdlist[&#39;NODE&#39;]==node) &amp; (cmdlist[&#39;PORT&#39;]==port),[&#39;ID_COMMAND_Proposed&#39;,&#39;ID_in_Graph&#39;]]
+
+        # include the custom scenario
+        if port == 9:
+            index = cmdlist.loc[(cmdlist[&#39;NODE&#39;]==node) &amp; (cmdlist[&#39;PORT&#39;]==port),[&#39;ID_COMMAND_Proposed&#39;,&#39;ID_in_Graph&#39;]]
+        
+
+        #If index did not find anything
+        if len(index) == 0:
+            desc = []
+            
+        # if command found in command list
+        else:
+            desc = list(index.to_numpy()[0])
+        
+
+        if i in [fid for fid in failed_idx]:
+            time = time + (float(splt[4])/1000)
+            status = -1
+        
+
+    elif splt[1] == &#39;delay&#39;:
+        desc = []
+
+    elif splt[1] == &#39;delayuntil&#39;:
+        time = float(splt[2])
+        desc = []
+
+    elif &#39;read&#39; in splt[1]:
+        time = float(outputs[i][0].split(&#39; &#39;)[3])
+        desc = []
+
+    else:
+        desc = []
+    
+    return desc,time,status</code></pre>
 </details>
 </dd>
 <dt id="raadpy.functionality.download_file_ver"><code class="name flex">
@@ -1542,6 +1937,8 @@ string
 <li><code><a title="raadpy.functionality.correct_time" href="#raadpy.functionality.correct_time">correct_time</a></code></li>
 <li><code><a title="raadpy.functionality.correct_time_FPGA" href="#raadpy.functionality.correct_time_FPGA">correct_time_FPGA</a></code></li>
 <li><code><a title="raadpy.functionality.correct_time_orbit" href="#raadpy.functionality.correct_time_orbit">correct_time_orbit</a></code></li>
+<li><code><a title="raadpy.functionality.decode_log" href="#raadpy.functionality.decode_log">decode_log</a></code></li>
+<li><code><a title="raadpy.functionality.desc_finder" href="#raadpy.functionality.desc_finder">desc_finder</a></code></li>
 <li><code><a title="raadpy.functionality.download_file_ver" href="#raadpy.functionality.download_file_ver">download_file_ver</a></code></li>
 <li><code><a title="raadpy.functionality.download_lightnings" href="#raadpy.functionality.download_lightnings">download_lightnings</a></code></li>
 <li><code><a title="raadpy.functionality.download_lightnings_range" href="#raadpy.functionality.download_lightnings_range">download_lightnings_range</a></code></li>

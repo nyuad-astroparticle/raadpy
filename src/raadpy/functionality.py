@@ -589,3 +589,178 @@ def log_to_ascii(data,fileName:str=None):
 
     # Return the full text
     return full_text
+
+
+# Parse a command
+def desc_finder(line:str,cmdlist,outputs,i,time,failed_idx):
+    """Parse a command and return its status and description
+
+    Args:
+        line (str): The string of the command
+        cmdlist (pd.DataFrame): pandas data frame with the commands and their equivalent messages
+        outputs (_type_): _description_
+        i (_type_): _description_
+        time (_type_): _description_
+        failed_idx (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+
+    # Get the description
+    status = 1
+    splt = line.split(' ')
+
+    # define end of log file
+    if splt[-1] == 'SE0>':
+        # desc = 'LOG END'
+        desc = [-1,17]
+
+    # define commands from the command file
+    elif 'txrx' in splt[1]:
+        node,port,msg = int(splt[2]),int(splt[3]),str(splt[5])
+
+        index = cmdlist.loc[(cmdlist['NODE']==node) & (cmdlist['PORT']==port) & (cmdlist['Message'].str.startswith(msg)),['ID_COMMAND_Proposed','ID_in_Graph']]
+        
+        # include the power shutdown
+        if node == 4:
+            index = cmdlist.loc[(cmdlist['NODE']==node) & (cmdlist['PORT']==port),['ID_COMMAND_Proposed','ID_in_Graph']]
+
+        # include the custom scenario
+        if port == 9:
+            index = cmdlist.loc[(cmdlist['NODE']==node) & (cmdlist['PORT']==port),['ID_COMMAND_Proposed','ID_in_Graph']]
+        
+
+        #If index did not find anything
+        if len(index) == 0:
+            desc = []
+            
+        # if command found in command list
+        else:
+            desc = list(index.to_numpy()[0])
+        
+
+        if i in [fid for fid in failed_idx]:
+            time = time + (float(splt[4])/1000)
+            status = -1
+        
+
+    elif splt[1] == 'delay':
+        desc = []
+
+    elif splt[1] == 'delayuntil':
+        time = float(splt[2])
+        desc = []
+
+    elif 'read' in splt[1]:
+        time = float(outputs[i][0].split(' ')[3])
+        desc = []
+
+    else:
+        desc = []
+    
+    return desc,time,status
+
+
+
+# Decode a logfile
+def decode_log(filename:str="../../../Data/Logs/light1-SD-1016-se-log.txt"):
+    """Take a log file and parse its commands to uncover thier timestamps
+
+    Args:
+        filename (str, optional): The filepath and filename of the log file. Defaults to "../../../Data/Logs/light1-SD-1016-se-log.txt".
+
+    Returns:
+        _type_: Log, commands, outputs, description, failed_idx, loglines_array
+    """
+
+    # Load the logfile
+    logfile = open(filename)
+    cmdlist = pd.read_csv("command_list.csv")
+
+    # Load the lines
+    loglines = logfile.readlines()
+
+    # Close the file
+    logfile.close()
+
+    # Create an array with the lines
+    commands    = []
+    outputs     = []
+    idx         = []
+    description = []
+    times       = []
+    fails       = []
+    failed_idx  = []
+
+    # Get commands and their indices
+    for i, line in enumerate(loglines):
+        if 'SE0>' in line:
+            commands.append(line)
+            idx.append(i)
+
+    # Check if the last command was empty
+    if loglines[-1] != 'SE0>':
+        commands.append('SE0>')
+        idx.append(len(loglines))
+
+    # Get the command output
+    for i in range(len(idx)-1):
+        out = []
+        if 'SE0>#' not in commands[i]:
+            for j in range(idx[i]+1,idx[i+1]):
+                out.append(loglines[j])
+        
+        outputs.append(out)
+
+    # Create the dictionary
+    log = [[command,output] for command,output in zip(commands,outputs)]
+
+    # Check which commands executed correcly
+  
+
+    # Find the commands that failed
+    for i in range(len(commands)-1):
+        for output in log[i][1]:
+            if 'FAIL' in output:
+                failed_idx.append(i)
+
+
+    # Initialize time at 0s
+    time = 0
+    
+    # Give commands and use the finder function to pull the description, time ran, and if the command failed.
+    for k, id in enumerate(idx):
+        c = commands[k]
+        cmd = c.split('\n')[0]
+        desc,time,failed = desc_finder(cmd,cmdlist,outputs,k,time,failed_idx)
+
+        if len(desc) != 0:
+            description.append(desc)
+            times.append(time)
+            fails.append(failed)
+    tempname = 'templog.csv'
+    fileDir = os.path.join('Defined_Logs')
+
+    if not os.path.exists(fileDir):
+        os.makedirs(fileDir)
+    
+    filePath = os.path.join(fileDir, tempname)
+
+    #Name the headers of the CSV File
+    header = ['status','time','description','ID_in_Graph']
+
+    loglines_array = []
+
+    #Clear the file and write from scratch
+    with open(filePath, 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(header)
+
+        for i in range(len(description)):
+            g = (fails[i], times[i-1], description[i][0],description[i][1])
+            loglines_array.append(g)
+            writer.writerow(g)
+
+    # Return everything else
+    return log, commands[:-1], outputs, description, failed_idx, loglines_array
