@@ -3,17 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.10.0" />
+<meta name="generator" content="pdoc 0.8.1" />
 <title>raadpy.functionality API documentation</title>
 <meta name="description" content="" />
-<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
-<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
-<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
-<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
-<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 </head>
 <body>
 <main>
@@ -482,6 +480,51 @@ def correct_time(data:dict,orbit:dict,key:str=&#39;rate0&#39;,TIME:int=20,RANGE_
     return timestamp, total_cnt, valid_events
 
 
+# Download a range of data based on some limit
+def download_range(url:str,token,limit:int=5000,VERBOSE:bool=False):
+    &#34;&#34;&#34;Downloads a range of data given a url and a token from the NA servers. 
+    Automatically handles large file sizes.
+
+    Args:
+        url (str): the url from the NA server with the data to download from 
+        token (str): The string value of the token for security authentication
+        limit (int, optional): Number of rows to download at one go. Large numbers make the server crash. Defaults to 5000.
+        VERBOSE (bool, optional): If true update statistics are printed while the fies is being downloaded. Defaults to False.
+
+    Returns:
+        data (list): a list of the binary strings of the downloaded data
+    &#34;&#34;&#34;
+
+    # store the result
+    data        = []
+    last_data   = []
+    seq         = -1
+    cnt         = 0
+
+    # Keep downloading until there is nothing left
+    while True:
+        # Print how much data you have downloaded
+        clear(wait=True)
+        if VERBOSE: 
+            print(&#39;Current File: &#39;,url,&#39;\nEntries Downloaded:&#39;,len(data),&#39;\nLast Sequence Number:&#39;,seq,&#39;\nIterations:&#39;,cnt)
+            # find the number of bytes per entry
+            print(&#39;Bytes per entry: &#39;,np.unique([len(d) for d in data]))
+            cnt+=1
+
+        # Do the REST stuff
+        rest = RestOperations(url+f&#39;&amp;limit={limit}&amp;seq_nr=gte.{seq}&#39;, authType = &#39;token&#39;, token = token)
+       
+        # Download the data
+        last_data   = rest.SendGetReq()
+        data        += last_data
+
+        # If there are no more data exit
+        if len(last_data) &lt; limit or seq == max([datum[&#39;seq_nr&#39;] for datum in data]):
+            return data
+        
+        # Find the last sequence number
+        seq = max([datum[&#39;seq_nr&#39;] for datum in data])
+
 # Order the data according to entry number
 def sort(data,field=&#39;entry_nr&#39;):
     &#34;&#34;&#34;Sort the data based on a metadata field
@@ -516,14 +559,40 @@ def download_file_ver(buffer:int = 1, file_ver=1):
     &#34;&#34;&#34;
     # Generate some variables
     fileName=&#34;pc_buff&#34;+str(buffer)
-    host=HOST
-    token=TOKEN
+    host=&#34;https://light1.mcs.nanoavionics.com&#34;
+    token=&#34;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoia2hhbGlmYSIsImV4cCI6MTcwNDA2NzIwMCwiZW1haWwiOiJhZGcxMUBueXUuZWR1In0.LiV8bfKb2JUG2eIIxouXKebQpPFLXewO1BqoOD22xS4&#34;
+    url = f&#39;{host}/{fileName}_download?file_ver=eq.{file_ver}&#39;
 
-    # Create a rest request
-    rest = RestOperations(f&#39;{host}/{fileName}_download?file_ver=eq.{file_ver}&#39;, authType = &#39;token&#39;, token = token)
-   
-    # Download the data using the request
-    data = rest.SendGetReq()
+    # Download the data using segmented download
+    data = download_range(url,token,VERBOSE=True)
+
+    # Sort the data
+    data = sort(data)
+
+    return data
+
+# Download data based on various keys
+def download_log(start:str=None,end:str=None):
+    &#34;&#34;&#34;Download a log file from the NA version
+
+    Args:
+        file_ver (int, optional): The file version number. Defaults to 1.
+
+    Returns:
+        data: list of dictionaries with the rows
+    &#34;&#34;&#34;
+    # Generate some variables
+    fileName=&#34;pc_se0_log&#34;
+    host=&#34;https://light1.mcs.nanoavionics.com&#34;
+    token=&#34;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoia2hhbGlmYSIsImV4cCI6MTcwNDA2NzIwMCwiZW1haWwiOiJhZGcxMUBueXUuZWR1In0.LiV8bfKb2JUG2eIIxouXKebQpPFLXewO1BqoOD22xS4&#34;
+    url = f&#39;{host}/{fileName}_download?&#39;
+    if start is not None: 
+        url += f&#39;archived_ts=gte.{start}&#39;
+        if end is not None: url += f&#39;&amp;archived_ts=lt.{end}&#39;
+    elif end is not None: url += f&#39;archived_ts=lt.{end}&#39;
+
+    # Download the data using segmented download
+    data = download_range(url,token,VERBOSE=True)
 
     # Sort the data
     data = sort(data)
@@ -531,7 +600,7 @@ def download_file_ver(buffer:int = 1, file_ver=1):
     return data
 
 # Download data based on time range
-def download_time_delta(buffer:int = 1, start:str=&#39;2022-06-01T00:00:00&#39;, end:str=&#39;2022-06-07T00:00:00&#39;):
+def download_time_delta(buffer:int = 1, start:str=None, end:str=None):
     &#34;&#34;&#34;Download NA data on a time interval 
 
     Args:
@@ -544,14 +613,16 @@ def download_time_delta(buffer:int = 1, start:str=&#39;2022-06-01T00:00:00&#39;,
     &#34;&#34;&#34;
     # Generate some variables
     fileName=&#34;pc_buff&#34;+str(buffer)
-    host=HOST
-    token=TOKEN
-    
-    # Create a rest request
-    rest = RestOperations(f&#39;{host}/{fileName}_download?archived_ts=gte.{start}&amp;archived_ts=lt.{end}&#39;, authType = &#39;token&#39;, token = token)
+    host=&#34;https://light1.mcs.nanoavionics.com&#34;
+    token=&#34;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoia2hhbGlmYSIsImV4cCI6MTcwNDA2NzIwMCwiZW1haWwiOiJhZGcxMUBueXUuZWR1In0.LiV8bfKb2JUG2eIIxouXKebQpPFLXewO1BqoOD22xS4&#34;
+    url = f&#39;{host}/{fileName}_download?&#39;
+    if start is not None: 
+        url += f&#39;archived_ts=gte.{start}&#39;
+        if end is not None: url += f&#39;&amp;archived_ts=lt.{end}&#39;
+    elif end is not None: url += f&#39;archived_ts=lt.{end}&#39;
 
-    # Download the data using the request
-    data = rest.SendGetReq()
+    # Download the data using segmented download
+    data = download_range(url,token,VERBOSE=True)
 
     # Sort the data
     data = sort(data)
@@ -571,9 +642,9 @@ def save_raw_data(data,filepath:str=&#39;./&#39;,buffer:int=1):
         string: The filename of the file.
     &#34;&#34;&#34;
     # Create the filename
-    timestamp   = data[0][&#39;archived_ts&#39;]
+    timestamp   = &#39;2022-NA-NAT&#39; if len(data) == 0 else data[0][&#39;archived_ts&#39;]
     date        = timestamp[0:timestamp.index(&#39;T&#39;)]
-    filename    = filepath + f&#39;Light1_{date}_Buff{buffer}.dat&#39;
+    filename    = filepath + f&#39;light1-{date}-buff{buffer}.dat&#39;
 
     # Load the file to write the output
     file = open(filename,&#39;wb&#39;)
@@ -618,6 +689,176 @@ def log_to_ascii(data,fileName:str=None):
     # Return the full text
     return full_text
 
+# Parse a logfile and obtain metadata
+def log_expand(filename:str=None,text:str=None):
+    &#34;&#34;&#34;Gets a logfile and decodes it to a list of commands. 
+    If a text value is given then it decodes the text, if not, it then decodes the value from the filename
+
+    Args:
+        text (str, optional): The text of the logfile. Defaults to None.
+        filename (str, optional): The filename of the file where the logfile is. Defaults to None.
+
+    Raises:
+        BaseException: If both parameters are left as None, then nothing happens. 
+
+    Returns:
+        decoded_logfile (list): List of lists. Each entry is a tuple with a command and a list for the outputs. 
+    &#34;&#34;&#34;
+
+    # Do some argument processing:
+    if filename is not None:
+        # Load the logfile
+        logfile = open(filename)
+
+        # Load the lines
+        loglines = logfile.readlines()
+
+        # Close the file
+        logfile.close()
+
+    elif text is not None:
+        loglines = text.split(&#39;\n&#39;)
+
+    else: raise BaseException(&#34;Please enter input&#34;)
+
+    # Add an SE0&gt; line at the end if it doesn&#39;t exist
+    if &#34;SE0&gt;&#34; not in loglines[-1]: loglines.append(&#34;SE0&gt;&#34;)
+
+    # Decode the file
+    # Find the indices of hte command lines
+    commands_idx = [i for i,line in enumerate(loglines) if &#39;SE0&gt;&#39; in line]
+    
+    # Collect the outputs of the commands
+    decoded_log = [[loglines[commands_idx[i]],loglines[commands_idx[i]+1:commands_idx[i+1]]] for i in range(len(commands_idx)-1)]
+
+    # Return
+    return decoded_log
+
+# Parse custom command from satellite
+def parse_custom_scenario(cmd:str):
+    &#34;&#34;&#34;Parses a custom scenario command message string to a dictionary of decoded hex values
+
+    Args:
+        cmd (str): Teh command message
+
+    Returns:
+        dict: The dictionary with outputs of all the relevant parameters set for the particular payload
+    &#34;&#34;&#34;
+    # Store the data in a dictionary
+    data = {}
+
+    # Decode the information from the string
+    data[&#39;hv&#39;]          = int(cmd[0:4],base=16)
+    data[&#39;veto_hv&#39;]     = int(cmd[4:8],base=16)
+    data[&#39;ch0_thresh&#39;]  = int(cmd[10:12]+cmd[8:10],base=16)
+    data[&#39;ch1_thresh&#39;]  = int(cmd[14:16]+cmd[12:14],base=16)
+    data[&#39;ch2_thresh&#39;]  = int(cmd[18:20]+cmd[16:18],base=16)
+    data[&#39;ch3_thresh&#39;]  = int(cmd[22:24]+cmd[20:22],base=16)
+
+    return data
+
+# Obtain the metadata from a parsed logfile
+def log_metadata(decoded_log:list):
+
+    # metadata array initialization
+    metadata = {
+        &#39;start_time&#39;:       None,
+        &#39;end_time&#39;:         None,
+        &#39;hv_SiPM&#39;:          -1,
+        &#39;hv_PMT&#39;:           -1,
+        &#39;hv_veto_SiPM&#39;:     -1,
+        &#39;hv_veto_PMT&#39;:      -1,
+        &#39;thresholds_SiPM&#39;:{
+            &#39;channel_0&#39;:    0,
+            &#39;channel_1&#39;:    0,
+            &#39;channel_2&#39;:    0,
+            &#39;channel_3&#39;:    0,
+        },
+        &#39;thresholds_PMT&#39;:{
+            &#39;channel_0&#39;:    0,
+            &#39;channel_1&#39;:    0,
+            &#39;channel_2&#39;:    0,
+            &#39;channel_3&#39;:    0,
+        },
+        &#39;custom_scenario_PMT&#39;: -1,
+        &#39;custom_scenario_SiPM&#39;: -1
+    }
+
+    # Get the command list
+    commands = [row[0] for row in decoded_log]
+
+    # Find the start and end of the data acquisition
+    # Index of start and end timestamps:
+    start = [i for i in range(len(commands)) if &#34;rtc read&#34; in commands[i]]
+    if len(start) != 0: metadata[&#39;start_time&#39;]  = decoded_log[start[0] ][1][0][-21:-2]
+    if len(start) &gt;= 2: metadata[&#39;end_time&#39;]    = decoded_log[start[-1]][1][0][-21:-2]
+
+    # Find the custom scenario commands for SiPM and PMT
+    for num,payload in zip([12,13],[&#39;SiPM&#39;,&#39;PMT&#39;]):
+        # Get all the commands with the custom scenario
+        custom_commands = np.unique([commands[i] for i in range(len(commands)) if f&#34;csp txrx {num} 9 3000&#34; in commands[i]])
+        
+        # If there are any, decode them and replace
+        if len(custom_commands) != 0: 
+            message = custom_commands[0].split(&#39; &#39;)[-1][:-1]
+            data    = parse_custom_scenario(message)
+
+            # Update the decoded data to the metadata
+            metadata[&#39;hv_&#39;+payload]                         = data[&#39;hv&#39;]
+            metadata[&#39;hv_veto_&#39;+payload]                    = data[&#39;veto_hv&#39;]
+            metadata[&#39;thresholds_&#39;+payload][&#39;channel_0&#39;]    = data[&#39;ch0_thresh&#39;]
+            metadata[&#39;thresholds_&#39;+payload][&#39;channel_1&#39;]    = data[&#39;ch1_thresh&#39;]
+            metadata[&#39;thresholds_&#39;+payload][&#39;channel_2&#39;]    = data[&#39;ch2_thresh&#39;]
+            metadata[&#39;thresholds_&#39;+payload][&#39;channel_3&#39;]    = data[&#39;ch3_thresh&#39;]
+            metadata[&#39;custom_scenario_&#39;+payload]            = message
+        
+
+    # Return the metadata
+    return metadata
+
+# Download script packet
+def download_data_packet(start:str=None,end:str=None,filepath:str=&#39;./&#39;):
+    &#34;&#34;&#34;Download a packet of data from light-1 NA Server. This is the main library used.
+
+    Args:
+        start (str, optional): The start timestamp iso. Defaults to None.
+        end (str, optional): The end timestmap in iso. Defaults to None.
+        filepath (str, optional): The filepath to save everyhing. Defaults to &#39;./&#39;.
+
+    Returns:
+        str: The madatadata of the filename
+    &#34;&#34;&#34;
+    
+    # Create a directory to store all this data
+    if start is not None: filepath += &#39;light1-&#39;+start[:start.index(&#39;T&#39;)]+&#39;/&#39;
+    else: filepath += &#39;light1-data/&#39;
+    os.mkdir(filepath)
+
+    # List that holds all the filenames
+    filenames = []
+
+    # First go ahead and download all the buffers
+    for i in tqdm(range(1,10),desc=&#39;Downloading Buffer&#39;):
+        # Download the data of the buffer
+        data    = download_time_delta(buffer=i,start=start,end=end)
+
+        # Save the data of the buffer
+        fname   = save_raw_data(data,filepath=filepath,buffer=i)
+        filenames.append(fname)
+
+    # Download the script log
+    log         = download_log(start=start,end=end)
+    if start is not None: log = log_to_ascii(log,fileName=filepath+&#39;light1-&#39;+start[:start.index(&#39;T&#39;)]+&#39;-se-log.txt&#39;)
+    else: log = log_to_ascii(log,fileName=filepath+&#39;light1-se-log.txt&#39;)
+    decoded_log = log_expand(text=log)
+
+    # Extract the metadata from the logfile
+    metadata = log_metadata(decoded_log=decoded_log)
+
+    # Save the datafile as a json on the same directory
+    with open(filepath + &#34;metadata.json&#34;,&#34;w&#34;) as meta_file: json.dump(metadata,meta_file,indent=4)
+
+    return metadata
 
 # Parse a command
 def desc_finder(line:str,cmdlist,outputs,i,time,failed_idx):
@@ -826,9 +1067,14 @@ def decode_log(filename:str=&#34;../../../Data/Logs/light1-SD-1016-se-log.txt&#3
 <dd>The maximum value of the FPGA counter. Defaults to 10000-1.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>timestamp (np.array): New timestamp values
-total_cnt (int): Number of datapoints translated
-valid_events (list): list of indices of valid events</p></div>
+<dl>
+<dt><code>timestamp (np.array): New timestamp values</code></dt>
+<dd>&nbsp;</dd>
+<dt><code>total_cnt (int): Number</code> of <code>datapoints translated</code></dt>
+<dd>&nbsp;</dd>
+<dt><code>valid_events (list): list</code> of <code>indices</code> of <code>valid events</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -927,9 +1173,14 @@ valid_events (list): list of indices of valid events</p></div>
 <dd>Return the start and end indices of the selected events. Defaults to False.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>timestamp (np.array): Array with the corrected timstamp for each valid entry
-valid_entries (list): Indices of the valid entries within the dataset (AKA. The nonsaturated entries)
-ramps (np.array): Array of tuples each with the start and end of a rising segment</p></div>
+<dl>
+<dt><code>timestamp (np.array): Array with the corrected timstamp for each valid entry</code></dt>
+<dd>&nbsp;</dd>
+<dt><code>valid_entries (list): Indices</code> of <code>the valid entries within the dataset (AKA. The nonsaturated entries)</code></dt>
+<dd>&nbsp;</dd>
+<dt><code>ramps (np.array): Array</code> of <code>tuples each with the start and end</code> of <code>a rising segment</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1024,9 +1275,14 @@ ramps (np.array): Array of tuples each with the start and end of a rising segmen
 <dd>a range of indices to translate of the orbit buffer. Defaults to (0,100).</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>timestamp (np.array): Array with the corrected timestamps
-start_cnt (int): Starting index on the corresponding buffer
-end_cnt (int): Ending index on the corresponding buffer</p></div>
+<dl>
+<dt><code>timestamp (np.array): Array with the corrected timestamps</code></dt>
+<dd>&nbsp;</dd>
+<dt><code>start_cnt (int): Starting index on the corresponding buffer</code></dt>
+<dd>&nbsp;</dd>
+<dt><code>end_cnt (int): Ending index on the corresponding buffer</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1299,6 +1555,73 @@ end_cnt (int): Ending index on the corresponding buffer</p></div>
     return desc,time,status</code></pre>
 </details>
 </dd>
+<dt id="raadpy.functionality.download_data_packet"><code class="name flex">
+<span>def <span class="ident">download_data_packet</span></span>(<span>start: str = None, end: str = None, filepath: str = './')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Download a packet of data from light-1 NA Server. This is the main library used.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The start timestamp iso. Defaults to None.</dd>
+<dt><strong><code>end</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The end timestmap in iso. Defaults to None.</dd>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The filepath to save everyhing. Defaults to './'.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str</code></dt>
+<dd>The madatadata of the filename</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def download_data_packet(start:str=None,end:str=None,filepath:str=&#39;./&#39;):
+    &#34;&#34;&#34;Download a packet of data from light-1 NA Server. This is the main library used.
+
+    Args:
+        start (str, optional): The start timestamp iso. Defaults to None.
+        end (str, optional): The end timestmap in iso. Defaults to None.
+        filepath (str, optional): The filepath to save everyhing. Defaults to &#39;./&#39;.
+
+    Returns:
+        str: The madatadata of the filename
+    &#34;&#34;&#34;
+    
+    # Create a directory to store all this data
+    if start is not None: filepath += &#39;light1-&#39;+start[:start.index(&#39;T&#39;)]+&#39;/&#39;
+    else: filepath += &#39;light1-data/&#39;
+    os.mkdir(filepath)
+
+    # List that holds all the filenames
+    filenames = []
+
+    # First go ahead and download all the buffers
+    for i in tqdm(range(1,10),desc=&#39;Downloading Buffer&#39;):
+        # Download the data of the buffer
+        data    = download_time_delta(buffer=i,start=start,end=end)
+
+        # Save the data of the buffer
+        fname   = save_raw_data(data,filepath=filepath,buffer=i)
+        filenames.append(fname)
+
+    # Download the script log
+    log         = download_log(start=start,end=end)
+    if start is not None: log = log_to_ascii(log,fileName=filepath+&#39;light1-&#39;+start[:start.index(&#39;T&#39;)]+&#39;-se-log.txt&#39;)
+    else: log = log_to_ascii(log,fileName=filepath+&#39;light1-se-log.txt&#39;)
+    decoded_log = log_expand(text=log)
+
+    # Extract the metadata from the logfile
+    metadata = log_metadata(decoded_log=decoded_log)
+
+    # Save the datafile as a json on the same directory
+    with open(filepath + &#34;metadata.json&#34;,&#34;w&#34;) as meta_file: json.dump(metadata,meta_file,indent=4)
+
+    return metadata</code></pre>
+</details>
+</dd>
 <dt id="raadpy.functionality.download_file_ver"><code class="name flex">
 <span>def <span class="ident">download_file_ver</span></span>(<span>buffer: int = 1, file_ver=1)</span>
 </code></dt>
@@ -1332,14 +1655,12 @@ end_cnt (int): Ending index on the corresponding buffer</p></div>
     &#34;&#34;&#34;
     # Generate some variables
     fileName=&#34;pc_buff&#34;+str(buffer)
-    host=HOST
-    token=TOKEN
+    host=&#34;https://light1.mcs.nanoavionics.com&#34;
+    token=&#34;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoia2hhbGlmYSIsImV4cCI6MTcwNDA2NzIwMCwiZW1haWwiOiJhZGcxMUBueXUuZWR1In0.LiV8bfKb2JUG2eIIxouXKebQpPFLXewO1BqoOD22xS4&#34;
+    url = f&#39;{host}/{fileName}_download?file_ver=eq.{file_ver}&#39;
 
-    # Create a rest request
-    rest = RestOperations(f&#39;{host}/{fileName}_download?file_ver=eq.{file_ver}&#39;, authType = &#39;token&#39;, token = token)
-   
-    # Download the data using the request
-    data = rest.SendGetReq()
+    # Download the data using segmented download
+    data = download_range(url,token,VERBOSE=True)
 
     # Sort the data
     data = sort(data)
@@ -1408,7 +1729,10 @@ end_cnt (int): Ending index on the corresponding buffer</p></div>
 <dd>Print description if needed. Defaults to True.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>lightnings (array): Ligtnings in time range</p></div>
+<dl>
+<dt><code>lightnings (array): Ligtnings in time range</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1497,8 +1821,126 @@ end_cnt (int): Ending index on the corresponding buffer</p></div>
     return array(lights)</code></pre>
 </details>
 </dd>
+<dt id="raadpy.functionality.download_log"><code class="name flex">
+<span>def <span class="ident">download_log</span></span>(<span>start: str = None, end: str = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Download a log file from the NA version</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>file_ver</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The file version number. Defaults to 1.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>data</code></dt>
+<dd>list of dictionaries with the rows</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def download_log(start:str=None,end:str=None):
+    &#34;&#34;&#34;Download a log file from the NA version
+
+    Args:
+        file_ver (int, optional): The file version number. Defaults to 1.
+
+    Returns:
+        data: list of dictionaries with the rows
+    &#34;&#34;&#34;
+    # Generate some variables
+    fileName=&#34;pc_se0_log&#34;
+    host=&#34;https://light1.mcs.nanoavionics.com&#34;
+    token=&#34;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoia2hhbGlmYSIsImV4cCI6MTcwNDA2NzIwMCwiZW1haWwiOiJhZGcxMUBueXUuZWR1In0.LiV8bfKb2JUG2eIIxouXKebQpPFLXewO1BqoOD22xS4&#34;
+    url = f&#39;{host}/{fileName}_download?&#39;
+    if start is not None: 
+        url += f&#39;archived_ts=gte.{start}&#39;
+        if end is not None: url += f&#39;&amp;archived_ts=lt.{end}&#39;
+    elif end is not None: url += f&#39;archived_ts=lt.{end}&#39;
+
+    # Download the data using segmented download
+    data = download_range(url,token,VERBOSE=True)
+
+    # Sort the data
+    data = sort(data)
+
+    return data</code></pre>
+</details>
+</dd>
+<dt id="raadpy.functionality.download_range"><code class="name flex">
+<span>def <span class="ident">download_range</span></span>(<span>url: str, token, limit: int = 5000, VERBOSE: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Downloads a range of data given a url and a token from the NA servers.
+Automatically handles large file sizes.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>url</code></strong> :&ensp;<code>str</code></dt>
+<dd>the url from the NA server with the data to download from </dd>
+<dt><strong><code>token</code></strong> :&ensp;<code>str</code></dt>
+<dd>The string value of the token for security authentication</dd>
+<dt><strong><code>limit</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Number of rows to download at one go. Large numbers make the server crash. Defaults to 5000.</dd>
+<dt><strong><code>VERBOSE</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>If true update statistics are printed while the fies is being downloaded. Defaults to False.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>data (list): a list</code> of <code>the binary strings</code> of <code>the downloaded data</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def download_range(url:str,token,limit:int=5000,VERBOSE:bool=False):
+    &#34;&#34;&#34;Downloads a range of data given a url and a token from the NA servers. 
+    Automatically handles large file sizes.
+
+    Args:
+        url (str): the url from the NA server with the data to download from 
+        token (str): The string value of the token for security authentication
+        limit (int, optional): Number of rows to download at one go. Large numbers make the server crash. Defaults to 5000.
+        VERBOSE (bool, optional): If true update statistics are printed while the fies is being downloaded. Defaults to False.
+
+    Returns:
+        data (list): a list of the binary strings of the downloaded data
+    &#34;&#34;&#34;
+
+    # store the result
+    data        = []
+    last_data   = []
+    seq         = -1
+    cnt         = 0
+
+    # Keep downloading until there is nothing left
+    while True:
+        # Print how much data you have downloaded
+        clear(wait=True)
+        if VERBOSE: 
+            print(&#39;Current File: &#39;,url,&#39;\nEntries Downloaded:&#39;,len(data),&#39;\nLast Sequence Number:&#39;,seq,&#39;\nIterations:&#39;,cnt)
+            # find the number of bytes per entry
+            print(&#39;Bytes per entry: &#39;,np.unique([len(d) for d in data]))
+            cnt+=1
+
+        # Do the REST stuff
+        rest = RestOperations(url+f&#39;&amp;limit={limit}&amp;seq_nr=gte.{seq}&#39;, authType = &#39;token&#39;, token = token)
+       
+        # Download the data
+        last_data   = rest.SendGetReq()
+        data        += last_data
+
+        # If there are no more data exit
+        if len(last_data) &lt; limit or seq == max([datum[&#39;seq_nr&#39;] for datum in data]):
+            return data
+        
+        # Find the last sequence number
+        seq = max([datum[&#39;seq_nr&#39;] for datum in data])</code></pre>
+</details>
+</dd>
 <dt id="raadpy.functionality.download_time_delta"><code class="name flex">
-<span>def <span class="ident">download_time_delta</span></span>(<span>buffer: int = 1, start: str = '2022-06-01T00:00:00', end: str = '2022-06-07T00:00:00')</span>
+<span>def <span class="ident">download_time_delta</span></span>(<span>buffer: int = 1, start: str = None, end: str = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Download NA data on a time interval </p>
@@ -1520,7 +1962,7 @@ end_cnt (int): Ending index on the corresponding buffer</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def download_time_delta(buffer:int = 1, start:str=&#39;2022-06-01T00:00:00&#39;, end:str=&#39;2022-06-07T00:00:00&#39;):
+<pre><code class="python">def download_time_delta(buffer:int = 1, start:str=None, end:str=None):
     &#34;&#34;&#34;Download NA data on a time interval 
 
     Args:
@@ -1533,14 +1975,16 @@ end_cnt (int): Ending index on the corresponding buffer</p></div>
     &#34;&#34;&#34;
     # Generate some variables
     fileName=&#34;pc_buff&#34;+str(buffer)
-    host=HOST
-    token=TOKEN
-    
-    # Create a rest request
-    rest = RestOperations(f&#39;{host}/{fileName}_download?archived_ts=gte.{start}&amp;archived_ts=lt.{end}&#39;, authType = &#39;token&#39;, token = token)
+    host=&#34;https://light1.mcs.nanoavionics.com&#34;
+    token=&#34;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoia2hhbGlmYSIsImV4cCI6MTcwNDA2NzIwMCwiZW1haWwiOiJhZGcxMUBueXUuZWR1In0.LiV8bfKb2JUG2eIIxouXKebQpPFLXewO1BqoOD22xS4&#34;
+    url = f&#39;{host}/{fileName}_download?&#39;
+    if start is not None: 
+        url += f&#39;archived_ts=gte.{start}&#39;
+        if end is not None: url += f&#39;&amp;archived_ts=lt.{end}&#39;
+    elif end is not None: url += f&#39;archived_ts=lt.{end}&#39;
 
-    # Download the data using the request
-    data = rest.SendGetReq()
+    # Download the data using segmented download
+    data = download_range(url,token,VERBOSE=True)
 
     # Sort the data
     data = sort(data)
@@ -1645,7 +2089,10 @@ string
 <dd>Should be set to True if you are reading VETO and NONVETO. Defaults to False.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>data (dict): Dictionary with the decoded arrays of measurements</p></div>
+<dl>
+<dt><code>data (dict): Dictionary with the decoded arrays</code> of <code>measurements</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1718,7 +2165,10 @@ string
 <dd>Threshold in time to filter the lightings. Defaults to 1.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>lightnings (array): A filtered array of lightnings</p></div>
+<dl>
+<dt><code>lightnings (array): A filtered array</code> of <code>lightnings</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1770,6 +2220,143 @@ string
         raise Exception(&#34;Type %s is not of type event, or array. Please use an object of type event or array for the tgf&#34;%type(tgf))</code></pre>
 </details>
 </dd>
+<dt id="raadpy.functionality.log_expand"><code class="name flex">
+<span>def <span class="ident">log_expand</span></span>(<span>filename: str = None, text: str = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Gets a logfile and decodes it to a list of commands.
+If a text value is given then it decodes the text, if not, it then decodes the value from the filename</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>text</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The text of the logfile. Defaults to None.</dd>
+<dt><strong><code>filename</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The filename of the file where the logfile is. Defaults to None.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>BaseException</code></dt>
+<dd>If both parameters are left as None, then nothing happens. </dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>decoded_logfile (list): List of lists. Each entry is a tuple with a command and a list for the outputs.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def log_expand(filename:str=None,text:str=None):
+    &#34;&#34;&#34;Gets a logfile and decodes it to a list of commands. 
+    If a text value is given then it decodes the text, if not, it then decodes the value from the filename
+
+    Args:
+        text (str, optional): The text of the logfile. Defaults to None.
+        filename (str, optional): The filename of the file where the logfile is. Defaults to None.
+
+    Raises:
+        BaseException: If both parameters are left as None, then nothing happens. 
+
+    Returns:
+        decoded_logfile (list): List of lists. Each entry is a tuple with a command and a list for the outputs. 
+    &#34;&#34;&#34;
+
+    # Do some argument processing:
+    if filename is not None:
+        # Load the logfile
+        logfile = open(filename)
+
+        # Load the lines
+        loglines = logfile.readlines()
+
+        # Close the file
+        logfile.close()
+
+    elif text is not None:
+        loglines = text.split(&#39;\n&#39;)
+
+    else: raise BaseException(&#34;Please enter input&#34;)
+
+    # Add an SE0&gt; line at the end if it doesn&#39;t exist
+    if &#34;SE0&gt;&#34; not in loglines[-1]: loglines.append(&#34;SE0&gt;&#34;)
+
+    # Decode the file
+    # Find the indices of hte command lines
+    commands_idx = [i for i,line in enumerate(loglines) if &#39;SE0&gt;&#39; in line]
+    
+    # Collect the outputs of the commands
+    decoded_log = [[loglines[commands_idx[i]],loglines[commands_idx[i]+1:commands_idx[i+1]]] for i in range(len(commands_idx)-1)]
+
+    # Return
+    return decoded_log</code></pre>
+</details>
+</dd>
+<dt id="raadpy.functionality.log_metadata"><code class="name flex">
+<span>def <span class="ident">log_metadata</span></span>(<span>decoded_log: list)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def log_metadata(decoded_log:list):
+
+    # metadata array initialization
+    metadata = {
+        &#39;start_time&#39;:       None,
+        &#39;end_time&#39;:         None,
+        &#39;hv_SiPM&#39;:          -1,
+        &#39;hv_PMT&#39;:           -1,
+        &#39;hv_veto_SiPM&#39;:     -1,
+        &#39;hv_veto_PMT&#39;:      -1,
+        &#39;thresholds_SiPM&#39;:{
+            &#39;channel_0&#39;:    0,
+            &#39;channel_1&#39;:    0,
+            &#39;channel_2&#39;:    0,
+            &#39;channel_3&#39;:    0,
+        },
+        &#39;thresholds_PMT&#39;:{
+            &#39;channel_0&#39;:    0,
+            &#39;channel_1&#39;:    0,
+            &#39;channel_2&#39;:    0,
+            &#39;channel_3&#39;:    0,
+        },
+        &#39;custom_scenario_PMT&#39;: -1,
+        &#39;custom_scenario_SiPM&#39;: -1
+    }
+
+    # Get the command list
+    commands = [row[0] for row in decoded_log]
+
+    # Find the start and end of the data acquisition
+    # Index of start and end timestamps:
+    start = [i for i in range(len(commands)) if &#34;rtc read&#34; in commands[i]]
+    if len(start) != 0: metadata[&#39;start_time&#39;]  = decoded_log[start[0] ][1][0][-21:-2]
+    if len(start) &gt;= 2: metadata[&#39;end_time&#39;]    = decoded_log[start[-1]][1][0][-21:-2]
+
+    # Find the custom scenario commands for SiPM and PMT
+    for num,payload in zip([12,13],[&#39;SiPM&#39;,&#39;PMT&#39;]):
+        # Get all the commands with the custom scenario
+        custom_commands = np.unique([commands[i] for i in range(len(commands)) if f&#34;csp txrx {num} 9 3000&#34; in commands[i]])
+        
+        # If there are any, decode them and replace
+        if len(custom_commands) != 0: 
+            message = custom_commands[0].split(&#39; &#39;)[-1][:-1]
+            data    = parse_custom_scenario(message)
+
+            # Update the decoded data to the metadata
+            metadata[&#39;hv_&#39;+payload]                         = data[&#39;hv&#39;]
+            metadata[&#39;hv_veto_&#39;+payload]                    = data[&#39;veto_hv&#39;]
+            metadata[&#39;thresholds_&#39;+payload][&#39;channel_0&#39;]    = data[&#39;ch0_thresh&#39;]
+            metadata[&#39;thresholds_&#39;+payload][&#39;channel_1&#39;]    = data[&#39;ch1_thresh&#39;]
+            metadata[&#39;thresholds_&#39;+payload][&#39;channel_2&#39;]    = data[&#39;ch2_thresh&#39;]
+            metadata[&#39;thresholds_&#39;+payload][&#39;channel_3&#39;]    = data[&#39;ch3_thresh&#39;]
+            metadata[&#39;custom_scenario_&#39;+payload]            = message
+        
+
+    # Return the metadata
+    return metadata</code></pre>
+</details>
+</dd>
 <dt id="raadpy.functionality.log_to_ascii"><code class="name flex">
 <span>def <span class="ident">log_to_ascii</span></span>(<span>data, fileName: str = None)</span>
 </code></dt>
@@ -1819,6 +2406,48 @@ string
     return full_text</code></pre>
 </details>
 </dd>
+<dt id="raadpy.functionality.parse_custom_scenario"><code class="name flex">
+<span>def <span class="ident">parse_custom_scenario</span></span>(<span>cmd: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Parses a custom scenario command message string to a dictionary of decoded hex values</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>cmd</code></strong> :&ensp;<code>str</code></dt>
+<dd>Teh command message</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>dict</code></dt>
+<dd>The dictionary with outputs of all the relevant parameters set for the particular payload</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parse_custom_scenario(cmd:str):
+    &#34;&#34;&#34;Parses a custom scenario command message string to a dictionary of decoded hex values
+
+    Args:
+        cmd (str): Teh command message
+
+    Returns:
+        dict: The dictionary with outputs of all the relevant parameters set for the particular payload
+    &#34;&#34;&#34;
+    # Store the data in a dictionary
+    data = {}
+
+    # Decode the information from the string
+    data[&#39;hv&#39;]          = int(cmd[0:4],base=16)
+    data[&#39;veto_hv&#39;]     = int(cmd[4:8],base=16)
+    data[&#39;ch0_thresh&#39;]  = int(cmd[10:12]+cmd[8:10],base=16)
+    data[&#39;ch1_thresh&#39;]  = int(cmd[14:16]+cmd[12:14],base=16)
+    data[&#39;ch2_thresh&#39;]  = int(cmd[18:20]+cmd[16:18],base=16)
+    data[&#39;ch3_thresh&#39;]  = int(cmd[22:24]+cmd[20:22],base=16)
+
+    return data</code></pre>
+</details>
+</dd>
 <dt id="raadpy.functionality.save_raw_data"><code class="name flex">
 <span>def <span class="ident">save_raw_data</span></span>(<span>data, filepath: str = './', buffer: int = 1)</span>
 </code></dt>
@@ -1854,9 +2483,9 @@ string
         string: The filename of the file.
     &#34;&#34;&#34;
     # Create the filename
-    timestamp   = data[0][&#39;archived_ts&#39;]
+    timestamp   = &#39;2022-NA-NAT&#39; if len(data) == 0 else data[0][&#39;archived_ts&#39;]
     date        = timestamp[0:timestamp.index(&#39;T&#39;)]
-    filename    = filepath + f&#39;Light1_{date}_Buff{buffer}.dat&#39;
+    filename    = filepath + f&#39;light1-{date}-buff{buffer}.dat&#39;
 
     # Load the file to write the output
     file = open(filename,&#39;wb&#39;)
@@ -1939,16 +2568,22 @@ string
 <li><code><a title="raadpy.functionality.correct_time_orbit" href="#raadpy.functionality.correct_time_orbit">correct_time_orbit</a></code></li>
 <li><code><a title="raadpy.functionality.decode_log" href="#raadpy.functionality.decode_log">decode_log</a></code></li>
 <li><code><a title="raadpy.functionality.desc_finder" href="#raadpy.functionality.desc_finder">desc_finder</a></code></li>
+<li><code><a title="raadpy.functionality.download_data_packet" href="#raadpy.functionality.download_data_packet">download_data_packet</a></code></li>
 <li><code><a title="raadpy.functionality.download_file_ver" href="#raadpy.functionality.download_file_ver">download_file_ver</a></code></li>
 <li><code><a title="raadpy.functionality.download_lightnings" href="#raadpy.functionality.download_lightnings">download_lightnings</a></code></li>
 <li><code><a title="raadpy.functionality.download_lightnings_range" href="#raadpy.functionality.download_lightnings_range">download_lightnings_range</a></code></li>
+<li><code><a title="raadpy.functionality.download_log" href="#raadpy.functionality.download_log">download_log</a></code></li>
+<li><code><a title="raadpy.functionality.download_range" href="#raadpy.functionality.download_range">download_range</a></code></li>
 <li><code><a title="raadpy.functionality.download_time_delta" href="#raadpy.functionality.download_time_delta">download_time_delta</a></code></li>
 <li><code><a title="raadpy.functionality.get_bit" href="#raadpy.functionality.get_bit">get_bit</a></code></li>
 <li><code><a title="raadpy.functionality.get_bit_idx" href="#raadpy.functionality.get_bit_idx">get_bit_idx</a></code></li>
 <li><code><a title="raadpy.functionality.get_bits" href="#raadpy.functionality.get_bits">get_bits</a></code></li>
 <li><code><a title="raadpy.functionality.get_dict" href="#raadpy.functionality.get_dict">get_dict</a></code></li>
 <li><code><a title="raadpy.functionality.get_nearby_lightning" href="#raadpy.functionality.get_nearby_lightning">get_nearby_lightning</a></code></li>
+<li><code><a title="raadpy.functionality.log_expand" href="#raadpy.functionality.log_expand">log_expand</a></code></li>
+<li><code><a title="raadpy.functionality.log_metadata" href="#raadpy.functionality.log_metadata">log_metadata</a></code></li>
 <li><code><a title="raadpy.functionality.log_to_ascii" href="#raadpy.functionality.log_to_ascii">log_to_ascii</a></code></li>
+<li><code><a title="raadpy.functionality.parse_custom_scenario" href="#raadpy.functionality.parse_custom_scenario">parse_custom_scenario</a></code></li>
 <li><code><a title="raadpy.functionality.save_raw_data" href="#raadpy.functionality.save_raw_data">save_raw_data</a></code></li>
 <li><code><a title="raadpy.functionality.sort" href="#raadpy.functionality.sort">sort</a></code></li>
 </ul>
@@ -1957,7 +2592,9 @@ string
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
 </footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
 </body>
 </html>

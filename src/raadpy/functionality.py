@@ -454,6 +454,51 @@ def correct_time(data:dict,orbit:dict,key:str='rate0',TIME:int=20,RANGE_ORBIT=(0
     return timestamp, total_cnt, valid_events
 
 
+# Download a range of data based on some limit
+def download_range(url:str,token,limit:int=5000,VERBOSE:bool=False):
+    """Downloads a range of data given a url and a token from the NA servers. 
+    Automatically handles large file sizes.
+
+    Args:
+        url (str): the url from the NA server with the data to download from 
+        token (str): The string value of the token for security authentication
+        limit (int, optional): Number of rows to download at one go. Large numbers make the server crash. Defaults to 5000.
+        VERBOSE (bool, optional): If true update statistics are printed while the fies is being downloaded. Defaults to False.
+
+    Returns:
+        data (list): a list of the binary strings of the downloaded data
+    """
+
+    # store the result
+    data        = []
+    last_data   = []
+    seq         = -1
+    cnt         = 0
+
+    # Keep downloading until there is nothing left
+    while True:
+        # Print how much data you have downloaded
+        clear(wait=True)
+        if VERBOSE: 
+            print('Current File: ',url,'\nEntries Downloaded:',len(data),'\nLast Sequence Number:',seq,'\nIterations:',cnt)
+            # find the number of bytes per entry
+            print('Bytes per entry: ',np.unique([len(d) for d in data]))
+            cnt+=1
+
+        # Do the REST stuff
+        rest = RestOperations(url+f'&limit={limit}&seq_nr=gte.{seq}', authType = 'token', token = token)
+       
+        # Download the data
+        last_data   = rest.SendGetReq()
+        data        += last_data
+
+        # If there are no more data exit
+        if len(last_data) < limit or seq == max([datum['seq_nr'] for datum in data]):
+            return data
+        
+        # Find the last sequence number
+        seq = max([datum['seq_nr'] for datum in data])
+
 # Order the data according to entry number
 def sort(data,field='entry_nr'):
     """Sort the data based on a metadata field
@@ -488,14 +533,40 @@ def download_file_ver(buffer:int = 1, file_ver=1):
     """
     # Generate some variables
     fileName="pc_buff"+str(buffer)
-    host=HOST
-    token=TOKEN
+    host="https://light1.mcs.nanoavionics.com"
+    token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoia2hhbGlmYSIsImV4cCI6MTcwNDA2NzIwMCwiZW1haWwiOiJhZGcxMUBueXUuZWR1In0.LiV8bfKb2JUG2eIIxouXKebQpPFLXewO1BqoOD22xS4"
+    url = f'{host}/{fileName}_download?file_ver=eq.{file_ver}'
 
-    # Create a rest request
-    rest = RestOperations(f'{host}/{fileName}_download?file_ver=eq.{file_ver}', authType = 'token', token = token)
-   
-    # Download the data using the request
-    data = rest.SendGetReq()
+    # Download the data using segmented download
+    data = download_range(url,token,VERBOSE=True)
+
+    # Sort the data
+    data = sort(data)
+
+    return data
+
+# Download data based on various keys
+def download_log(start:str=None,end:str=None):
+    """Download a log file from the NA version
+
+    Args:
+        file_ver (int, optional): The file version number. Defaults to 1.
+
+    Returns:
+        data: list of dictionaries with the rows
+    """
+    # Generate some variables
+    fileName="pc_se0_log"
+    host="https://light1.mcs.nanoavionics.com"
+    token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoia2hhbGlmYSIsImV4cCI6MTcwNDA2NzIwMCwiZW1haWwiOiJhZGcxMUBueXUuZWR1In0.LiV8bfKb2JUG2eIIxouXKebQpPFLXewO1BqoOD22xS4"
+    url = f'{host}/{fileName}_download?'
+    if start is not None: 
+        url += f'archived_ts=gte.{start}'
+        if end is not None: url += f'&archived_ts=lt.{end}'
+    elif end is not None: url += f'archived_ts=lt.{end}'
+
+    # Download the data using segmented download
+    data = download_range(url,token,VERBOSE=True)
 
     # Sort the data
     data = sort(data)
@@ -503,7 +574,7 @@ def download_file_ver(buffer:int = 1, file_ver=1):
     return data
 
 # Download data based on time range
-def download_time_delta(buffer:int = 1, start:str='2022-06-01T00:00:00', end:str='2022-06-07T00:00:00'):
+def download_time_delta(buffer:int = 1, start:str=None, end:str=None):
     """Download NA data on a time interval 
 
     Args:
@@ -516,14 +587,16 @@ def download_time_delta(buffer:int = 1, start:str='2022-06-01T00:00:00', end:str
     """
     # Generate some variables
     fileName="pc_buff"+str(buffer)
-    host=HOST
-    token=TOKEN
-    
-    # Create a rest request
-    rest = RestOperations(f'{host}/{fileName}_download?archived_ts=gte.{start}&archived_ts=lt.{end}', authType = 'token', token = token)
+    host="https://light1.mcs.nanoavionics.com"
+    token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoia2hhbGlmYSIsImV4cCI6MTcwNDA2NzIwMCwiZW1haWwiOiJhZGcxMUBueXUuZWR1In0.LiV8bfKb2JUG2eIIxouXKebQpPFLXewO1BqoOD22xS4"
+    url = f'{host}/{fileName}_download?'
+    if start is not None: 
+        url += f'archived_ts=gte.{start}'
+        if end is not None: url += f'&archived_ts=lt.{end}'
+    elif end is not None: url += f'archived_ts=lt.{end}'
 
-    # Download the data using the request
-    data = rest.SendGetReq()
+    # Download the data using segmented download
+    data = download_range(url,token,VERBOSE=True)
 
     # Sort the data
     data = sort(data)
@@ -543,9 +616,9 @@ def save_raw_data(data,filepath:str='./',buffer:int=1):
         string: The filename of the file.
     """
     # Create the filename
-    timestamp   = data[0]['archived_ts']
+    timestamp   = '2022-NA-NAT' if len(data) == 0 else data[0]['archived_ts']
     date        = timestamp[0:timestamp.index('T')]
-    filename    = filepath + f'Light1_{date}_Buff{buffer}.dat'
+    filename    = filepath + f'light1-{date}-buff{buffer}.dat'
 
     # Load the file to write the output
     file = open(filename,'wb')
@@ -590,6 +663,176 @@ def log_to_ascii(data,fileName:str=None):
     # Return the full text
     return full_text
 
+# Parse a logfile and obtain metadata
+def log_expand(filename:str=None,text:str=None):
+    """Gets a logfile and decodes it to a list of commands. 
+    If a text value is given then it decodes the text, if not, it then decodes the value from the filename
+
+    Args:
+        text (str, optional): The text of the logfile. Defaults to None.
+        filename (str, optional): The filename of the file where the logfile is. Defaults to None.
+
+    Raises:
+        BaseException: If both parameters are left as None, then nothing happens. 
+
+    Returns:
+        decoded_logfile (list): List of lists. Each entry is a tuple with a command and a list for the outputs. 
+    """
+
+    # Do some argument processing:
+    if filename is not None:
+        # Load the logfile
+        logfile = open(filename)
+
+        # Load the lines
+        loglines = logfile.readlines()
+
+        # Close the file
+        logfile.close()
+
+    elif text is not None:
+        loglines = text.split('\n')
+
+    else: raise BaseException("Please enter input")
+
+    # Add an SE0> line at the end if it doesn't exist
+    if "SE0>" not in loglines[-1]: loglines.append("SE0>")
+
+    # Decode the file
+    # Find the indices of hte command lines
+    commands_idx = [i for i,line in enumerate(loglines) if 'SE0>' in line]
+    
+    # Collect the outputs of the commands
+    decoded_log = [[loglines[commands_idx[i]],loglines[commands_idx[i]+1:commands_idx[i+1]]] for i in range(len(commands_idx)-1)]
+
+    # Return
+    return decoded_log
+
+# Parse custom command from satellite
+def parse_custom_scenario(cmd:str):
+    """Parses a custom scenario command message string to a dictionary of decoded hex values
+
+    Args:
+        cmd (str): Teh command message
+
+    Returns:
+        dict: The dictionary with outputs of all the relevant parameters set for the particular payload
+    """
+    # Store the data in a dictionary
+    data = {}
+
+    # Decode the information from the string
+    data['hv']          = int(cmd[0:4],base=16)
+    data['veto_hv']     = int(cmd[4:8],base=16)
+    data['ch0_thresh']  = int(cmd[10:12]+cmd[8:10],base=16)
+    data['ch1_thresh']  = int(cmd[14:16]+cmd[12:14],base=16)
+    data['ch2_thresh']  = int(cmd[18:20]+cmd[16:18],base=16)
+    data['ch3_thresh']  = int(cmd[22:24]+cmd[20:22],base=16)
+
+    return data
+
+# Obtain the metadata from a parsed logfile
+def log_metadata(decoded_log:list):
+
+    # metadata array initialization
+    metadata = {
+        'start_time':       None,
+        'end_time':         None,
+        'hv_SiPM':          -1,
+        'hv_PMT':           -1,
+        'hv_veto_SiPM':     -1,
+        'hv_veto_PMT':      -1,
+        'thresholds_SiPM':{
+            'channel_0':    0,
+            'channel_1':    0,
+            'channel_2':    0,
+            'channel_3':    0,
+        },
+        'thresholds_PMT':{
+            'channel_0':    0,
+            'channel_1':    0,
+            'channel_2':    0,
+            'channel_3':    0,
+        },
+        'custom_scenario_PMT': -1,
+        'custom_scenario_SiPM': -1
+    }
+
+    # Get the command list
+    commands = [row[0] for row in decoded_log]
+
+    # Find the start and end of the data acquisition
+    # Index of start and end timestamps:
+    start = [i for i in range(len(commands)) if "rtc read" in commands[i]]
+    if len(start) != 0: metadata['start_time']  = decoded_log[start[0] ][1][0][-21:-2]
+    if len(start) >= 2: metadata['end_time']    = decoded_log[start[-1]][1][0][-21:-2]
+
+    # Find the custom scenario commands for SiPM and PMT
+    for num,payload in zip([12,13],['SiPM','PMT']):
+        # Get all the commands with the custom scenario
+        custom_commands = np.unique([commands[i] for i in range(len(commands)) if f"csp txrx {num} 9 3000" in commands[i]])
+        
+        # If there are any, decode them and replace
+        if len(custom_commands) != 0: 
+            message = custom_commands[0].split(' ')[-1][:-1]
+            data    = parse_custom_scenario(message)
+
+            # Update the decoded data to the metadata
+            metadata['hv_'+payload]                         = data['hv']
+            metadata['hv_veto_'+payload]                    = data['veto_hv']
+            metadata['thresholds_'+payload]['channel_0']    = data['ch0_thresh']
+            metadata['thresholds_'+payload]['channel_1']    = data['ch1_thresh']
+            metadata['thresholds_'+payload]['channel_2']    = data['ch2_thresh']
+            metadata['thresholds_'+payload]['channel_3']    = data['ch3_thresh']
+            metadata['custom_scenario_'+payload]            = message
+        
+
+    # Return the metadata
+    return metadata
+
+# Download script packet
+def download_data_packet(start:str=None,end:str=None,filepath:str='./'):
+    """Download a packet of data from light-1 NA Server. This is the main library used.
+
+    Args:
+        start (str, optional): The start timestamp iso. Defaults to None.
+        end (str, optional): The end timestmap in iso. Defaults to None.
+        filepath (str, optional): The filepath to save everyhing. Defaults to './'.
+
+    Returns:
+        str: The madatadata of the filename
+    """
+    
+    # Create a directory to store all this data
+    if start is not None: filepath += 'light1-'+start[:start.index('T')]+'/'
+    else: filepath += 'light1-data/'
+    os.mkdir(filepath)
+
+    # List that holds all the filenames
+    filenames = []
+
+    # First go ahead and download all the buffers
+    for i in tqdm(range(1,10),desc='Downloading Buffer'):
+        # Download the data of the buffer
+        data    = download_time_delta(buffer=i,start=start,end=end)
+
+        # Save the data of the buffer
+        fname   = save_raw_data(data,filepath=filepath,buffer=i)
+        filenames.append(fname)
+
+    # Download the script log
+    log         = download_log(start=start,end=end)
+    if start is not None: log = log_to_ascii(log,fileName=filepath+'light1-'+start[:start.index('T')]+'-se-log.txt')
+    else: log = log_to_ascii(log,fileName=filepath+'light1-se-log.txt')
+    decoded_log = log_expand(text=log)
+
+    # Extract the metadata from the logfile
+    metadata = log_metadata(decoded_log=decoded_log)
+
+    # Save the datafile as a json on the same directory
+    with open(filepath + "metadata.json","w") as meta_file: json.dump(metadata,meta_file,indent=4)
+
+    return metadata
 
 # Parse a command
 def desc_finder(line:str,cmdlist,outputs,i,time,failed_idx):
