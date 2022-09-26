@@ -2,6 +2,7 @@
 #     RAAD Functionality    #
 #############################
 
+from time import daylight
 from .core import *
 from .rparray import array
 from .event import *
@@ -206,7 +207,7 @@ def get_bits(start:int,length:int,string,STUPID:bool=False):
     return digit_sum
 
 # Create a dictionary of orbits from a file
-def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID:bool=False):
+def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID:bool=False,VERIFY=False,threshold=5e-5):
     """Decode the data of a buffer with a given structure into a dictionary
 
     Args:
@@ -230,20 +231,71 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
     # Number of bytes per line
     bytes_per_line  = sum(list(struct.values()))//8
     length          = len(raw)//bytes_per_line
-    if MAX is None: MAX = length
+    if MAX is None or MAX > length: MAX = length
 
-    for i in tqdm(range(MAX),desc='Line: '):
-        # Get the required number of bytes to an event
-        event = raw[i*bytes_per_line:(i+1)*bytes_per_line]
+    # Check if VERIFICATION can occur
+    if VERIFY:
+        # If you can't correct then don't
+        if 'stimestamp' not in struct.keys():
+            VERIFY = False
+            
+        # Define the threshold where a tiemstamp difference is just too much
+        THRESHOLD = 0
+        for i in range(struct['stimestamp']+1):THRESHOLD += 2**i
+        if threshold <= 1:
+            THRESHOLD *= threshold
+        else:
+            THRESHOLD = threshold
 
-        # Keep track of the number of bits read
-        bits_read = 0
+        # print("%.4e"%THRESHOLD)
 
-        # If not create an orbit
-        for name,length in struct.items():
-            data[name] = np.append(data[name],[get_bits(bits_read,length,event,STUPID=STUPID)])
-            bits_read += length
-    
+    # Current byte index in the file
+    curr = 0
+    with tqdm(total=MAX,desc='Line: ') as pbar:
+        # Index of line
+        i = 0
+        while i < MAX:
+            update = 1
+            # Get the required number of bytes to an event
+            # event = raw[i*bytes_per_line:(i+1)*bytes_per_line]
+            event = raw[curr:curr + bytes_per_line]
+
+            # if you reached the end of the file break
+            if len(event) < bytes_per_line: 
+                pbar.update(MAX-i)
+                break
+
+            # Keep track of the number of bits read
+            bits_read = 0
+
+            # If not create an orbit
+            for name,length in struct.items():
+                data[name] = np.append(data[name],[get_bits(bits_read,length,event,STUPID=STUPID)])
+                bits_read += length
+
+            # Verify the datum makes sense
+            if VERIFY:
+                # If there are more than two datapoints in the timestamp
+                if len(data['stimestamp'])>=2:
+                    # If the difference between the last two timestmaps is absurd
+                    if abs(data['stimestamp'][-1] - data['stimestamp'][-2]) > THRESHOLD:# or \
+                       #(data['stimestamp'][-1] - data['stimestamp'][-2] < 0) and (abs(data['stimestamp'][-2] - data['stimestamp'][-1]) < THRESHOLD/20):
+                        # remove the previous datapoint
+                        for key in data.keys():
+                            data[key] = np.delete(data[key],-1)
+
+                        # Move forward by two bytes
+                        curr   -= bytes_per_line - 2
+                        i      -= 1
+                        update  = 0
+
+            # Update reader position
+            curr    += bytes_per_line
+            i       += 1
+            pbar.update(update)
+
+        
+    # If you want to filter, then apply the filter to the loaded data directly
     if condition is not None:
         try:
             idx     = np.where(eval(condition))[0]
@@ -305,6 +357,39 @@ def correct_time_orbit(orbit:dict,key:str='rate0',TIME:int=20,RANGE=(0,100)):
     end_cnt = int(end_cnt)
 
     return timestamp, start_cnt, end_cnt
+
+# detect every time the slope is negative
+def get_ramps(data:dict):
+    # Store the indices of the negative slopes
+    idx = []
+
+    # For each point
+    for i in range(len(data)-2):
+        # If the slope is negative
+        if data[i+1]-data[i] < 0:
+            # Append the index of the point
+            idx.append(i+1)
+    
+    # Create tuples with the start and end of each ramp
+    if len(idx) > 0: ramps = [(0,idx[0])]
+    else: return [(0,len(data))]
+    for i in range(1,len(idx)):
+        ramps.append((idx[i-1],idx[i]))
+
+    return ramps
+
+
+# Obtain a subset of data from a dictionary
+def dict_subsec(data:dict,idx:list):
+
+    # Copy the dictionary
+    new_dict = {}
+
+    # For each key of the data, append the new version
+    for key in data.keys():
+        new_dict[key] = data[key][idx]
+    
+    return new_dict
 
 # To auditionally correct for the rest of the data we want to so using the stimestamp
 # Correct based on FPGA counter
@@ -791,7 +876,7 @@ def log_metadata(decoded_log:list):
     return metadata
 
 # Download script packet
-def download_data_packet(start:str=None,end:str=None,filepath:str='./'):
+def download_data_packet(start:str=None,end:str=None,filepath:str='./',buffers=range(1,10)):
     """Download a packet of data from light-1 NA Server. This is the main library used.
 
     Args:
@@ -812,7 +897,7 @@ def download_data_packet(start:str=None,end:str=None,filepath:str='./'):
     filenames = []
 
     # First go ahead and download all the buffers
-    for i in tqdm(range(1,10),desc='Downloading Buffer'):
+    for i in tqdm(buffers,desc='Downloading Buffer'):
         # Download the data of the buffer
         data    = download_time_delta(buffer=i,start=start,end=end)
 

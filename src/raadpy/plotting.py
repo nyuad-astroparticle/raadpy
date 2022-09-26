@@ -123,11 +123,13 @@ def split_channels(data,struct=NONVETO_STRUCT):
     """
     # Split the data based on their channels
     channels    = []
+    idxs        = []
     for channel in np.unique(data['channel']):
         idx         = np.where(data['channel'] == channel)[0]
+        idxs.append(idx.copy())
         channels.append(dict(zip(struct.keys(),[arr[idx] for arr in data.values()])))
     
-    return channels
+    return channels,idxs
 
 # Plot histograms of the energies
 def plot_hists(data,struct=NONVETO_STRUCT,bins=600,RANGE=None):
@@ -143,7 +145,7 @@ def plot_hists(data,struct=NONVETO_STRUCT,bins=600,RANGE=None):
         fig,ax: matplotlib figure descriptions
     """
     # Get the splitted channels
-    channels = split_channels(data,struct)
+    channels,idx = split_channels(data,struct)
 
     # Create a figure
     fig,ax  = plt.subplots(len(channels),1,figsize=(14,4*len(channels)),dpi=100,sharex=True)
@@ -180,7 +182,7 @@ def plot_timestamps(data,struct=NONVETO_STRUCT,RANGE=None):
         fig,ax: matplotlib figure descriptions
     """
     # Get the splitted channels
-    channels = split_channels(data,struct)
+    channels,idx = split_channels(data,struct)
 
     # Create a figure
     fig,ax  = plt.subplots(len(channels),1,figsize=(14,4*len(channels)),dpi=100,sharex=True)
@@ -193,8 +195,8 @@ def plot_timestamps(data,struct=NONVETO_STRUCT,RANGE=None):
         if RANGE is None: _RANGE = (0,length)
         else: _RANGE = RANGE
 
-        ax[i].plot   (range(*_RANGE),channel['stimestamp'][_RANGE[0]:_RANGE[1]],c=to_hex(colors[i%len(channels)]),lw=0.4)
-        ax[i].scatter(range(*_RANGE),channel['stimestamp'][_RANGE[0]:_RANGE[1]],c=to_hex(colors[i%len(channels)]),marker='o',s=2)
+        ax[i].plot   (idx[i],channel['stimestamp'][_RANGE[0]:_RANGE[1]],c=to_hex(colors[i%len(channels)]),lw=0.4)
+        ax[i].scatter(idx[i],channel['stimestamp'][_RANGE[0]:_RANGE[1]],c=to_hex(colors[i%len(channels)]),marker='o',s=2)
 
         ax[i].set_title('Timestamp of Channel: %d'%i)
         ax[i].tick_params(axis='both',which='both',direction='in',top=True,right=True)
