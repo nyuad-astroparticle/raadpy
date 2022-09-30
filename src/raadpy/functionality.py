@@ -7,6 +7,27 @@ from .core import *
 from .rparray import array
 from .event import *
 
+# Split the dataset in channels
+def split_channels(data,struct=NONVETO_STRUCT):
+    """Split the data based on their channels
+
+    Args:
+        data (_type_): Buffer data
+        struct (_type_, optional): Structure to decode them as. Defaults to NONVETO_STRUCT.
+
+    Returns:
+        channels: List of lists for all the channels
+    """
+    # Split the data based on their channels
+    channels    = []
+    idxs        = []
+    for channel in np.unique(data['channel']):
+        idx         = np.where(data['channel'] == channel)[0]
+        idxs.append(idx.copy())
+        channels.append(dict(zip(struct.keys(),[arr[idx] for arr in data.values()])))
+    
+    return channels,idxs
+
 # Print the closest lightnings
 def get_nearby_lightning(tgf,lightnings:array,threshold:float=1):
     """Given an array, or a single event object filter a raadpy array that contains lightnings within a threshold.
@@ -164,6 +185,83 @@ def download_lightnings(event_time:Time,threshold:float = 6*60,VERBOSE=True):
 
     return download_lightnings_range(event_time-threshold,event_time+threshold,VERBOSE=VERBOSE)
 
+
+# Recursively keep removing the Most Significant Bit, until you're below the mean threshold
+def correct_bit(x:int, MEAN:float, BITS:int=48):
+    """Recursively Correct a number for bit flips, by removing the most significant bit until it's below a threshold
+
+    Args:
+        x (int): An integer to correct
+        MEAN (float): The value to reach
+        BITS (int, optional): The maximum number of bits that the number can have. Defaults to 48.
+
+    Returns:
+        x (int): The corrected number
+    """
+    if abs(x) <= MEAN: 
+        return x
+    if x > 0: return correct_bit(x - get_msb(x,BITS),MEAN,BITS)
+    else: return correct_bit(x + get_msb(abs(x),BITS),MEAN,BITS)
+
+
+# Find pairs
+def find_pairs(diffs,MEAN,STD):
+    """Helper function to find the pairs of bit flips occuring in a timestring, Use invert_flips instead!
+    """
+    candidates  = np.array([])
+    idxs        = np.array([],dtype=int)
+    round_msb = lambda data,BITS: get_msb((3*abs(data)).astype(int) >> 1,BITS)*np.sign(data)
+
+    pairs = []    
+    for i,d in enumerate(round_msb(diffs,50)):
+        # If this is a candidate for a thing 
+        if d < -MEAN - 3*STD:
+            candidates = np.append(candidates,[d])
+            idxs       = np.append(idxs      ,[i])
+        
+        if len(candidates) > 0:
+            # candidates += d
+            idx = np.where(abs(candidates + d) == 0)[0]
+            if len(idx) > 0:
+                index = idx[0]
+                pairs.append((idxs[index],i))
+                candidates = np.delete(candidates,[index,int(-1)],axis=0)
+                idxs       = np.delete(idxs      ,[index,int(-1)],axis=0)
+
+    return np.array(pairs)
+
+
+def invert_flips(timestamp:np.array,BITS:int=NONVETO_STRUCT['stimestamp']):
+    """Given a list of timestamps, find and correct the bit flips occured.
+
+    Args:
+        timestamp (np.array): The array of timestamps
+        BITS (dict, optional): The number of bits in the timestamp variable. Defaults to NONVETO_STRUCT['stimestamp'] = 48.
+
+    Returns:
+        timestamp (np.array): The corrected timestamp
+    """
+    # Get the gradient of the timestamp
+    timestamp_deltas = timestamp[1:] - timestamp[:-1]
+
+    # Get Mean and standard deviation
+    MEAN = np.mean(abs(timestamp_deltas))
+    STD  = np.std(abs(timestamp_deltas))
+
+    # Identify the pairs of points where you get bit flips
+    pairs = find_pairs(timestamp_deltas,MEAN,STD)
+    
+    # For each bit flip region
+    for pair in pairs:
+        ADD = 0
+        # For each point within the region
+        for i in range(*pair):
+            # Calculate a correction and apply it
+            ADD += correct_bit(int(timestamp_deltas[i]),MEAN,BITS=BITS) - timestamp_deltas[i]
+            timestamp[i+1] += ADD
+
+    return timestamp
+
 # We create a function that given a bytestring extracts the ith bit:
 def get_bit(i:int,string):
     '''
@@ -216,6 +314,8 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
         condition (str, optional): If you want you can add a condition such as data['id_bit']==1 to filter the data as they're being loaded. Defaults to None.
         MAX (_type_, optional): Maximum number of lines to read, if None then read all of them. Defaults to None.
         STUPID (bool, optional): Should be set to True if you are reading VETO and NONVETO. Defaults to False.
+        VERIFY (bool, optional): Set to True to process error correction automatically, such as filtering the 2-byte error, and correcting for bit flips. Defaults to False
+        threshold (float,optional): The difference between two points in the timestamp that we can consider faulty as a fraction of the maximum number that the integer field can store. If threshold > 1 then it is considered as an absolute threhsold. Only used if VERIFY=True. Defaults to 5e-5
 
     Returns:
         data (dict): Dictionary with the decoded arrays of measurements
@@ -246,8 +346,6 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
             THRESHOLD *= threshold
         else:
             THRESHOLD = threshold
-
-        # print("%.4e"%THRESHOLD)
 
     # Current byte index in the file
     curr = 0
@@ -307,6 +405,19 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
     if 'temperature' in struct.keys():
         data['temperature'] -= 55
         
+
+    # If we can do a bit flip verification perform it
+    if VERIFY:
+        # Split to channels
+        channels, _ = split_channels(data,struct)
+        
+        # Apply correction to each channel
+        for channel in channels: channel['stimestamp'] = invert_flips(channel['stimestamp'],struct['stimestamp'])
+
+        # Put it back together
+        data['stimestamp'] = np.array([])
+        for channel in channels: data['stimestamp'] = np.append(data['stimestamp'],[channel['stimestamp']])
+    
     # Return the dictionary
     return data
 
@@ -1127,7 +1238,6 @@ def log_line_timestamp(logline:list,time:float=0):
     return time
 
 # Now we can define an error correction pass
-
 def find_closest(x,array):
     """Helper function that returns the two closest values to x in a list
 

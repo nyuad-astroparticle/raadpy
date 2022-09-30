@@ -33,6 +33,27 @@ from .core import *
 from .rparray import array
 from .event import *
 
+# Split the dataset in channels
+def split_channels(data,struct=NONVETO_STRUCT):
+    &#34;&#34;&#34;Split the data based on their channels
+
+    Args:
+        data (_type_): Buffer data
+        struct (_type_, optional): Structure to decode them as. Defaults to NONVETO_STRUCT.
+
+    Returns:
+        channels: List of lists for all the channels
+    &#34;&#34;&#34;
+    # Split the data based on their channels
+    channels    = []
+    idxs        = []
+    for channel in np.unique(data[&#39;channel&#39;]):
+        idx         = np.where(data[&#39;channel&#39;] == channel)[0]
+        idxs.append(idx.copy())
+        channels.append(dict(zip(struct.keys(),[arr[idx] for arr in data.values()])))
+    
+    return channels,idxs
+
 # Print the closest lightnings
 def get_nearby_lightning(tgf,lightnings:array,threshold:float=1):
     &#34;&#34;&#34;Given an array, or a single event object filter a raadpy array that contains lightnings within a threshold.
@@ -190,6 +211,83 @@ def download_lightnings(event_time:Time,threshold:float = 6*60,VERBOSE=True):
 
     return download_lightnings_range(event_time-threshold,event_time+threshold,VERBOSE=VERBOSE)
 
+
+# Recursively keep removing the Most Significant Bit, until you&#39;re below the mean threshold
+def correct_bit(x:int, MEAN:float, BITS:int=48):
+    &#34;&#34;&#34;Recursively Correct a number for bit flips, by removing the most significant bit until it&#39;s below a threshold
+
+    Args:
+        x (int): An integer to correct
+        MEAN (float): The value to reach
+        BITS (int, optional): The maximum number of bits that the number can have. Defaults to 48.
+
+    Returns:
+        x (int): The corrected number
+    &#34;&#34;&#34;
+    if abs(x) &lt;= MEAN: 
+        return x
+    if x &gt; 0: return correct_bit(x - get_msb(x,BITS),MEAN,BITS)
+    else: return correct_bit(x + get_msb(abs(x),BITS),MEAN,BITS)
+
+
+# Find pairs
+def find_pairs(diffs,MEAN,STD):
+    &#34;&#34;&#34;Helper function to find the pairs of bit flips occuring in a timestring, Use invert_flips instead!
+    &#34;&#34;&#34;
+    candidates  = np.array([])
+    idxs        = np.array([],dtype=int)
+    round_msb = lambda data,BITS: get_msb((3*abs(data)).astype(int) &gt;&gt; 1,BITS)*np.sign(data)
+
+    pairs = []    
+    for i,d in enumerate(round_msb(diffs,50)):
+        # If this is a candidate for a thing 
+        if d &lt; -MEAN - 3*STD:
+            candidates = np.append(candidates,[d])
+            idxs       = np.append(idxs      ,[i])
+        
+        if len(candidates) &gt; 0:
+            # candidates += d
+            idx = np.where(abs(candidates + d) == 0)[0]
+            if len(idx) &gt; 0:
+                index = idx[0]
+                pairs.append((idxs[index],i))
+                candidates = np.delete(candidates,[index,int(-1)],axis=0)
+                idxs       = np.delete(idxs      ,[index,int(-1)],axis=0)
+
+    return np.array(pairs)
+
+
+def invert_flips(timestamp:np.array,BITS:int=NONVETO_STRUCT[&#39;stimestamp&#39;]):
+    &#34;&#34;&#34;Given a list of timestamps, find and correct the bit flips occured.
+
+    Args:
+        timestamp (np.array): The array of timestamps
+        BITS (dict, optional): The number of bits in the timestamp variable. Defaults to NONVETO_STRUCT[&#39;stimestamp&#39;] = 48.
+
+    Returns:
+        timestamp (np.array): The corrected timestamp
+    &#34;&#34;&#34;
+    # Get the gradient of the timestamp
+    timestamp_deltas = timestamp[1:] - timestamp[:-1]
+
+    # Get Mean and standard deviation
+    MEAN = np.mean(abs(timestamp_deltas))
+    STD  = np.std(abs(timestamp_deltas))
+
+    # Identify the pairs of points where you get bit flips
+    pairs = find_pairs(timestamp_deltas,MEAN,STD)
+    
+    # For each bit flip region
+    for pair in pairs:
+        ADD = 0
+        # For each point within the region
+        for i in range(*pair):
+            # Calculate a correction and apply it
+            ADD += correct_bit(int(timestamp_deltas[i]),MEAN,BITS=BITS) - timestamp_deltas[i]
+            timestamp[i+1] += ADD
+
+    return timestamp
+
 # We create a function that given a bytestring extracts the ith bit:
 def get_bit(i:int,string):
     &#39;&#39;&#39;
@@ -242,6 +340,8 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
         condition (str, optional): If you want you can add a condition such as data[&#39;id_bit&#39;]==1 to filter the data as they&#39;re being loaded. Defaults to None.
         MAX (_type_, optional): Maximum number of lines to read, if None then read all of them. Defaults to None.
         STUPID (bool, optional): Should be set to True if you are reading VETO and NONVETO. Defaults to False.
+        VERIFY (bool, optional): Set to True to process error correction automatically, such as filtering the 2-byte error, and correcting for bit flips. Defaults to False
+        threshold (float,optional): The difference between two points in the timestamp that we can consider faulty as a fraction of the maximum number that the integer field can store. If threshold &gt; 1 then it is considered as an absolute threhsold. Only used if VERIFY=True. Defaults to 5e-5
 
     Returns:
         data (dict): Dictionary with the decoded arrays of measurements
@@ -272,8 +372,6 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
             THRESHOLD *= threshold
         else:
             THRESHOLD = threshold
-
-        # print(&#34;%.4e&#34;%THRESHOLD)
 
     # Current byte index in the file
     curr = 0
@@ -333,6 +431,19 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
     if &#39;temperature&#39; in struct.keys():
         data[&#39;temperature&#39;] -= 55
         
+
+    # If we can do a bit flip verification perform it
+    if VERIFY:
+        # Split to channels
+        channels, _ = split_channels(data,struct)
+        
+        # Apply correction to each channel
+        for channel in channels: channel[&#39;stimestamp&#39;] = invert_flips(channel[&#39;stimestamp&#39;],struct[&#39;stimestamp&#39;])
+
+        # Put it back together
+        data[&#39;stimestamp&#39;] = np.array([])
+        for channel in channels: data[&#39;stimestamp&#39;] = np.append(data[&#39;stimestamp&#39;],[channel[&#39;stimestamp&#39;]])
+    
     # Return the dictionary
     return data
 
@@ -1153,7 +1264,6 @@ def log_line_timestamp(logline:list,time:float=0):
     return time
 
 # Now we can define an error correction pass
-
 def find_closest(x,array):
     &#34;&#34;&#34;Helper function that returns the two closest values to x in a list
 
@@ -1222,7 +1332,99 @@ def reorder_log(logfile:list):
             closest_rtc -= 1
 
 
-    return logfile</code></pre>
+    return logfile
+
+
+
+def send_sql_query_over_ssh(query:str):
+    &#34;&#34;&#34;Receives SQL query and sends it to the raad@arneodolab.abudhabi.nyu.edu SQL server.
+
+    Args:
+        query (str): SQL Formatted Query
+
+    Returns:
+        data (pandas.dataframe): Dataframe of the data requested as formatted on the server.
+    &#34;&#34;&#34;
+
+    # Set up ssh tunnel
+    # tunnel = paramiko.SSHClient()
+    # tunnel.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    # tunnel.connect(&#39;arneodolab.abudhabi.nyu.edu&#39;, 22,username=&#39;raad&#39;,password=&#39;nyuad123$&#39;,allow_agent=False,look_for_keys=False)
+    tunnel  = SSHTunnelForwarder((&#39;arneodolab.abudhabi.nyu.edu&#39;, 22), ssh_password=&#34;nyuad123$&#34;, ssh_username=&#34;raad&#34;, remote_bind_address=(&#39;127.0.0.1&#39;, 3306), allow_agent=False,)
+    tunnel.start()
+
+    # Connect to PYSQl Host
+    conn    = pymysql.connect(host=&#39;127.0.0.1&#39;, user=&#39;raad&#39;, passwd=&#34;nyuad123$&#34;, port=tunnel.local_bind_port)
+    data    = pd.read_sql_query(query, conn)    # Request Data
+    tunnel.close()                              # Close tunnel
+    
+    return data
+
+
+def get_light1_position(starttime:Time, endtime:Time=None, n_events:int=None, SHORT_TIME:float=10):
+    &#34;&#34;&#34;Give me a start and end time in astropy objects, I give you light-1 position. 
+    I can also interpolate if you give me anumber of events
+
+    Args:
+        starttime (Time): Start time, or single event time
+        endtime (Time, optional): End time. If left None, it assumes single position. Defaults to None.
+        n_events (int, optional): Number of points in case we interpolate. Defaults to None.
+        SHORT_TIME (float, optional): If you want a single event, give us some wiggle room to look around for it. Defaults to 10.
+
+    Raises:
+        Exception: Start Time and End Time are not astropy Time objects
+    
+    Returns:
+        locs (rp.array): Raadpy array with the locations of the satellite in this interval.
+    &#34;&#34;&#34;
+    # Input processing on start time
+    if type(starttime) != Time:
+        try:
+            starttime = Time(starttime)
+        except:
+            raise Exception(&#34;Given timestamp is not an astropy Time object&#34;)       
+
+    # If endtime is not given, it means we want only one event, so we will interpolate around SHORT_TIME
+    if endtime is None:
+        starttime   -= TimeDelta(SHORT_TIME,format=&#39;sec&#39;)
+        endtime      = starttime + TimeDelta(2*SHORT_TIME,format=&#39;sec&#39;)
+        n_events    = -1
+    else: 
+        try:
+            endtime     = Time(endtime)
+        except:
+            raise Exception(&#34;Start time and End time are not astropy Time object&#34;)
+
+    # Request the data from sql for this time period
+    data =(send_sql_query_over_ssh(&#34;SELECT * FROM `LIGHT-1_Position_Data`.PositionData WHERE `Time (ModJDate)` BETWEEN &#34; + str(starttime.to_value(&#34;mjd&#34;)) + &#34; AND &#34; + str(endtime.to_value(&#34;mjd&#34;)) + &#34;;&#34;))
+    
+    # Get the data from the dataframe
+    latitudes   = [i for i in data[&#39;Lat (deg)&#39;]]
+    longitudes  = [i for i in data[&#39;Lon (deg)&#39;]]
+    times       = [i for i in data[&#39;Time (ModJDate)&#39;]]
+    
+
+    # Interpolation if needed
+    if n_events is not None:
+        times_tmp  = np.linspace(starttime.to_value(format=&#34;mjd&#34;), endtime.to_value(format=&#34;mjd&#34;), n_events) if n_events &gt; 0 else np.array([(starttime.mjd+endtime.mjd)/2])
+        latitudes  = np.interp(times_tmp, times, latitudes)
+        longitudes = np.interp(times_tmp, times, longitudes)
+        times = times_tmp
+    
+    # Create rp.array
+    locs = array(event_type=&#34;location&#34;)
+    for i in range(len(times)):
+        locs.append(event(
+            timestamp   = Time(times[i], format=&#34;mjd&#34;),
+            longitude   = in_range(float(longitudes[i])),
+            latitude    = float(latitudes[i]),
+            detector_id = &#39;NA&#39;,
+            mission     = &#39;NanoAvionics&#39;,
+            time_format = &#34;mjd&#34;,
+            event_type  = &#34;cubesat-location&#34;
+        ))
+
+    return(locs)</code></pre>
 </details>
 </section>
 <section>
@@ -1232,6 +1434,46 @@ def reorder_log(logfile:list):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="raadpy.functionality.correct_bit"><code class="name flex">
+<span>def <span class="ident">correct_bit</span></span>(<span>x: int, MEAN: float, BITS: int = 48)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Recursively Correct a number for bit flips, by removing the most significant bit until it's below a threshold</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>x</code></strong> :&ensp;<code>int</code></dt>
+<dd>An integer to correct</dd>
+<dt><strong><code>MEAN</code></strong> :&ensp;<code>float</code></dt>
+<dd>The value to reach</dd>
+<dt><strong><code>BITS</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The maximum number of bits that the number can have. Defaults to 48.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>x (int): The corrected number</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def correct_bit(x:int, MEAN:float, BITS:int=48):
+    &#34;&#34;&#34;Recursively Correct a number for bit flips, by removing the most significant bit until it&#39;s below a threshold
+
+    Args:
+        x (int): An integer to correct
+        MEAN (float): The value to reach
+        BITS (int, optional): The maximum number of bits that the number can have. Defaults to 48.
+
+    Returns:
+        x (int): The corrected number
+    &#34;&#34;&#34;
+    if abs(x) &lt;= MEAN: 
+        return x
+    if x &gt; 0: return correct_bit(x - get_msb(x,BITS),MEAN,BITS)
+    else: return correct_bit(x + get_msb(abs(x),BITS),MEAN,BITS)</code></pre>
+</details>
+</dd>
 <dt id="raadpy.functionality.correct_time"><code class="name flex">
 <span>def <span class="ident">correct_time</span></span>(<span>data: dict, orbit: dict, key: str = 'rate0', TIME: int = 20, RANGE_ORBIT=(0, 100), RIZE_TIME: float = 1, CONST_TIME: float = 1, TMAX: int = 9999)</span>
 </code></dt>
@@ -2255,6 +2497,41 @@ Automatically handles large file sizes.</p>
     return (array[s],array[e])</code></pre>
 </details>
 </dd>
+<dt id="raadpy.functionality.find_pairs"><code class="name flex">
+<span>def <span class="ident">find_pairs</span></span>(<span>diffs, MEAN, STD)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Helper function to find the pairs of bit flips occuring in a timestring, Use invert_flips instead!</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def find_pairs(diffs,MEAN,STD):
+    &#34;&#34;&#34;Helper function to find the pairs of bit flips occuring in a timestring, Use invert_flips instead!
+    &#34;&#34;&#34;
+    candidates  = np.array([])
+    idxs        = np.array([],dtype=int)
+    round_msb = lambda data,BITS: get_msb((3*abs(data)).astype(int) &gt;&gt; 1,BITS)*np.sign(data)
+
+    pairs = []    
+    for i,d in enumerate(round_msb(diffs,50)):
+        # If this is a candidate for a thing 
+        if d &lt; -MEAN - 3*STD:
+            candidates = np.append(candidates,[d])
+            idxs       = np.append(idxs      ,[i])
+        
+        if len(candidates) &gt; 0:
+            # candidates += d
+            idx = np.where(abs(candidates + d) == 0)[0]
+            if len(idx) &gt; 0:
+                index = idx[0]
+                pairs.append((idxs[index],i))
+                candidates = np.delete(candidates,[index,int(-1)],axis=0)
+                idxs       = np.delete(idxs      ,[index,int(-1)],axis=0)
+
+    return np.array(pairs)</code></pre>
+</details>
+</dd>
 <dt id="raadpy.functionality.get_bit"><code class="name flex">
 <span>def <span class="ident">get_bit</span></span>(<span>i: int, string)</span>
 </code></dt>
@@ -2350,6 +2627,10 @@ string
 <dd>Maximum number of lines to read, if None then read all of them. Defaults to None.</dd>
 <dt><strong><code>STUPID</code></strong> :&ensp;<code>bool</code>, optional</dt>
 <dd>Should be set to True if you are reading VETO and NONVETO. Defaults to False.</dd>
+<dt><strong><code>VERIFY</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>Set to True to process error correction automatically, such as filtering the 2-byte error, and correcting for bit flips. Defaults to False</dd>
+<dt><strong><code>threshold</code></strong> :&ensp;<code>float</code>,optional</dt>
+<dd>The difference between two points in the timestamp that we can consider faulty as a fraction of the maximum number that the integer field can store. If threshold &gt; 1 then it is considered as an absolute threhsold. Only used if VERIFY=True. Defaults to 5e-5</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -2369,6 +2650,8 @@ string
         condition (str, optional): If you want you can add a condition such as data[&#39;id_bit&#39;]==1 to filter the data as they&#39;re being loaded. Defaults to None.
         MAX (_type_, optional): Maximum number of lines to read, if None then read all of them. Defaults to None.
         STUPID (bool, optional): Should be set to True if you are reading VETO and NONVETO. Defaults to False.
+        VERIFY (bool, optional): Set to True to process error correction automatically, such as filtering the 2-byte error, and correcting for bit flips. Defaults to False
+        threshold (float,optional): The difference between two points in the timestamp that we can consider faulty as a fraction of the maximum number that the integer field can store. If threshold &gt; 1 then it is considered as an absolute threhsold. Only used if VERIFY=True. Defaults to 5e-5
 
     Returns:
         data (dict): Dictionary with the decoded arrays of measurements
@@ -2399,8 +2682,6 @@ string
             THRESHOLD *= threshold
         else:
             THRESHOLD = threshold
-
-        # print(&#34;%.4e&#34;%THRESHOLD)
 
     # Current byte index in the file
     curr = 0
@@ -2460,8 +2741,115 @@ string
     if &#39;temperature&#39; in struct.keys():
         data[&#39;temperature&#39;] -= 55
         
+
+    # If we can do a bit flip verification perform it
+    if VERIFY:
+        # Split to channels
+        channels, _ = split_channels(data,struct)
+        
+        # Apply correction to each channel
+        for channel in channels: channel[&#39;stimestamp&#39;] = invert_flips(channel[&#39;stimestamp&#39;],struct[&#39;stimestamp&#39;])
+
+        # Put it back together
+        data[&#39;stimestamp&#39;] = np.array([])
+        for channel in channels: data[&#39;stimestamp&#39;] = np.append(data[&#39;stimestamp&#39;],[channel[&#39;stimestamp&#39;]])
+    
     # Return the dictionary
     return data</code></pre>
+</details>
+</dd>
+<dt id="raadpy.functionality.get_light1_position"><code class="name flex">
+<span>def <span class="ident">get_light1_position</span></span>(<span>starttime: astropy.time.core.Time, endtime: astropy.time.core.Time = None, n_events: int = None, SHORT_TIME: float = 10)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Give me a start and end time in astropy objects, I give you light-1 position.
+I can also interpolate if you give me anumber of events</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>starttime</code></strong> :&ensp;<code>Time</code></dt>
+<dd>Start time, or single event time</dd>
+<dt><strong><code>endtime</code></strong> :&ensp;<code>Time</code>, optional</dt>
+<dd>End time. If left None, it assumes single position. Defaults to None.</dd>
+<dt><strong><code>n_events</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Number of points in case we interpolate. Defaults to None.</dd>
+<dt><strong><code>SHORT_TIME</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>If you want a single event, give us some wiggle room to look around for it. Defaults to 10.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>Exception</code></dt>
+<dd>Start Time and End Time are not astropy Time objects</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>locs (rp.array): Raadpy array with the locations of the satellite in this interval.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_light1_position(starttime:Time, endtime:Time=None, n_events:int=None, SHORT_TIME:float=10):
+    &#34;&#34;&#34;Give me a start and end time in astropy objects, I give you light-1 position. 
+    I can also interpolate if you give me anumber of events
+
+    Args:
+        starttime (Time): Start time, or single event time
+        endtime (Time, optional): End time. If left None, it assumes single position. Defaults to None.
+        n_events (int, optional): Number of points in case we interpolate. Defaults to None.
+        SHORT_TIME (float, optional): If you want a single event, give us some wiggle room to look around for it. Defaults to 10.
+
+    Raises:
+        Exception: Start Time and End Time are not astropy Time objects
+    
+    Returns:
+        locs (rp.array): Raadpy array with the locations of the satellite in this interval.
+    &#34;&#34;&#34;
+    # Input processing on start time
+    if type(starttime) != Time:
+        try:
+            starttime = Time(starttime)
+        except:
+            raise Exception(&#34;Given timestamp is not an astropy Time object&#34;)       
+
+    # If endtime is not given, it means we want only one event, so we will interpolate around SHORT_TIME
+    if endtime is None:
+        starttime   -= TimeDelta(SHORT_TIME,format=&#39;sec&#39;)
+        endtime      = starttime + TimeDelta(2*SHORT_TIME,format=&#39;sec&#39;)
+        n_events    = -1
+    else: 
+        try:
+            endtime     = Time(endtime)
+        except:
+            raise Exception(&#34;Start time and End time are not astropy Time object&#34;)
+
+    # Request the data from sql for this time period
+    data =(send_sql_query_over_ssh(&#34;SELECT * FROM `LIGHT-1_Position_Data`.PositionData WHERE `Time (ModJDate)` BETWEEN &#34; + str(starttime.to_value(&#34;mjd&#34;)) + &#34; AND &#34; + str(endtime.to_value(&#34;mjd&#34;)) + &#34;;&#34;))
+    
+    # Get the data from the dataframe
+    latitudes   = [i for i in data[&#39;Lat (deg)&#39;]]
+    longitudes  = [i for i in data[&#39;Lon (deg)&#39;]]
+    times       = [i for i in data[&#39;Time (ModJDate)&#39;]]
+    
+
+    # Interpolation if needed
+    if n_events is not None:
+        times_tmp  = np.linspace(starttime.to_value(format=&#34;mjd&#34;), endtime.to_value(format=&#34;mjd&#34;), n_events) if n_events &gt; 0 else np.array([(starttime.mjd+endtime.mjd)/2])
+        latitudes  = np.interp(times_tmp, times, latitudes)
+        longitudes = np.interp(times_tmp, times, longitudes)
+        times = times_tmp
+    
+    # Create rp.array
+    locs = array(event_type=&#34;location&#34;)
+    for i in range(len(times)):
+        locs.append(event(
+            timestamp   = Time(times[i], format=&#34;mjd&#34;),
+            longitude   = in_range(float(longitudes[i])),
+            latitude    = float(latitudes[i]),
+            detector_id = &#39;NA&#39;,
+            mission     = &#39;NanoAvionics&#39;,
+            time_format = &#34;mjd&#34;,
+            event_type  = &#34;cubesat-location&#34;
+        ))
+
+    return(locs)</code></pre>
 </details>
 </dd>
 <dt id="raadpy.functionality.get_nearby_lightning"><code class="name flex">
@@ -2561,6 +2949,59 @@ string
         ramps.append((idx[i-1],idx[i]))
 
     return ramps</code></pre>
+</details>
+</dd>
+<dt id="raadpy.functionality.invert_flips"><code class="name flex">
+<span>def <span class="ident">invert_flips</span></span>(<span>timestamp: <built-in function array>, BITS: int = 36)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Given a list of timestamps, find and correct the bit flips occured.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>timestamp</code></strong> :&ensp;<code>np.array</code></dt>
+<dd>The array of timestamps</dd>
+<dt><strong><code>BITS</code></strong> :&ensp;<code>dict</code>, optional</dt>
+<dd>The number of bits in the timestamp variable. Defaults to NONVETO_STRUCT['stimestamp'] = 48.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>timestamp (np.array): The corrected timestamp</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def invert_flips(timestamp:np.array,BITS:int=NONVETO_STRUCT[&#39;stimestamp&#39;]):
+    &#34;&#34;&#34;Given a list of timestamps, find and correct the bit flips occured.
+
+    Args:
+        timestamp (np.array): The array of timestamps
+        BITS (dict, optional): The number of bits in the timestamp variable. Defaults to NONVETO_STRUCT[&#39;stimestamp&#39;] = 48.
+
+    Returns:
+        timestamp (np.array): The corrected timestamp
+    &#34;&#34;&#34;
+    # Get the gradient of the timestamp
+    timestamp_deltas = timestamp[1:] - timestamp[:-1]
+
+    # Get Mean and standard deviation
+    MEAN = np.mean(abs(timestamp_deltas))
+    STD  = np.std(abs(timestamp_deltas))
+
+    # Identify the pairs of points where you get bit flips
+    pairs = find_pairs(timestamp_deltas,MEAN,STD)
+    
+    # For each bit flip region
+    for pair in pairs:
+        ADD = 0
+        # For each point within the region
+        for i in range(*pair):
+            # Calculate a correction and apply it
+            ADD += correct_bit(int(timestamp_deltas[i]),MEAN,BITS=BITS) - timestamp_deltas[i]
+            timestamp[i+1] += ADD
+
+    return timestamp</code></pre>
 </details>
 </dd>
 <dt id="raadpy.functionality.log_expand"><code class="name flex">
@@ -2956,6 +3397,47 @@ return the time increment for this line</p>
     return filename</code></pre>
 </details>
 </dd>
+<dt id="raadpy.functionality.send_sql_query_over_ssh"><code class="name flex">
+<span>def <span class="ident">send_sql_query_over_ssh</span></span>(<span>query: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Receives SQL query and sends it to the raad@arneodolab.abudhabi.nyu.edu SQL server.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>query</code></strong> :&ensp;<code>str</code></dt>
+<dd>SQL Formatted Query</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>data (pandas.dataframe): Dataframe of the data requested as formatted on the server.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def send_sql_query_over_ssh(query:str):
+    &#34;&#34;&#34;Receives SQL query and sends it to the raad@arneodolab.abudhabi.nyu.edu SQL server.
+
+    Args:
+        query (str): SQL Formatted Query
+
+    Returns:
+        data (pandas.dataframe): Dataframe of the data requested as formatted on the server.
+    &#34;&#34;&#34;
+
+    # Set up ssh tunnel
+    # tunnel = paramiko.SSHClient()
+    # tunnel.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    # tunnel.connect(&#39;arneodolab.abudhabi.nyu.edu&#39;, 22,username=&#39;raad&#39;,password=&#39;nyuad123$&#39;,allow_agent=False,look_for_keys=False)
+    tunnel  = SSHTunnelForwarder((&#39;arneodolab.abudhabi.nyu.edu&#39;, 22), ssh_password=&#34;nyuad123$&#34;, ssh_username=&#34;raad&#34;, remote_bind_address=(&#39;127.0.0.1&#39;, 3306), allow_agent=False,)
+    tunnel.start()
+
+    # Connect to PYSQl Host
+    conn    = pymysql.connect(host=&#39;127.0.0.1&#39;, user=&#39;raad&#39;, passwd=&#34;nyuad123$&#34;, port=tunnel.local_bind_port)
+    data    = pd.read_sql_query(query, conn)    # Request Data
+    tunnel.close()                              # Close tunnel
+    
+    return data</code></pre>
+</details>
+</dd>
 <dt id="raadpy.functionality.sort"><code class="name flex">
 <span>def <span class="ident">sort</span></span>(<span>data, field='entry_nr')</span>
 </code></dt>
@@ -2998,6 +3480,48 @@ return the time increment for this line</p>
     return sorted</code></pre>
 </details>
 </dd>
+<dt id="raadpy.functionality.split_channels"><code class="name flex">
+<span>def <span class="ident">split_channels</span></span>(<span>data, struct={'channel': 2, 'adc_counts': 10, 'stimestamp': 36})</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Split the data based on their channels</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>_type_</code></dt>
+<dd>Buffer data</dd>
+<dt><strong><code>struct</code></strong> :&ensp;<code>_type_</code>, optional</dt>
+<dd>Structure to decode them as. Defaults to NONVETO_STRUCT.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>channels</code></dt>
+<dd>List of lists for all the channels</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def split_channels(data,struct=NONVETO_STRUCT):
+    &#34;&#34;&#34;Split the data based on their channels
+
+    Args:
+        data (_type_): Buffer data
+        struct (_type_, optional): Structure to decode them as. Defaults to NONVETO_STRUCT.
+
+    Returns:
+        channels: List of lists for all the channels
+    &#34;&#34;&#34;
+    # Split the data based on their channels
+    channels    = []
+    idxs        = []
+    for channel in np.unique(data[&#39;channel&#39;]):
+        idx         = np.where(data[&#39;channel&#39;] == channel)[0]
+        idxs.append(idx.copy())
+        channels.append(dict(zip(struct.keys(),[arr[idx] for arr in data.values()])))
+    
+    return channels,idxs</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 <section>
@@ -3016,6 +3540,7 @@ return the time increment for this line</p>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="raadpy.functionality.correct_bit" href="#raadpy.functionality.correct_bit">correct_bit</a></code></li>
 <li><code><a title="raadpy.functionality.correct_time" href="#raadpy.functionality.correct_time">correct_time</a></code></li>
 <li><code><a title="raadpy.functionality.correct_time_FPGA" href="#raadpy.functionality.correct_time_FPGA">correct_time_FPGA</a></code></li>
 <li><code><a title="raadpy.functionality.correct_time_orbit" href="#raadpy.functionality.correct_time_orbit">correct_time_orbit</a></code></li>
@@ -3030,12 +3555,15 @@ return the time increment for this line</p>
 <li><code><a title="raadpy.functionality.download_range" href="#raadpy.functionality.download_range">download_range</a></code></li>
 <li><code><a title="raadpy.functionality.download_time_delta" href="#raadpy.functionality.download_time_delta">download_time_delta</a></code></li>
 <li><code><a title="raadpy.functionality.find_closest" href="#raadpy.functionality.find_closest">find_closest</a></code></li>
+<li><code><a title="raadpy.functionality.find_pairs" href="#raadpy.functionality.find_pairs">find_pairs</a></code></li>
 <li><code><a title="raadpy.functionality.get_bit" href="#raadpy.functionality.get_bit">get_bit</a></code></li>
 <li><code><a title="raadpy.functionality.get_bit_idx" href="#raadpy.functionality.get_bit_idx">get_bit_idx</a></code></li>
 <li><code><a title="raadpy.functionality.get_bits" href="#raadpy.functionality.get_bits">get_bits</a></code></li>
 <li><code><a title="raadpy.functionality.get_dict" href="#raadpy.functionality.get_dict">get_dict</a></code></li>
+<li><code><a title="raadpy.functionality.get_light1_position" href="#raadpy.functionality.get_light1_position">get_light1_position</a></code></li>
 <li><code><a title="raadpy.functionality.get_nearby_lightning" href="#raadpy.functionality.get_nearby_lightning">get_nearby_lightning</a></code></li>
 <li><code><a title="raadpy.functionality.get_ramps" href="#raadpy.functionality.get_ramps">get_ramps</a></code></li>
+<li><code><a title="raadpy.functionality.invert_flips" href="#raadpy.functionality.invert_flips">invert_flips</a></code></li>
 <li><code><a title="raadpy.functionality.log_expand" href="#raadpy.functionality.log_expand">log_expand</a></code></li>
 <li><code><a title="raadpy.functionality.log_line_timestamp" href="#raadpy.functionality.log_line_timestamp">log_line_timestamp</a></code></li>
 <li><code><a title="raadpy.functionality.log_metadata" href="#raadpy.functionality.log_metadata">log_metadata</a></code></li>
@@ -3043,7 +3571,9 @@ return the time increment for this line</p>
 <li><code><a title="raadpy.functionality.parse_custom_scenario" href="#raadpy.functionality.parse_custom_scenario">parse_custom_scenario</a></code></li>
 <li><code><a title="raadpy.functionality.reorder_log" href="#raadpy.functionality.reorder_log">reorder_log</a></code></li>
 <li><code><a title="raadpy.functionality.save_raw_data" href="#raadpy.functionality.save_raw_data">save_raw_data</a></code></li>
+<li><code><a title="raadpy.functionality.send_sql_query_over_ssh" href="#raadpy.functionality.send_sql_query_over_ssh">send_sql_query_over_ssh</a></code></li>
 <li><code><a title="raadpy.functionality.sort" href="#raadpy.functionality.sort">sort</a></code></li>
+<li><code><a title="raadpy.functionality.split_channels" href="#raadpy.functionality.split_channels">split_channels</a></code></li>
 </ul>
 </li>
 </ul>

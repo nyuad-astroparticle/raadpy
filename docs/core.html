@@ -49,6 +49,8 @@ from requests_oauthlib import OAuth1
 import os
 import csv
 from IPython.display import clear_output as clear
+import pymysql
+from sshtunnel import SSHTunnelForwarder
 
 ##################################################################################
 # Useful Constants
@@ -129,6 +131,12 @@ def get_epoch_time(date_time):
     time = date_time.to_datetime() - date
 
     return str(time.seconds)
+
+# Get the most significant bit of number
+def get_msb(x:int,BITS=48):
+    for i in range(BITS):
+        x |= x &gt;&gt; int(2**i)
+    return (x+1) &gt;&gt; 1
 
 class bcolors:
     HEADER = &#39;\033[95m&#39;
@@ -274,6 +282,21 @@ class HTTPBearerAuth(requests.auth.AuthBase):
     time = date_time.to_datetime() - date
 
     return str(time.seconds)</code></pre>
+</details>
+</dd>
+<dt id="raadpy.core.get_msb"><code class="name flex">
+<span>def <span class="ident">get_msb</span></span>(<span>x: int, BITS=48)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_msb(x:int,BITS=48):
+    for i in range(BITS):
+        x |= x &gt;&gt; int(2**i)
+    return (x+1) &gt;&gt; 1</code></pre>
 </details>
 </dd>
 <dt id="raadpy.core.in_range"><code class="name flex">
@@ -616,6 +639,7 @@ class HTTPBearerAuth(requests.auth.AuthBase):
 <ul class="">
 <li><code><a title="raadpy.core.get_epoch_date" href="#raadpy.core.get_epoch_date">get_epoch_date</a></code></li>
 <li><code><a title="raadpy.core.get_epoch_time" href="#raadpy.core.get_epoch_time">get_epoch_time</a></code></li>
+<li><code><a title="raadpy.core.get_msb" href="#raadpy.core.get_msb">get_msb</a></code></li>
 <li><code><a title="raadpy.core.in_range" href="#raadpy.core.in_range">in_range</a></code></li>
 <li><code><a title="raadpy.core.unique" href="#raadpy.core.unique">unique</a></code></li>
 </ul>
