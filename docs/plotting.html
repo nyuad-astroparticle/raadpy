@@ -136,27 +136,6 @@ def plot_buffer(data,title=&#39;Plots of Buffer data&#39;,UNITS=None):
 
     return fig,axes
 
-# Split the dataset in channels
-def split_channels(data,struct=NONVETO_STRUCT):
-    &#34;&#34;&#34;Split the data based on their channels
-
-    Args:
-        data (_type_): Buffer data
-        struct (_type_, optional): Structure to decode them as. Defaults to NONVETO_STRUCT.
-
-    Returns:
-        channels: List of lists for all the channels
-    &#34;&#34;&#34;
-    # Split the data based on their channels
-    channels    = []
-    idxs        = []
-    for channel in np.unique(data[&#39;channel&#39;]):
-        idx         = np.where(data[&#39;channel&#39;] == channel)[0]
-        idxs.append(idx.copy())
-        channels.append(dict(zip(struct.keys(),[arr[idx] for arr in data.values()])))
-    
-    return channels,idxs
-
 # Plot histograms of the energies
 def plot_hists(data,struct=NONVETO_STRUCT,bins=600,RANGE=None):
     &#34;&#34;&#34;Plot histograms of the charge (ADC counts) given decoded data from one of the dictionaries
@@ -602,48 +581,6 @@ def plot_timestamp(data,RANGE=None):
     return fig,ax</code></pre>
 </details>
 </dd>
-<dt id="raadpy.plotting.split_channels"><code class="name flex">
-<span>def <span class="ident">split_channels</span></span>(<span>data, struct={'channel': 2, 'adc_counts': 10, 'stimestamp': 36})</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Split the data based on their channels</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>data</code></strong> :&ensp;<code>_type_</code></dt>
-<dd>Buffer data</dd>
-<dt><strong><code>struct</code></strong> :&ensp;<code>_type_</code>, optional</dt>
-<dd>Structure to decode them as. Defaults to NONVETO_STRUCT.</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>channels</code></dt>
-<dd>List of lists for all the channels</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def split_channels(data,struct=NONVETO_STRUCT):
-    &#34;&#34;&#34;Split the data based on their channels
-
-    Args:
-        data (_type_): Buffer data
-        struct (_type_, optional): Structure to decode them as. Defaults to NONVETO_STRUCT.
-
-    Returns:
-        channels: List of lists for all the channels
-    &#34;&#34;&#34;
-    # Split the data based on their channels
-    channels    = []
-    idxs        = []
-    for channel in np.unique(data[&#39;channel&#39;]):
-        idx         = np.where(data[&#39;channel&#39;] == channel)[0]
-        idxs.append(idx.copy())
-        channels.append(dict(zip(struct.keys(),[arr[idx] for arr in data.values()])))
-    
-    return channels,idxs</code></pre>
-</details>
-</dd>
 </dl>
 </section>
 <section>
@@ -661,13 +598,12 @@ def plot_timestamp(data,RANGE=None):
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="two-column">
+<ul class="">
 <li><code><a title="raadpy.plotting.map" href="#raadpy.plotting.map">map</a></code></li>
 <li><code><a title="raadpy.plotting.plot_buffer" href="#raadpy.plotting.plot_buffer">plot_buffer</a></code></li>
 <li><code><a title="raadpy.plotting.plot_hists" href="#raadpy.plotting.plot_hists">plot_hists</a></code></li>
 <li><code><a title="raadpy.plotting.plot_timestamp" href="#raadpy.plotting.plot_timestamp">plot_timestamp</a></code></li>
 <li><code><a title="raadpy.plotting.plot_timestamps" href="#raadpy.plotting.plot_timestamps">plot_timestamps</a></code></li>
-<li><code><a title="raadpy.plotting.split_channels" href="#raadpy.plotting.split_channels">split_channels</a></code></li>
 </ul>
 </li>
 </ul>

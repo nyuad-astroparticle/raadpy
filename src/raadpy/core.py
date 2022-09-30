@@ -106,6 +106,12 @@ def get_epoch_time(date_time):
 
     return str(time.seconds)
 
+# Get the most significant bit of number
+def get_msb(x:int,BITS=48):
+    for i in range(BITS):
+        x |= x >> int(2**i)
+    return (x+1) >> 1
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'

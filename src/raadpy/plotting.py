@@ -110,27 +110,6 @@ def plot_buffer(data,title='Plots of Buffer data',UNITS=None):
 
     return fig,axes
 
-# Split the dataset in channels
-def split_channels(data,struct=NONVETO_STRUCT):
-    """Split the data based on their channels
-
-    Args:
-        data (_type_): Buffer data
-        struct (_type_, optional): Structure to decode them as. Defaults to NONVETO_STRUCT.
-
-    Returns:
-        channels: List of lists for all the channels
-    """
-    # Split the data based on their channels
-    channels    = []
-    idxs        = []
-    for channel in np.unique(data['channel']):
-        idx         = np.where(data['channel'] == channel)[0]
-        idxs.append(idx.copy())
-        channels.append(dict(zip(struct.keys(),[arr[idx] for arr in data.values()])))
-    
-    return channels,idxs
-
 # Plot histograms of the energies
 def plot_hists(data,struct=NONVETO_STRUCT,bins=600,RANGE=None):
     """Plot histograms of the charge (ADC counts) given decoded data from one of the dictionaries
