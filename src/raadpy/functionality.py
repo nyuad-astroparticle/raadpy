@@ -761,7 +761,7 @@ def log_expand(filename:str=None,text:str=None):
         BaseException: If both parameters are left as None, then nothing happens. 
 
     Returns:
-        decoded_logfile (list): List of lists. Each entry is a tuple with a command and a list for the outputs. 
+        decoded_logfile (list): List of dictionaries. Each entry is a tuple with a command and a list for the outputs. 
     """
 
     # Do some argument processing:
@@ -788,7 +788,10 @@ def log_expand(filename:str=None,text:str=None):
     commands_idx = [i for i,line in enumerate(loglines) if 'SE0>' in line]
     
     # Collect the outputs of the commands
-    decoded_log = [[loglines[commands_idx[i]],loglines[commands_idx[i]+1:commands_idx[i+1]]] for i in range(len(commands_idx)-1)]
+    decoded_log = [{
+        'command':loglines[commands_idx[i]],
+        'output':loglines[commands_idx[i]+1:commands_idx[i+1]]
+        } for i in range(len(commands_idx)-1)]
 
     # Return
     return decoded_log
