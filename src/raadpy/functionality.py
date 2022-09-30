@@ -1197,3 +1197,95 @@ def reorder_log(logfile:list):
 
 
     return logfile
+
+
+
+def send_sql_query_over_ssh(query:str):
+    """Receives SQL query and sends it to the raad@arneodolab.abudhabi.nyu.edu SQL server.
+
+    Args:
+        query (str): SQL Formatted Query
+
+    Returns:
+        data (pandas.dataframe): Dataframe of the data requested as formatted on the server.
+    """
+
+    # Set up ssh tunnel
+    # tunnel = paramiko.SSHClient()
+    # tunnel.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    # tunnel.connect('arneodolab.abudhabi.nyu.edu', 22,username='raad',password='nyuad123$',allow_agent=False,look_for_keys=False)
+    tunnel  = SSHTunnelForwarder(('arneodolab.abudhabi.nyu.edu', 22), ssh_password="nyuad123$", ssh_username="raad", remote_bind_address=('127.0.0.1', 3306), allow_agent=False,)
+    tunnel.start()
+
+    # Connect to PYSQl Host
+    conn    = pymysql.connect(host='127.0.0.1', user='raad', passwd="nyuad123$", port=tunnel.local_bind_port)
+    data    = pd.read_sql_query(query, conn)    # Request Data
+    tunnel.close()                              # Close tunnel
+    
+    return data
+
+
+def get_light1_position(starttime:Time, endtime:Time=None, n_events:int=None, SHORT_TIME:float=10):
+    """Give me a start and end time in astropy objects, I give you light-1 position. 
+    I can also interpolate if you give me anumber of events
+
+    Args:
+        starttime (Time): Start time, or single event time
+        endtime (Time, optional): End time. If left None, it assumes single position. Defaults to None.
+        n_events (int, optional): Number of points in case we interpolate. Defaults to None.
+        SHORT_TIME (float, optional): If you want a single event, give us some wiggle room to look around for it. Defaults to 10.
+
+    Raises:
+        Exception: Start Time and End Time are not astropy Time objects
+    
+    Returns:
+        locs (rp.array): Raadpy array with the locations of the satellite in this interval.
+    """
+    # Input processing on start time
+    if type(starttime) != Time:
+        try:
+            starttime = Time(starttime)
+        except:
+            raise Exception("Given timestamp is not an astropy Time object")       
+
+    # If endtime is not given, it means we want only one event, so we will interpolate around SHORT_TIME
+    if endtime is None:
+        starttime   -= TimeDelta(SHORT_TIME,format='sec')
+        endtime      = starttime + TimeDelta(2*SHORT_TIME,format='sec')
+        n_events    = -1
+    else: 
+        try:
+            endtime     = Time(endtime)
+        except:
+            raise Exception("Start time and End time are not astropy Time object")
+
+    # Request the data from sql for this time period
+    data =(send_sql_query_over_ssh("SELECT * FROM `LIGHT-1_Position_Data`.PositionData WHERE `Time (ModJDate)` BETWEEN " + str(starttime.to_value("mjd")) + " AND " + str(endtime.to_value("mjd")) + ";"))
+    
+    # Get the data from the dataframe
+    latitudes   = [i for i in data['Lat (deg)']]
+    longitudes  = [i for i in data['Lon (deg)']]
+    times       = [i for i in data['Time (ModJDate)']]
+    
+
+    # Interpolation if needed
+    if n_events is not None:
+        times_tmp  = np.linspace(starttime.to_value(format="mjd"), endtime.to_value(format="mjd"), n_events) if n_events > 0 else np.array([(starttime.mjd+endtime.mjd)/2])
+        latitudes  = np.interp(times_tmp, times, latitudes)
+        longitudes = np.interp(times_tmp, times, longitudes)
+        times = times_tmp
+    
+    # Create rp.array
+    locs = array(event_type="location")
+    for i in range(len(times)):
+        locs.append(event(
+            timestamp   = Time(times[i], format="mjd"),
+            longitude   = in_range(float(longitudes[i])),
+            latitude    = float(latitudes[i]),
+            detector_id = 'NA',
+            mission     = 'NanoAvionics',
+            time_format = "mjd",
+            event_type  = "cubesat-location"
+        ))
+
+    return(locs)
