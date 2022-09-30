@@ -787,7 +787,7 @@ def log_expand(filename:str=None,text:str=None):
         BaseException: If both parameters are left as None, then nothing happens. 
 
     Returns:
-        decoded_logfile (list): List of lists. Each entry is a tuple with a command and a list for the outputs. 
+        decoded_logfile (list): List of dictionaries. Each entry is a tuple with a command and a list for the outputs. 
     &#34;&#34;&#34;
 
     # Do some argument processing:
@@ -814,7 +814,10 @@ def log_expand(filename:str=None,text:str=None):
     commands_idx = [i for i,line in enumerate(loglines) if &#39;SE0&gt;&#39; in line]
     
     # Collect the outputs of the commands
-    decoded_log = [[loglines[commands_idx[i]],loglines[commands_idx[i]+1:commands_idx[i+1]]] for i in range(len(commands_idx)-1)]
+    decoded_log = [{
+        &#39;command&#39;:loglines[commands_idx[i]],
+        &#39;output&#39;:loglines[commands_idx[i]+1:commands_idx[i+1]]
+        } for i in range(len(commands_idx)-1)]
 
     # Return
     return decoded_log
@@ -1117,7 +1120,109 @@ def decode_log(filename:str=&#34;../../../Data/Logs/light1-SD-1016-se-log.txt&#3
             writer.writerow(g)
 
     # Return everything else
-    return log, commands[:-1], outputs, description, failed_idx, loglines_array</code></pre>
+    return log, commands[:-1], outputs, description, failed_idx, loglines_array
+
+
+def log_line_timestamp(logline:list,time:float=0):
+    &#34;&#34;&#34;Given a log file line as the lines decoded by log_expand, and a time
+    return the time increment for this line
+
+    Args:
+        logline (list): The element of the decoded logfile corresponding to a line
+        time (float): The time up to now
+
+    Returns:
+        time (float): Time increment after the execution of the command
+    &#34;&#34;&#34;
+
+    splt = logline[&#39;command&#39;].split(&#39; &#39;)                # Split the cmnd line (logline[0]) by the spaces 
+    if &#34;SE0&gt;\n&#34; not in splt[0]:                         # If the cmnd is not the end of the log file: 
+        
+        if &#34;read&#34; in splt[1]:                           # If cmnd is read time
+            time = float (logline[&#39;output&#39;][0].split(&#34; &#34;)[3])  # Replace time with the time read
+
+        if splt[1] == &#34;delay&#34;:                          # If the cmnd is a delay
+            time = time + (float(splt[2])/1000)         # Add time delay to previous time
+
+        if splt[1] == &#34;delayuntil&#34;:                     # If cmnd is delayuntil 
+            time = float(splt[2])                       # Replace time by new time
+
+        if &#34;FAIL\n&#34; in logline[&#39;output&#39;]:               # if it was a payload cmnd and it failed (there will be delays)
+            time = time + float(splt[4])/1000                # take the time a payload cmnd takes to be excuted 
+
+    return time
+
+# Now we can define an error correction pass
+
+def find_closest(x,array):
+    &#34;&#34;&#34;Helper function that returns the two closest values to x in a list
+
+    Args:
+        x (numeric): The value to search for
+        array (iterable): The list to search in
+
+    Returns:
+        (a,b) (tuple): The two values closest to x that can be found in the list. If x is in the list, b=x and a&lt;b.
+    &#34;&#34;&#34;
+    # Binary search
+    s   = 0
+    e   = len(array)-1
+    mid = (s + e)//2
+    prevmid = -float(&#39;inf&#39;)
+
+    # Handle edge cases
+    if x &lt;= array[s]: return (-float(&#39;inf&#39;),array[s])
+    if x &gt;= array[e]: return (array[e],float(&#39;inf&#39;))
+
+    # Flag that will update condition to exit
+    found = False
+    while prevmid != mid:
+        if x == array[mid]: return (array[mid-1],array[mid])
+        if x &lt; array[mid]:  e = mid
+        if x &gt; array[mid]:  s = mid
+
+        prevmid = mid
+        mid     = (s+e)//2
+
+    if (s==e): return (array[s],array[s+1])
+    return (array[s],array[e])
+
+
+
+def reorder_log(logfile:list):
+    &#34;&#34;&#34;Reorder a logfile based on it&#39;s timestamps
+
+    Args:
+        logfile (list): The logifile after having a timestamp field added
+
+    Returns:
+        logfile (list): Corrected logfile in time
+    &#34;&#34;&#34;
+
+    # Get a list of timestamps
+    timestamps = np.array([line[&#39;timestamp&#39;] for line in logfile])
+
+    # Get the indices where the time is not increasing
+    idx_flip = np.where(timestamps[1:] - timestamps[:-1] &lt; 0)[0] + 1
+
+    # Get he indices of the rtc reads
+    idx_read = np.append([0],[np.where(&#39;SE0&gt;rtc read\n&#39; == np.array([line[&#39;command&#39;] for line in logfile]))[0]])
+
+    # Add the difference to the regions of interest
+    for i in idx_flip:
+        # Calculate the time difference
+        diff = logfile[i-1][&#39;timestamp&#39;] - logfile[i][&#39;timestamp&#39;]
+        
+        # Find the closest two rtc read timestamps
+        _, closest_rtc = find_closest(i,idx_read)
+
+        # Correct the timestamps in this region
+        while (logfile[closest_rtc-1][&#39;timestamp&#39;] - logfile[closest_rtc][&#39;timestamp&#39;]) &gt; 0:
+            logfile[closest_rtc-1][&#39;timestamp&#39;] -= diff
+            closest_rtc -= 1
+
+
+    return logfile</code></pre>
 </details>
 </section>
 <section>
@@ -2098,6 +2203,58 @@ Automatically handles large file sizes.</p>
     return data</code></pre>
 </details>
 </dd>
+<dt id="raadpy.functionality.find_closest"><code class="name flex">
+<span>def <span class="ident">find_closest</span></span>(<span>x, array)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Helper function that returns the two closest values to x in a list</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>x</code></strong> :&ensp;<code>numeric</code></dt>
+<dd>The value to search for</dd>
+<dt><strong><code>array</code></strong> :&ensp;<code>iterable</code></dt>
+<dd>The list to search in</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>(a,b) (tuple): The two values closest to x that can be found in the list. If x is in the list, b=x and a&lt;b.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def find_closest(x,array):
+    &#34;&#34;&#34;Helper function that returns the two closest values to x in a list
+
+    Args:
+        x (numeric): The value to search for
+        array (iterable): The list to search in
+
+    Returns:
+        (a,b) (tuple): The two values closest to x that can be found in the list. If x is in the list, b=x and a&lt;b.
+    &#34;&#34;&#34;
+    # Binary search
+    s   = 0
+    e   = len(array)-1
+    mid = (s + e)//2
+    prevmid = -float(&#39;inf&#39;)
+
+    # Handle edge cases
+    if x &lt;= array[s]: return (-float(&#39;inf&#39;),array[s])
+    if x &gt;= array[e]: return (array[e],float(&#39;inf&#39;))
+
+    # Flag that will update condition to exit
+    found = False
+    while prevmid != mid:
+        if x == array[mid]: return (array[mid-1],array[mid])
+        if x &lt; array[mid]:  e = mid
+        if x &gt; array[mid]:  s = mid
+
+        prevmid = mid
+        mid     = (s+e)//2
+
+    if (s==e): return (array[s],array[s+1])
+    return (array[s],array[e])</code></pre>
+</details>
+</dd>
 <dt id="raadpy.functionality.get_bit"><code class="name flex">
 <span>def <span class="ident">get_bit</span></span>(<span>i: int, string)</span>
 </code></dt>
@@ -2425,7 +2582,7 @@ If a text value is given then it decodes the text, if not, it then decodes the v
 <dd>If both parameters are left as None, then nothing happens. </dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>decoded_logfile (list): List of lists. Each entry is a tuple with a command and a list for the outputs.</p></div>
+<p>decoded_logfile (list): List of dictionaries. Each entry is a tuple with a command and a list for the outputs.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2442,7 +2599,7 @@ If a text value is given then it decodes the text, if not, it then decodes the v
         BaseException: If both parameters are left as None, then nothing happens. 
 
     Returns:
-        decoded_logfile (list): List of lists. Each entry is a tuple with a command and a list for the outputs. 
+        decoded_logfile (list): List of dictionaries. Each entry is a tuple with a command and a list for the outputs. 
     &#34;&#34;&#34;
 
     # Do some argument processing:
@@ -2469,10 +2626,65 @@ If a text value is given then it decodes the text, if not, it then decodes the v
     commands_idx = [i for i,line in enumerate(loglines) if &#39;SE0&gt;&#39; in line]
     
     # Collect the outputs of the commands
-    decoded_log = [[loglines[commands_idx[i]],loglines[commands_idx[i]+1:commands_idx[i+1]]] for i in range(len(commands_idx)-1)]
+    decoded_log = [{
+        &#39;command&#39;:loglines[commands_idx[i]],
+        &#39;output&#39;:loglines[commands_idx[i]+1:commands_idx[i+1]]
+        } for i in range(len(commands_idx)-1)]
 
     # Return
     return decoded_log</code></pre>
+</details>
+</dd>
+<dt id="raadpy.functionality.log_line_timestamp"><code class="name flex">
+<span>def <span class="ident">log_line_timestamp</span></span>(<span>logline: list, time: float = 0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Given a log file line as the lines decoded by log_expand, and a time
+return the time increment for this line</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>logline</code></strong> :&ensp;<code>list</code></dt>
+<dd>The element of the decoded logfile corresponding to a line</dd>
+<dt><strong><code>time</code></strong> :&ensp;<code>float</code></dt>
+<dd>The time up to now</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>time (float): Time increment after the execution</code> of <code>the command</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def log_line_timestamp(logline:list,time:float=0):
+    &#34;&#34;&#34;Given a log file line as the lines decoded by log_expand, and a time
+    return the time increment for this line
+
+    Args:
+        logline (list): The element of the decoded logfile corresponding to a line
+        time (float): The time up to now
+
+    Returns:
+        time (float): Time increment after the execution of the command
+    &#34;&#34;&#34;
+
+    splt = logline[&#39;command&#39;].split(&#39; &#39;)                # Split the cmnd line (logline[0]) by the spaces 
+    if &#34;SE0&gt;\n&#34; not in splt[0]:                         # If the cmnd is not the end of the log file: 
+        
+        if &#34;read&#34; in splt[1]:                           # If cmnd is read time
+            time = float (logline[&#39;output&#39;][0].split(&#34; &#34;)[3])  # Replace time with the time read
+
+        if splt[1] == &#34;delay&#34;:                          # If the cmnd is a delay
+            time = time + (float(splt[2])/1000)         # Add time delay to previous time
+
+        if splt[1] == &#34;delayuntil&#34;:                     # If cmnd is delayuntil 
+            time = float(splt[2])                       # Replace time by new time
+
+        if &#34;FAIL\n&#34; in logline[&#39;output&#39;]:               # if it was a payload cmnd and it failed (there will be delays)
+            time = time + float(splt[4])/1000                # take the time a payload cmnd takes to be excuted 
+
+    return time</code></pre>
 </details>
 </dd>
 <dt id="raadpy.functionality.log_metadata"><code class="name flex">
@@ -2634,6 +2846,61 @@ If a text value is given then it decodes the text, if not, it then decodes the v
     return data</code></pre>
 </details>
 </dd>
+<dt id="raadpy.functionality.reorder_log"><code class="name flex">
+<span>def <span class="ident">reorder_log</span></span>(<span>logfile: list)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Reorder a logfile based on it's timestamps</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>logfile</code></strong> :&ensp;<code>list</code></dt>
+<dd>The logifile after having a timestamp field added</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>logfile (list): Corrected logfile in time</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reorder_log(logfile:list):
+    &#34;&#34;&#34;Reorder a logfile based on it&#39;s timestamps
+
+    Args:
+        logfile (list): The logifile after having a timestamp field added
+
+    Returns:
+        logfile (list): Corrected logfile in time
+    &#34;&#34;&#34;
+
+    # Get a list of timestamps
+    timestamps = np.array([line[&#39;timestamp&#39;] for line in logfile])
+
+    # Get the indices where the time is not increasing
+    idx_flip = np.where(timestamps[1:] - timestamps[:-1] &lt; 0)[0] + 1
+
+    # Get he indices of the rtc reads
+    idx_read = np.append([0],[np.where(&#39;SE0&gt;rtc read\n&#39; == np.array([line[&#39;command&#39;] for line in logfile]))[0]])
+
+    # Add the difference to the regions of interest
+    for i in idx_flip:
+        # Calculate the time difference
+        diff = logfile[i-1][&#39;timestamp&#39;] - logfile[i][&#39;timestamp&#39;]
+        
+        # Find the closest two rtc read timestamps
+        _, closest_rtc = find_closest(i,idx_read)
+
+        # Correct the timestamps in this region
+        while (logfile[closest_rtc-1][&#39;timestamp&#39;] - logfile[closest_rtc][&#39;timestamp&#39;]) &gt; 0:
+            logfile[closest_rtc-1][&#39;timestamp&#39;] -= diff
+            closest_rtc -= 1
+
+
+    return logfile</code></pre>
+</details>
+</dd>
 <dt id="raadpy.functionality.save_raw_data"><code class="name flex">
 <span>def <span class="ident">save_raw_data</span></span>(<span>data, filepath: str = './', buffer: int = 1)</span>
 </code></dt>
@@ -2762,6 +3029,7 @@ If a text value is given then it decodes the text, if not, it then decodes the v
 <li><code><a title="raadpy.functionality.download_log" href="#raadpy.functionality.download_log">download_log</a></code></li>
 <li><code><a title="raadpy.functionality.download_range" href="#raadpy.functionality.download_range">download_range</a></code></li>
 <li><code><a title="raadpy.functionality.download_time_delta" href="#raadpy.functionality.download_time_delta">download_time_delta</a></code></li>
+<li><code><a title="raadpy.functionality.find_closest" href="#raadpy.functionality.find_closest">find_closest</a></code></li>
 <li><code><a title="raadpy.functionality.get_bit" href="#raadpy.functionality.get_bit">get_bit</a></code></li>
 <li><code><a title="raadpy.functionality.get_bit_idx" href="#raadpy.functionality.get_bit_idx">get_bit_idx</a></code></li>
 <li><code><a title="raadpy.functionality.get_bits" href="#raadpy.functionality.get_bits">get_bits</a></code></li>
@@ -2769,9 +3037,11 @@ If a text value is given then it decodes the text, if not, it then decodes the v
 <li><code><a title="raadpy.functionality.get_nearby_lightning" href="#raadpy.functionality.get_nearby_lightning">get_nearby_lightning</a></code></li>
 <li><code><a title="raadpy.functionality.get_ramps" href="#raadpy.functionality.get_ramps">get_ramps</a></code></li>
 <li><code><a title="raadpy.functionality.log_expand" href="#raadpy.functionality.log_expand">log_expand</a></code></li>
+<li><code><a title="raadpy.functionality.log_line_timestamp" href="#raadpy.functionality.log_line_timestamp">log_line_timestamp</a></code></li>
 <li><code><a title="raadpy.functionality.log_metadata" href="#raadpy.functionality.log_metadata">log_metadata</a></code></li>
 <li><code><a title="raadpy.functionality.log_to_ascii" href="#raadpy.functionality.log_to_ascii">log_to_ascii</a></code></li>
 <li><code><a title="raadpy.functionality.parse_custom_scenario" href="#raadpy.functionality.parse_custom_scenario">parse_custom_scenario</a></code></li>
+<li><code><a title="raadpy.functionality.reorder_log" href="#raadpy.functionality.reorder_log">reorder_log</a></code></li>
 <li><code><a title="raadpy.functionality.save_raw_data" href="#raadpy.functionality.save_raw_data">save_raw_data</a></code></li>
 <li><code><a title="raadpy.functionality.sort" href="#raadpy.functionality.sort">sort</a></code></li>
 </ul>
