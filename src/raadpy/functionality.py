@@ -1095,3 +1095,105 @@ def decode_log(filename:str="../../../Data/Logs/light1-SD-1016-se-log.txt"):
 
     # Return everything else
     return log, commands[:-1], outputs, description, failed_idx, loglines_array
+
+
+def log_line_timestamp(logline:list,time:float=0):
+    """Given a log file line as the lines decoded by log_expand, and a time
+    return the time increment for this line
+
+    Args:
+        logline (list): The element of the decoded logfile corresponding to a line
+        time (float): The time up to now
+
+    Returns:
+        time (float): Time increment after the execution of the command
+    """
+
+    splt = logline['command'].split(' ')                # Split the cmnd line (logline[0]) by the spaces 
+    if "SE0>\n" not in splt[0]:                         # If the cmnd is not the end of the log file: 
+        
+        if "read" in splt[1]:                           # If cmnd is read time
+            time = float (logline['output'][0].split(" ")[3])  # Replace time with the time read
+
+        if splt[1] == "delay":                          # If the cmnd is a delay
+            time = time + (float(splt[2])/1000)         # Add time delay to previous time
+
+        if splt[1] == "delayuntil":                     # If cmnd is delayuntil 
+            time = float(splt[2])                       # Replace time by new time
+
+        if "FAIL\n" in logline['output']:               # if it was a payload cmnd and it failed (there will be delays)
+            time = time + float(splt[4])/1000                # take the time a payload cmnd takes to be excuted 
+
+    return time
+
+# Now we can define an error correction pass
+
+def find_closest(x,array):
+    """Helper function that returns the two closest values to x in a list
+
+    Args:
+        x (numeric): The value to search for
+        array (iterable): The list to search in
+
+    Returns:
+        (a,b) (tuple): The two values closest to x that can be found in the list. If x is in the list, b=x and a<b.
+    """
+    # Binary search
+    s   = 0
+    e   = len(array)-1
+    mid = (s + e)//2
+    prevmid = -float('inf')
+
+    # Handle edge cases
+    if x <= array[s]: return (-float('inf'),array[s])
+    if x >= array[e]: return (array[e],float('inf'))
+
+    # Flag that will update condition to exit
+    found = False
+    while prevmid != mid:
+        if x == array[mid]: return (array[mid-1],array[mid])
+        if x < array[mid]:  e = mid
+        if x > array[mid]:  s = mid
+
+        prevmid = mid
+        mid     = (s+e)//2
+
+    if (s==e): return (array[s],array[s+1])
+    return (array[s],array[e])
+
+
+
+def reorder_log(logfile:list):
+    """Reorder a logfile based on it's timestamps
+
+    Args:
+        logfile (list): The logifile after having a timestamp field added
+
+    Returns:
+        logfile (list): Corrected logfile in time
+    """
+
+    # Get a list of timestamps
+    timestamps = np.array([line['timestamp'] for line in logfile])
+
+    # Get the indices where the time is not increasing
+    idx_flip = np.where(timestamps[1:] - timestamps[:-1] < 0)[0] + 1
+
+    # Get he indices of the rtc reads
+    idx_read = np.append([0],[np.where('SE0>rtc read\n' == np.array([line['command'] for line in logfile]))[0]])
+
+    # Add the difference to the regions of interest
+    for i in idx_flip:
+        # Calculate the time difference
+        diff = logfile[i-1]['timestamp'] - logfile[i]['timestamp']
+        
+        # Find the closest two rtc read timestamps
+        _, closest_rtc = find_closest(i,idx_read)
+
+        # Correct the timestamps in this region
+        while (logfile[closest_rtc-1]['timestamp'] - logfile[closest_rtc]['timestamp']) > 0:
+            logfile[closest_rtc-1]['timestamp'] -= diff
+            closest_rtc -= 1
+
+
+    return logfile
