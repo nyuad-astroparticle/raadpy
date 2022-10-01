@@ -409,14 +409,15 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
     # If we can do a bit flip verification perform it
     if VERIFY:
         # Split to channels
-        channels, _ = split_channels(data,struct)
+        channels, cnt = split_channels(data,struct)
         
         # Apply correction to each channel
         for channel in channels: channel['stimestamp'] = invert_flips(channel['stimestamp'],struct['stimestamp'])
 
         # Put it back together
-        data['stimestamp'] = np.array([])
-        for channel in channels: data['stimestamp'] = np.append(data['stimestamp'],[channel['stimestamp']])
+        for i, channel in enumerate(channels):
+            for j, time in enumerate(channel['stimestamp']):
+                data['stimestamp'][cnt[i][j]] = time
     
     # Return the dictionary
     return data
