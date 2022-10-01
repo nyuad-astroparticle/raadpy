@@ -902,7 +902,7 @@ def log_expand(filename:str=None,text:str=None):
     # Collect the outputs of the commands
     decoded_log = [{
         'command':loglines[commands_idx[i]],
-        'output':loglines[commands_idx[i]+1:commands_idx[i+1]]
+        'output' :loglines[commands_idx[i]+1:commands_idx[i+1]]
         } for i in range(len(commands_idx)-1)]
 
     # Return
@@ -959,13 +959,13 @@ def log_metadata(decoded_log:list):
     }
 
     # Get the command list
-    commands = [row[0] for row in decoded_log]
+    commands = [row['command'] for row in decoded_log]
 
     # Find the start and end of the data acquisition
     # Index of start and end timestamps:
     start = [i for i in range(len(commands)) if "rtc read" in commands[i]]
-    if len(start) != 0: metadata['start_time']  = decoded_log[start[0] ][1][0][-21:-2]
-    if len(start) >= 2: metadata['end_time']    = decoded_log[start[-1]][1][0][-21:-2]
+    if len(start) != 0: metadata['start_time']  = decoded_log[start[0] ]['output'][0][-21:-2]
+    if len(start) >= 2: metadata['end_time']    = decoded_log[start[-1]]['output'][0][-21:-2]
 
     # Find the custom scenario commands for SiPM and PMT
     for num,payload in zip([12,13],['SiPM','PMT']):
@@ -1104,111 +1104,6 @@ def desc_finder(line:str,cmdlist,outputs,i,time,failed_idx):
     
     return desc,time,status
 
-
-
-# Decode a logfile
-def decode_log(filename:str="../../../Data/Logs/light1-SD-1016-se-log.txt"):
-    """Take a log file and parse its commands to uncover thier timestamps
-
-    Args:
-        filename (str, optional): The filepath and filename of the log file. Defaults to "../../../Data/Logs/light1-SD-1016-se-log.txt".
-
-    Returns:
-        _type_: Log, commands, outputs, description, failed_idx, loglines_array
-    """
-
-    # Load the logfile
-    logfile = open(filename)
-    cmdlist = pd.read_csv("command_list.csv")
-
-    # Load the lines
-    loglines = logfile.readlines()
-
-    # Close the file
-    logfile.close()
-
-    # Create an array with the lines
-    commands    = []
-    outputs     = []
-    idx         = []
-    description = []
-    times       = []
-    fails       = []
-    failed_idx  = []
-
-    # Get commands and their indices
-    for i, line in enumerate(loglines):
-        if 'SE0>' in line:
-            commands.append(line)
-            idx.append(i)
-
-    # Check if the last command was empty
-    if loglines[-1] != 'SE0>':
-        commands.append('SE0>')
-        idx.append(len(loglines))
-
-    # Get the command output
-    for i in range(len(idx)-1):
-        out = []
-        if 'SE0>#' not in commands[i]:
-            for j in range(idx[i]+1,idx[i+1]):
-                out.append(loglines[j])
-        
-        outputs.append(out)
-
-    # Create the dictionary
-    log = [[command,output] for command,output in zip(commands,outputs)]
-
-    # Check which commands executed correcly
-  
-
-    # Find the commands that failed
-    for i in range(len(commands)-1):
-        for output in log[i][1]:
-            if 'FAIL' in output:
-                failed_idx.append(i)
-
-
-    # Initialize time at 0s
-    time = 0
-    
-    # Give commands and use the finder function to pull the description, time ran, and if the command failed.
-    for k, id in enumerate(idx):
-        c = commands[k]
-        cmd = c.split('\n')[0]
-        desc,time,failed = desc_finder(cmd,cmdlist,outputs,k,time,failed_idx)
-
-        if len(desc) != 0:
-            description.append(desc)
-            times.append(time)
-            fails.append(failed)
-    tempname = 'templog.csv'
-    fileDir = os.path.join('Defined_Logs')
-
-    if not os.path.exists(fileDir):
-        os.makedirs(fileDir)
-    
-    filePath = os.path.join(fileDir, tempname)
-
-    #Name the headers of the CSV File
-    header = ['status','time','description','ID_in_Graph']
-
-    loglines_array = []
-
-    #Clear the file and write from scratch
-    with open(filePath, 'w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(header)
-
-        for i in range(len(description)):
-            g = (fails[i], times[i-1], description[i][0],description[i][1])
-            loglines_array.append(g)
-            writer.writerow(g)
-
-    # Return everything else
-    return log, commands[:-1], outputs, description, failed_idx, loglines_array
-
-
 def log_line_timestamp(logline:list,time:float=0):
     """Given a log file line as the lines decoded by log_expand, and a time
     return the time increment for this line
@@ -1309,6 +1204,28 @@ def reorder_log(logfile:list):
 
     return logfile
 
+
+def log_with_timestamp(logfile:list):                        
+    """Given a log file from the function log_expand
+    return a list of log lines with the time increment of each line
+
+    Args:
+        logfile (list): a list of cubesat commands
+
+    Returns:
+        log_timestamp_list (list): a list of cubesat commands, each command with its timestamp
+    """
+    log_timestamp_list=[]                               # List to be returned later (cmnd, output, timestamp)
+    time = 0                                            # Set initial time to zero, this step will not be needed
+    for logline in logfile:
+        time = log_line_timestamp(logline,time)
+        log_timestamp_list.append ({
+            'command':      logline['command'],
+            'output':       logline['output'],
+            'timestamp':    time
+        })
+
+    return reorder_log(log_timestamp_list)
 
 
 def send_sql_query_over_ssh(query:str):

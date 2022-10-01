@@ -71,6 +71,10 @@ ORBIT_UNITS     = ['(s)','(C)','(Hz)','(Hz)','(Hz)','(Hz)','(Hz)','(DAC ch)','(D
 VETO_UNITS      = ['','','','(ms)']
 NONVETO_UNITS   = ['','','(ms)']
 
+SIPM            = 12
+PMT             = 13
+BOTH            = 4
+
 HOST            = "https://light1.mcs.nanoavionics.com"
 TOKEN           = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoia2hhbGlmYSIsImV4cCI6MTcwNDA2NzIwMCwiZW1haWwiOiJhZGcxMUBueXUuZWR1In0.LiV8bfKb2JUG2eIIxouXKebQpPFLXewO1BqoOD22xS4"
 
