@@ -2,7 +2,6 @@
 #     RAAD Functionality    #
 #############################
 
-from time import daylight
 from .core import *
 from .rparray import array
 from .event import *
@@ -1226,6 +1225,27 @@ def log_with_timestamp(logfile:list):
         })
 
     return reorder_log(log_timestamp_list)
+
+
+def get_cmd_number(cmdline:str):
+    """Get the command number of a specific command line from the log file.
+
+    Args:
+        cmdline (str): The command lines as given by the log files. Example: "SE0>csp txrx 12 8 3000 0F".
+
+    Returns:
+        value (int): The number of the command on the buff 1 graphs. The value will be -1 for nonpayload cmds.
+    """
+    
+    value = -1                          # Initialize the value to be -1 so that if the function faces commands that are not in the CMND_LIST it will give it a -1 value
+    split_cmdline = cmdline.split(" ")  # Split the cmd by the spaces in between
+    if len(split_cmdline) > 1 and 'txrx' in split_cmdline[1]: # If the cmd is a payload cmd, is has txrx
+        if float(split_cmdline[2]) == 4:                      # If the cmd belongs to emergency poweroff then the message is not needed (message is split_cmdline[5])
+            value = CMND_LIST[split_cmdline[2]][split_cmdline[3]]['number_in_graph'] # Grab the cmd number from the CMND_LIST based on the node and port of the cmd ([split_cmdline[2]][split_cmdline[3]])
+        else:
+            value = CMND_LIST[split_cmdline[2]][split_cmdline[3]][split_cmdline[5]]['number_in_graph'] #If not an emergency poweroff use node, port, and message to find the cmd in the CMND_LIST
+    return value 
+        
 
 
 def send_sql_query_over_ssh(query:str):

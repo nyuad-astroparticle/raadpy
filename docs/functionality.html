@@ -3,15 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.8.1" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>raadpy.functionality API documentation</title>
 <meta name="description" content="" />
-<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
-<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 </head>
 <body>
 <main>
@@ -28,7 +30,6 @@
 #     RAAD Functionality    #
 #############################
 
-from time import daylight
 from .core import *
 from .rparray import array
 from .event import *
@@ -435,14 +436,15 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
     # If we can do a bit flip verification perform it
     if VERIFY:
         # Split to channels
-        channels, _ = split_channels(data,struct)
+        channels, cnt = split_channels(data,struct)
         
         # Apply correction to each channel
         for channel in channels: channel[&#39;stimestamp&#39;] = invert_flips(channel[&#39;stimestamp&#39;],struct[&#39;stimestamp&#39;])
 
         # Put it back together
-        data[&#39;stimestamp&#39;] = np.array([])
-        for channel in channels: data[&#39;stimestamp&#39;] = np.append(data[&#39;stimestamp&#39;],[channel[&#39;stimestamp&#39;]])
+        for i, channel in enumerate(channels):
+            for j, time in enumerate(channel[&#39;stimestamp&#39;]):
+                data[&#39;stimestamp&#39;][cnt[i][j]] = time
     
     # Return the dictionary
     return data
@@ -927,7 +929,7 @@ def log_expand(filename:str=None,text:str=None):
     # Collect the outputs of the commands
     decoded_log = [{
         &#39;command&#39;:loglines[commands_idx[i]],
-        &#39;output&#39;:loglines[commands_idx[i]+1:commands_idx[i+1]]
+        &#39;output&#39; :loglines[commands_idx[i]+1:commands_idx[i+1]]
         } for i in range(len(commands_idx)-1)]
 
     # Return
@@ -984,13 +986,13 @@ def log_metadata(decoded_log:list):
     }
 
     # Get the command list
-    commands = [row[0] for row in decoded_log]
+    commands = [row[&#39;command&#39;] for row in decoded_log]
 
     # Find the start and end of the data acquisition
     # Index of start and end timestamps:
     start = [i for i in range(len(commands)) if &#34;rtc read&#34; in commands[i]]
-    if len(start) != 0: metadata[&#39;start_time&#39;]  = decoded_log[start[0] ][1][0][-21:-2]
-    if len(start) &gt;= 2: metadata[&#39;end_time&#39;]    = decoded_log[start[-1]][1][0][-21:-2]
+    if len(start) != 0: metadata[&#39;start_time&#39;]  = decoded_log[start[0] ][&#39;output&#39;][0][-21:-2]
+    if len(start) &gt;= 2: metadata[&#39;end_time&#39;]    = decoded_log[start[-1]][&#39;output&#39;][0][-21:-2]
 
     # Find the custom scenario commands for SiPM and PMT
     for num,payload in zip([12,13],[&#39;SiPM&#39;,&#39;PMT&#39;]):
@@ -1129,111 +1131,6 @@ def desc_finder(line:str,cmdlist,outputs,i,time,failed_idx):
     
     return desc,time,status
 
-
-
-# Decode a logfile
-def decode_log(filename:str=&#34;../../../Data/Logs/light1-SD-1016-se-log.txt&#34;):
-    &#34;&#34;&#34;Take a log file and parse its commands to uncover thier timestamps
-
-    Args:
-        filename (str, optional): The filepath and filename of the log file. Defaults to &#34;../../../Data/Logs/light1-SD-1016-se-log.txt&#34;.
-
-    Returns:
-        _type_: Log, commands, outputs, description, failed_idx, loglines_array
-    &#34;&#34;&#34;
-
-    # Load the logfile
-    logfile = open(filename)
-    cmdlist = pd.read_csv(&#34;command_list.csv&#34;)
-
-    # Load the lines
-    loglines = logfile.readlines()
-
-    # Close the file
-    logfile.close()
-
-    # Create an array with the lines
-    commands    = []
-    outputs     = []
-    idx         = []
-    description = []
-    times       = []
-    fails       = []
-    failed_idx  = []
-
-    # Get commands and their indices
-    for i, line in enumerate(loglines):
-        if &#39;SE0&gt;&#39; in line:
-            commands.append(line)
-            idx.append(i)
-
-    # Check if the last command was empty
-    if loglines[-1] != &#39;SE0&gt;&#39;:
-        commands.append(&#39;SE0&gt;&#39;)
-        idx.append(len(loglines))
-
-    # Get the command output
-    for i in range(len(idx)-1):
-        out = []
-        if &#39;SE0&gt;#&#39; not in commands[i]:
-            for j in range(idx[i]+1,idx[i+1]):
-                out.append(loglines[j])
-        
-        outputs.append(out)
-
-    # Create the dictionary
-    log = [[command,output] for command,output in zip(commands,outputs)]
-
-    # Check which commands executed correcly
-  
-
-    # Find the commands that failed
-    for i in range(len(commands)-1):
-        for output in log[i][1]:
-            if &#39;FAIL&#39; in output:
-                failed_idx.append(i)
-
-
-    # Initialize time at 0s
-    time = 0
-    
-    # Give commands and use the finder function to pull the description, time ran, and if the command failed.
-    for k, id in enumerate(idx):
-        c = commands[k]
-        cmd = c.split(&#39;\n&#39;)[0]
-        desc,time,failed = desc_finder(cmd,cmdlist,outputs,k,time,failed_idx)
-
-        if len(desc) != 0:
-            description.append(desc)
-            times.append(time)
-            fails.append(failed)
-    tempname = &#39;templog.csv&#39;
-    fileDir = os.path.join(&#39;Defined_Logs&#39;)
-
-    if not os.path.exists(fileDir):
-        os.makedirs(fileDir)
-    
-    filePath = os.path.join(fileDir, tempname)
-
-    #Name the headers of the CSV File
-    header = [&#39;status&#39;,&#39;time&#39;,&#39;description&#39;,&#39;ID_in_Graph&#39;]
-
-    loglines_array = []
-
-    #Clear the file and write from scratch
-    with open(filePath, &#39;w&#39;, newline=&#39;&#39;) as file:
-        writer = csv.writer(file)
-        writer.writerow(header)
-
-        for i in range(len(description)):
-            g = (fails[i], times[i-1], description[i][0],description[i][1])
-            loglines_array.append(g)
-            writer.writerow(g)
-
-    # Return everything else
-    return log, commands[:-1], outputs, description, failed_idx, loglines_array
-
-
 def log_line_timestamp(logline:list,time:float=0):
     &#34;&#34;&#34;Given a log file line as the lines decoded by log_expand, and a time
     return the time increment for this line
@@ -1334,6 +1231,49 @@ def reorder_log(logfile:list):
 
     return logfile
 
+
+def log_with_timestamp(logfile:list):                        
+    &#34;&#34;&#34;Given a log file from the function log_expand
+    return a list of log lines with the time increment of each line
+
+    Args:
+        logfile (list): a list of cubesat commands
+
+    Returns:
+        log_timestamp_list (list): a list of cubesat commands, each command with its timestamp
+    &#34;&#34;&#34;
+    log_timestamp_list=[]                               # List to be returned later (cmnd, output, timestamp)
+    time = 0                                            # Set initial time to zero, this step will not be needed
+    for logline in logfile:
+        time = log_line_timestamp(logline,time)
+        log_timestamp_list.append ({
+            &#39;command&#39;:      logline[&#39;command&#39;],
+            &#39;output&#39;:       logline[&#39;output&#39;],
+            &#39;timestamp&#39;:    time
+        })
+
+    return reorder_log(log_timestamp_list)
+
+
+def get_cmd_number(cmdline:str):
+    &#34;&#34;&#34;Get the command number of a specific command line from the log file.
+
+    Args:
+        cmdline (str): The command lines as given by the log files. Example: &#34;SE0&gt;csp txrx 12 8 3000 0F&#34;.
+
+    Returns:
+        value (int): The number of the command on the buff 1 graphs. The value will be -1 for nonpayload cmds.
+    &#34;&#34;&#34;
+    
+    value = -1                          # Initialize the value to be -1 so that if the function faces commands that are not in the CMND_LIST it will give it a -1 value
+    split_cmdline = cmdline.split(&#34; &#34;)  # Split the cmd by the spaces in between
+    if len(split_cmdline) &gt; 1 and &#39;txrx&#39; in split_cmdline[1]: # If the cmd is a payload cmd, is has txrx
+        if float(split_cmdline[2]) == 4:                      # If the cmd belongs to emergency poweroff then the message is not needed (message is split_cmdline[5])
+            value = CMND_LIST[split_cmdline[2]][split_cmdline[3]][&#39;number_in_graph&#39;] # Grab the cmd number from the CMND_LIST based on the node and port of the cmd ([split_cmdline[2]][split_cmdline[3]])
+        else:
+            value = CMND_LIST[split_cmdline[2]][split_cmdline[3]][split_cmdline[5]][&#39;number_in_graph&#39;] #If not an emergency poweroff use node, port, and message to find the cmd in the CMND_LIST
+    return value 
+        
 
 
 def send_sql_query_over_ssh(query:str):
@@ -1449,10 +1389,7 @@ def get_light1_position(starttime:Time, endtime:Time=None, n_events:int=None, SH
 <dd>The maximum number of bits that the number can have. Defaults to 48.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>x (int): The corrected number</code></dt>
-<dd>&nbsp;</dd>
-</dl></div>
+<p>x (int): The corrected number</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1499,14 +1436,9 @@ def get_light1_position(starttime:Time, endtime:Time=None, n_events:int=None, SH
 <dd>The maximum value of the FPGA counter. Defaults to 10000-1.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>timestamp (np.array): New timestamp values</code></dt>
-<dd>&nbsp;</dd>
-<dt><code>total_cnt (int): Number</code> of <code>datapoints translated</code></dt>
-<dd>&nbsp;</dd>
-<dt><code>valid_events (list): list</code> of <code>indices</code> of <code>valid events</code></dt>
-<dd>&nbsp;</dd>
-</dl></div>
+<p>timestamp (np.array): New timestamp values
+total_cnt (int): Number of datapoints translated
+valid_events (list): list of indices of valid events</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1605,14 +1537,9 @@ def get_light1_position(starttime:Time, endtime:Time=None, n_events:int=None, SH
 <dd>Return the start and end indices of the selected events. Defaults to False.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>timestamp (np.array): Array with the corrected timstamp for each valid entry</code></dt>
-<dd>&nbsp;</dd>
-<dt><code>valid_entries (list): Indices</code> of <code>the valid entries within the dataset (AKA. The nonsaturated entries)</code></dt>
-<dd>&nbsp;</dd>
-<dt><code>ramps (np.array): Array</code> of <code>tuples each with the start and end</code> of <code>a rising segment</code></dt>
-<dd>&nbsp;</dd>
-</dl></div>
+<p>timestamp (np.array): Array with the corrected timstamp for each valid entry
+valid_entries (list): Indices of the valid entries within the dataset (AKA. The nonsaturated entries)
+ramps (np.array): Array of tuples each with the start and end of a rising segment</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1707,14 +1634,9 @@ def get_light1_position(starttime:Time, endtime:Time=None, n_events:int=None, SH
 <dd>a range of indices to translate of the orbit buffer. Defaults to (0,100).</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>timestamp (np.array): Array with the corrected timestamps</code></dt>
-<dd>&nbsp;</dd>
-<dt><code>start_cnt (int): Starting index on the corresponding buffer</code></dt>
-<dd>&nbsp;</dd>
-<dt><code>end_cnt (int): Ending index on the corresponding buffer</code></dt>
-<dd>&nbsp;</dd>
-</dl></div>
+<p>timestamp (np.array): Array with the corrected timestamps
+start_cnt (int): Starting index on the corresponding buffer
+end_cnt (int): Ending index on the corresponding buffer</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1765,127 +1687,6 @@ def get_light1_position(starttime:Time, endtime:Time=None, n_events:int=None, SH
     end_cnt = int(end_cnt)
 
     return timestamp, start_cnt, end_cnt</code></pre>
-</details>
-</dd>
-<dt id="raadpy.functionality.decode_log"><code class="name flex">
-<span>def <span class="ident">decode_log</span></span>(<span>filename: str = '../../../Data/Logs/light1-SD-1016-se-log.txt')</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Take a log file and parse its commands to uncover thier timestamps</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>filename</code></strong> :&ensp;<code>str</code>, optional</dt>
-<dd>The filepath and filename of the log file. Defaults to "../../../Data/Logs/light1-SD-1016-se-log.txt".</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>_type_</code></dt>
-<dd>Log, commands, outputs, description, failed_idx, loglines_array</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def decode_log(filename:str=&#34;../../../Data/Logs/light1-SD-1016-se-log.txt&#34;):
-    &#34;&#34;&#34;Take a log file and parse its commands to uncover thier timestamps
-
-    Args:
-        filename (str, optional): The filepath and filename of the log file. Defaults to &#34;../../../Data/Logs/light1-SD-1016-se-log.txt&#34;.
-
-    Returns:
-        _type_: Log, commands, outputs, description, failed_idx, loglines_array
-    &#34;&#34;&#34;
-
-    # Load the logfile
-    logfile = open(filename)
-    cmdlist = pd.read_csv(&#34;command_list.csv&#34;)
-
-    # Load the lines
-    loglines = logfile.readlines()
-
-    # Close the file
-    logfile.close()
-
-    # Create an array with the lines
-    commands    = []
-    outputs     = []
-    idx         = []
-    description = []
-    times       = []
-    fails       = []
-    failed_idx  = []
-
-    # Get commands and their indices
-    for i, line in enumerate(loglines):
-        if &#39;SE0&gt;&#39; in line:
-            commands.append(line)
-            idx.append(i)
-
-    # Check if the last command was empty
-    if loglines[-1] != &#39;SE0&gt;&#39;:
-        commands.append(&#39;SE0&gt;&#39;)
-        idx.append(len(loglines))
-
-    # Get the command output
-    for i in range(len(idx)-1):
-        out = []
-        if &#39;SE0&gt;#&#39; not in commands[i]:
-            for j in range(idx[i]+1,idx[i+1]):
-                out.append(loglines[j])
-        
-        outputs.append(out)
-
-    # Create the dictionary
-    log = [[command,output] for command,output in zip(commands,outputs)]
-
-    # Check which commands executed correcly
-  
-
-    # Find the commands that failed
-    for i in range(len(commands)-1):
-        for output in log[i][1]:
-            if &#39;FAIL&#39; in output:
-                failed_idx.append(i)
-
-
-    # Initialize time at 0s
-    time = 0
-    
-    # Give commands and use the finder function to pull the description, time ran, and if the command failed.
-    for k, id in enumerate(idx):
-        c = commands[k]
-        cmd = c.split(&#39;\n&#39;)[0]
-        desc,time,failed = desc_finder(cmd,cmdlist,outputs,k,time,failed_idx)
-
-        if len(desc) != 0:
-            description.append(desc)
-            times.append(time)
-            fails.append(failed)
-    tempname = &#39;templog.csv&#39;
-    fileDir = os.path.join(&#39;Defined_Logs&#39;)
-
-    if not os.path.exists(fileDir):
-        os.makedirs(fileDir)
-    
-    filePath = os.path.join(fileDir, tempname)
-
-    #Name the headers of the CSV File
-    header = [&#39;status&#39;,&#39;time&#39;,&#39;description&#39;,&#39;ID_in_Graph&#39;]
-
-    loglines_array = []
-
-    #Clear the file and write from scratch
-    with open(filePath, &#39;w&#39;, newline=&#39;&#39;) as file:
-        writer = csv.writer(file)
-        writer.writerow(header)
-
-        for i in range(len(description)):
-            g = (fails[i], times[i-1], description[i][0],description[i][1])
-            loglines_array.append(g)
-            writer.writerow(g)
-
-    # Return everything else
-    return log, commands[:-1], outputs, description, failed_idx, loglines_array</code></pre>
 </details>
 </dd>
 <dt id="raadpy.functionality.desc_finder"><code class="name flex">
@@ -2182,10 +1983,7 @@ def get_light1_position(starttime:Time, endtime:Time=None, n_events:int=None, SH
 <dd>Print description if needed. Defaults to True.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>lightnings (array): Ligtnings in time range</code></dt>
-<dd>&nbsp;</dd>
-</dl></div>
+<p>lightnings (array): Ligtnings in time range</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2339,10 +2137,7 @@ Automatically handles large file sizes.</p>
 <dd>If true update statistics are printed while the fies is being downloaded. Defaults to False.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>data (list): a list</code> of <code>the binary strings</code> of <code>the downloaded data</code></dt>
-<dd>&nbsp;</dd>
-</dl></div>
+<p>data (list): a list of the binary strings of the downloaded data</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2610,6 +2405,42 @@ string
     return digit_sum</code></pre>
 </details>
 </dd>
+<dt id="raadpy.functionality.get_cmd_number"><code class="name flex">
+<span>def <span class="ident">get_cmd_number</span></span>(<span>cmdline: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get the command number of a specific command line from the log file.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>cmdline</code></strong> :&ensp;<code>str</code></dt>
+<dd>The command lines as given by the log files. Example: "SE0&gt;csp txrx 12 8 3000 0F".</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>value (int): The number of the command on the buff 1 graphs. The value will be -1 for nonpayload cmds.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_cmd_number(cmdline:str):
+    &#34;&#34;&#34;Get the command number of a specific command line from the log file.
+
+    Args:
+        cmdline (str): The command lines as given by the log files. Example: &#34;SE0&gt;csp txrx 12 8 3000 0F&#34;.
+
+    Returns:
+        value (int): The number of the command on the buff 1 graphs. The value will be -1 for nonpayload cmds.
+    &#34;&#34;&#34;
+    
+    value = -1                          # Initialize the value to be -1 so that if the function faces commands that are not in the CMND_LIST it will give it a -1 value
+    split_cmdline = cmdline.split(&#34; &#34;)  # Split the cmd by the spaces in between
+    if len(split_cmdline) &gt; 1 and &#39;txrx&#39; in split_cmdline[1]: # If the cmd is a payload cmd, is has txrx
+        if float(split_cmdline[2]) == 4:                      # If the cmd belongs to emergency poweroff then the message is not needed (message is split_cmdline[5])
+            value = CMND_LIST[split_cmdline[2]][split_cmdline[3]][&#39;number_in_graph&#39;] # Grab the cmd number from the CMND_LIST based on the node and port of the cmd ([split_cmdline[2]][split_cmdline[3]])
+        else:
+            value = CMND_LIST[split_cmdline[2]][split_cmdline[3]][split_cmdline[5]][&#39;number_in_graph&#39;] #If not an emergency poweroff use node, port, and message to find the cmd in the CMND_LIST
+    return value </code></pre>
+</details>
+</dd>
 <dt id="raadpy.functionality.get_dict"><code class="name flex">
 <span>def <span class="ident">get_dict</span></span>(<span>filename: str, struct={'timestamp': 32, 'temperature': 8, 'rate0': 12, 'rate1': 12, 'rate2': 12, 'rate3': 12, 'ratev': 8, 'hv_level': 12, 'veto_level': 12, 'id_bit': 1, 'pps_active': 1, 'suspended': 1, 'power_on': 1, 'scenario': 4}, condition: str = None, MAX=None, STUPID: bool = False, VERIFY=False, threshold=5e-05)</span>
 </code></dt>
@@ -2633,10 +2464,7 @@ string
 <dd>The difference between two points in the timestamp that we can consider faulty as a fraction of the maximum number that the integer field can store. If threshold &gt; 1 then it is considered as an absolute threhsold. Only used if VERIFY=True. Defaults to 5e-5</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>data (dict): Dictionary with the decoded arrays</code> of <code>measurements</code></dt>
-<dd>&nbsp;</dd>
-</dl></div>
+<p>data (dict): Dictionary with the decoded arrays of measurements</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2745,14 +2573,15 @@ string
     # If we can do a bit flip verification perform it
     if VERIFY:
         # Split to channels
-        channels, _ = split_channels(data,struct)
+        channels, cnt = split_channels(data,struct)
         
         # Apply correction to each channel
         for channel in channels: channel[&#39;stimestamp&#39;] = invert_flips(channel[&#39;stimestamp&#39;],struct[&#39;stimestamp&#39;])
 
         # Put it back together
-        data[&#39;stimestamp&#39;] = np.array([])
-        for channel in channels: data[&#39;stimestamp&#39;] = np.append(data[&#39;stimestamp&#39;],[channel[&#39;stimestamp&#39;]])
+        for i, channel in enumerate(channels):
+            for j, time in enumerate(channel[&#39;stimestamp&#39;]):
+                data[&#39;stimestamp&#39;][cnt[i][j]] = time
     
     # Return the dictionary
     return data</code></pre>
@@ -2867,10 +2696,7 @@ I can also interpolate if you give me anumber of events</p>
 <dd>Threshold in time to filter the lightings. Defaults to 1.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>lightnings (array): A filtered array</code> of <code>lightnings</code></dt>
-<dd>&nbsp;</dd>
-</dl></div>
+<p>lightnings (array): A filtered array of lightnings</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2964,10 +2790,7 @@ I can also interpolate if you give me anumber of events</p>
 <dd>The number of bits in the timestamp variable. Defaults to NONVETO_STRUCT['stimestamp'] = 48.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>timestamp (np.array): The corrected timestamp</code></dt>
-<dd>&nbsp;</dd>
-</dl></div>
+<p>timestamp (np.array): The corrected timestamp</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3069,7 +2892,7 @@ If a text value is given then it decodes the text, if not, it then decodes the v
     # Collect the outputs of the commands
     decoded_log = [{
         &#39;command&#39;:loglines[commands_idx[i]],
-        &#39;output&#39;:loglines[commands_idx[i]+1:commands_idx[i+1]]
+        &#39;output&#39; :loglines[commands_idx[i]+1:commands_idx[i+1]]
         } for i in range(len(commands_idx)-1)]
 
     # Return
@@ -3090,10 +2913,7 @@ return the time increment for this line</p>
 <dd>The time up to now</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>time (float): Time increment after the execution</code> of <code>the command</code></dt>
-<dd>&nbsp;</dd>
-</dl></div>
+<p>time (float): Time increment after the execution of the command</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3164,13 +2984,13 @@ return the time increment for this line</p>
     }
 
     # Get the command list
-    commands = [row[0] for row in decoded_log]
+    commands = [row[&#39;command&#39;] for row in decoded_log]
 
     # Find the start and end of the data acquisition
     # Index of start and end timestamps:
     start = [i for i in range(len(commands)) if &#34;rtc read&#34; in commands[i]]
-    if len(start) != 0: metadata[&#39;start_time&#39;]  = decoded_log[start[0] ][1][0][-21:-2]
-    if len(start) &gt;= 2: metadata[&#39;end_time&#39;]    = decoded_log[start[-1]][1][0][-21:-2]
+    if len(start) != 0: metadata[&#39;start_time&#39;]  = decoded_log[start[0] ][&#39;output&#39;][0][-21:-2]
+    if len(start) &gt;= 2: metadata[&#39;end_time&#39;]    = decoded_log[start[-1]][&#39;output&#39;][0][-21:-2]
 
     # Find the custom scenario commands for SiPM and PMT
     for num,payload in zip([12,13],[&#39;SiPM&#39;,&#39;PMT&#39;]):
@@ -3245,6 +3065,46 @@ return the time increment for this line</p>
     return full_text</code></pre>
 </details>
 </dd>
+<dt id="raadpy.functionality.log_with_timestamp"><code class="name flex">
+<span>def <span class="ident">log_with_timestamp</span></span>(<span>logfile: list)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Given a log file from the function log_expand
+return a list of log lines with the time increment of each line</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>logfile</code></strong> :&ensp;<code>list</code></dt>
+<dd>a list of cubesat commands</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>log_timestamp_list (list): a list of cubesat commands, each command with its timestamp</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def log_with_timestamp(logfile:list):                        
+    &#34;&#34;&#34;Given a log file from the function log_expand
+    return a list of log lines with the time increment of each line
+
+    Args:
+        logfile (list): a list of cubesat commands
+
+    Returns:
+        log_timestamp_list (list): a list of cubesat commands, each command with its timestamp
+    &#34;&#34;&#34;
+    log_timestamp_list=[]                               # List to be returned later (cmnd, output, timestamp)
+    time = 0                                            # Set initial time to zero, this step will not be needed
+    for logline in logfile:
+        time = log_line_timestamp(logline,time)
+        log_timestamp_list.append ({
+            &#39;command&#39;:      logline[&#39;command&#39;],
+            &#39;output&#39;:       logline[&#39;output&#39;],
+            &#39;timestamp&#39;:    time
+        })
+
+    return reorder_log(log_timestamp_list)</code></pre>
+</details>
+</dd>
 <dt id="raadpy.functionality.parse_custom_scenario"><code class="name flex">
 <span>def <span class="ident">parse_custom_scenario</span></span>(<span>cmd: str)</span>
 </code></dt>
@@ -3298,10 +3158,7 @@ return the time increment for this line</p>
 <dd>The logifile after having a timestamp field added</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>logfile (list): Corrected logfile in time</code></dt>
-<dd>&nbsp;</dd>
-</dl></div>
+<p>logfile (list): Corrected logfile in time</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3544,7 +3401,6 @@ return the time increment for this line</p>
 <li><code><a title="raadpy.functionality.correct_time" href="#raadpy.functionality.correct_time">correct_time</a></code></li>
 <li><code><a title="raadpy.functionality.correct_time_FPGA" href="#raadpy.functionality.correct_time_FPGA">correct_time_FPGA</a></code></li>
 <li><code><a title="raadpy.functionality.correct_time_orbit" href="#raadpy.functionality.correct_time_orbit">correct_time_orbit</a></code></li>
-<li><code><a title="raadpy.functionality.decode_log" href="#raadpy.functionality.decode_log">decode_log</a></code></li>
 <li><code><a title="raadpy.functionality.desc_finder" href="#raadpy.functionality.desc_finder">desc_finder</a></code></li>
 <li><code><a title="raadpy.functionality.dict_subsec" href="#raadpy.functionality.dict_subsec">dict_subsec</a></code></li>
 <li><code><a title="raadpy.functionality.download_data_packet" href="#raadpy.functionality.download_data_packet">download_data_packet</a></code></li>
@@ -3559,6 +3415,7 @@ return the time increment for this line</p>
 <li><code><a title="raadpy.functionality.get_bit" href="#raadpy.functionality.get_bit">get_bit</a></code></li>
 <li><code><a title="raadpy.functionality.get_bit_idx" href="#raadpy.functionality.get_bit_idx">get_bit_idx</a></code></li>
 <li><code><a title="raadpy.functionality.get_bits" href="#raadpy.functionality.get_bits">get_bits</a></code></li>
+<li><code><a title="raadpy.functionality.get_cmd_number" href="#raadpy.functionality.get_cmd_number">get_cmd_number</a></code></li>
 <li><code><a title="raadpy.functionality.get_dict" href="#raadpy.functionality.get_dict">get_dict</a></code></li>
 <li><code><a title="raadpy.functionality.get_light1_position" href="#raadpy.functionality.get_light1_position">get_light1_position</a></code></li>
 <li><code><a title="raadpy.functionality.get_nearby_lightning" href="#raadpy.functionality.get_nearby_lightning">get_nearby_lightning</a></code></li>
@@ -3568,6 +3425,7 @@ return the time increment for this line</p>
 <li><code><a title="raadpy.functionality.log_line_timestamp" href="#raadpy.functionality.log_line_timestamp">log_line_timestamp</a></code></li>
 <li><code><a title="raadpy.functionality.log_metadata" href="#raadpy.functionality.log_metadata">log_metadata</a></code></li>
 <li><code><a title="raadpy.functionality.log_to_ascii" href="#raadpy.functionality.log_to_ascii">log_to_ascii</a></code></li>
+<li><code><a title="raadpy.functionality.log_with_timestamp" href="#raadpy.functionality.log_with_timestamp">log_with_timestamp</a></code></li>
 <li><code><a title="raadpy.functionality.parse_custom_scenario" href="#raadpy.functionality.parse_custom_scenario">parse_custom_scenario</a></code></li>
 <li><code><a title="raadpy.functionality.reorder_log" href="#raadpy.functionality.reorder_log">reorder_log</a></code></li>
 <li><code><a title="raadpy.functionality.save_raw_data" href="#raadpy.functionality.save_raw_data">save_raw_data</a></code></li>
@@ -3580,9 +3438,7 @@ return the time increment for this line</p>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad()</script>
 </body>
 </html>

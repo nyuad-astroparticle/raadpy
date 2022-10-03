@@ -78,6 +78,168 @@ BOTH            = 4
 HOST            = "https://light1.mcs.nanoavionics.com"
 TOKEN           = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoia2hhbGlmYSIsImV4cCI6MTcwNDA2NzIwMCwiZW1haWwiOiJhZGcxMUBueXUuZWR1In0.LiV8bfKb2JUG2eIIxouXKebQpPFLXewO1BqoOD22xS4"
 
+# Deciphering the command list
+CMND_LIST = {
+"4"  : {"14":{  "description" : "Emergency Power-off of PAYLOAD if OBC reboots",
+                "number_in_graph" : 0,
+                "cmd_number" : 33}
+                        },
+
+"12" : { 
+        "4": {  "8":    {"description" : "Suspend Payload as well PMT",
+                        "number_in_graph" : 12,
+                        "cmd_number" : 36},
+
+                "1":    {"description" : "Load Scenario Suspended, PMT PAYLOAD",
+                        "number_in_graph" : 12,
+                        "cmd_number" : 25},
+
+                "2":    {"description" : "Load Scenario Awaken, PMT PAYLOAD",
+                        "number_in_graph" : 11,
+                        "cmd_number" : 27},
+
+                "4":    {"description" : "Reboot PMT Payload",
+                        "number_in_graph" : 13,
+                        "cmd_number" : 29}
+                },
+
+        "8": {  "0F":   {"description" : "After an Emergency Shutdown happened to PMT",
+                        "number_in_graph" : 3,
+                        "cmd_number" : 34},
+
+                "00":   {"description" : "Load Scenario 0 (Default) PMT PAYLOAD",
+                        "number_in_graph" : 0,
+                        "cmd_number" : 1},
+
+                "01":   {"description" : "Load Scenario 1 PMT PAYLOAD",
+                        "number_in_graph" : 1,
+                        "cmd_number" : 2},
+
+                "02":   {"description" : "Load Scenario 2 PMT PAYLOAD",
+                        "number_in_graph" : 2,
+                        "cmd_number" : 3},
+
+                "03":   {"description" : "Load Scenario 3 PMT PAYLOAD",
+                        "number_in_graph" : 3,
+                        "cmd_number" : 4},
+
+                "04":   {"description" : "Load Scenario 4 PMT PAYLOAD",
+                        "number_in_graph" : 4,
+                        "cmd_number" : 5},
+
+                "05":   {"description" : "Load Scenario 5 PMT PAYLOAD",
+                        "number_in_graph" : 5,
+                        "cmd_number" : 6},
+
+                "06":   {"description" : "Load Scenario 6 PMT PAYLOAD",
+                        "number_in_graph" : 6,   
+                        "cmd_number" : 7},
+
+                "07":   {"description" : "Load Scenario 7 PMT PAYLOAD",
+                        "number_in_graph" : 7,
+                        "cmd_number" : 8},
+
+                "08":   {"description" : "Load Scenario 8 PMT PAYLOAD",
+                        "number_in_graph" : 8,
+                        "cmd_number" : 9},
+
+                "09":   {"description" : "Load Scenario 9 PMT PAYLOAD",
+                        "number_in_graph" : 9,
+                        "cmd_number" : 10},
+
+                "10":   {"description" : "Load Scenario 10 PMT PAYLOAD",
+                        "number_in_graph" : 10,
+                        "cmd_number" : 11}
+                },
+
+        "9": {  "0F":   {"description" : "Load CUSTOM Scenario PMT PAYLOAD",
+                        "number_in_graph" : 14,
+                        "cmd_number" : 23}},
+
+
+        "1": {  "00":   {"description" : "Ping PMT PAYLOAD",
+                        "number_in_graph" : 15,
+                        "cmd_number" : 31}}
+        },
+
+"13" : { 
+        "4": {  "8":    {"description" : "Suspend Payload as well SiPM",
+                        "number_in_graph" : 12,
+                        "cmd_number" : 37},
+
+                "1":    {"description" : "Load Scenario Suspended, SiPM PAYLOAD",
+                        "number_in_graph" : 12,
+                        "cmd_number" : 26},
+
+                "2":    {"description" : "Load Scenario Awaken, SiPM PAYLOAD",
+                        "number_in_graph" : 11,
+                        "cmd_number" : 28},
+
+                "4":    {"description" : "Reboot SiPM Payload",
+                        "number_in_graph" : 13,
+                        "cmd_number" : 30},
+                },
+
+        "8": {  "0F":   {"description" : "After an Emergency Shutdown happened to SiPM",
+                        "number_in_graph" : 3,
+                        "cmd_number" : 35},
+
+                "00":   {"description" : "Load Scenario 0 (Default) SiPM PAYLOAD",
+                        "number_in_graph" : 0,
+                        "cmd_number" : 12},
+
+                "01":   {"description" : "Load Scenario 1 SiPM PAYLOAD",
+                        "number_in_graph" : 1,
+                        "cmd_number" : 13},
+
+                "02":   {"description" : "Load Scenario 2 SiPM PAYLOAD",
+                        "number_in_graph" : 2,
+                        "cmd_number" : 14},
+
+                "03":   {"description" : "Load Scenario 3 SiPM PAYLOAD",
+                        "number_in_graph" : 3,
+                        "cmd_number" : 15},
+
+                "04":   {"description" : "Load Scenario 4 SiPM PAYLOAD",
+                        "number_in_graph" : 4,
+                        "cmd_number" : 16},
+
+                "05":   {"description" : "Load Scenario 5 SiPM PAYLOAD",
+                        "number_in_graph" : 5,
+                        "cmd_number" : 17},
+
+                "06":   {"description" : "Load Scenario 6 SiPM PAYLOAD",
+                        "number_in_graph" : 6,
+                        "cmd_number" : 18},
+
+                "07":   {"description" : "Load Scenario 7 SiPM PAYLOAD",
+                        "number_in_graph" : 7,
+                        "cmd_number" : 19},
+
+                "08":   {"description" : "Load Scenario 8 SiPM PAYLOAD",
+                        "number_in_graph" : 8,
+                        "cmd_number" : 20},
+
+                "09":   {"description" : "Load Scenario 9 SiPM PAYLOAD",
+                        "number_in_graph" : 9,
+                        "cmd_number" : 21},
+
+                "10":   {"description" : "Load Scenario 10 SiPM PAYLOAD",
+                        "number_in_graph" : 10,
+                        "cmd_number" : 22}
+                },
+
+        "9": {  "0F":   {"description" : "Load CUSTOM Scenario SiPM PAYLOAD",
+                        "number_in_graph" : 14,
+                        "cmd_number" : 24}},
+
+
+        "1": {  "00":   {"description" : "Ping SiPM PAYLOAD",
+                        "number_in_graph" : 15,
+                        "cmd_number" : 32}}
+
+        }}
+
 ##################################################################################
 # Helper functions
 ##################################################################################
