@@ -9,7 +9,7 @@ from .functionality import *
 
 
 # Visualize 2 sets of points on a map
-def map(list1,list2:array=None,name1='',name2='',size:int=500,long=-90,lat=30):
+def map(list1,list2:array=None,name1='',name2='',size:int=500,long=-90,lat=30,color=None,marker_size=None):
     """Plot up to two lists of raadpy events on an interactive globe
 
     Args:
@@ -37,8 +37,9 @@ def map(list1,list2:array=None,name1='',name2='',size:int=500,long=-90,lat=30):
         text=list1.get_timestamps(format='iso'),
         mode = 'markers',
         marker=dict(
-            size=4,
-            color='blue',
+            size=4 if marker_size is None else marker_size,
+            color='blue' if color is None else color,
+            # color_continuous_scale=["red", "green", "blue"],
             symbol = 'circle-dot'
         ),
     ))

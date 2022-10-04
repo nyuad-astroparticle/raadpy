@@ -86,19 +86,19 @@ CMND_LIST = {
                         },
 
 "12" : { 
-        "4": {  "8":    {"description" : "Suspend Payload as well PMT",
+        "4": {  "08":    {"description" : "Suspend Payload as well PMT",
                         "number_in_graph" : 12,
                         "cmd_number" : 36},
 
-                "1":    {"description" : "Load Scenario Suspended, PMT PAYLOAD",
+                "01":    {"description" : "Load Scenario Suspended, PMT PAYLOAD",
                         "number_in_graph" : 12,
                         "cmd_number" : 25},
 
-                "2":    {"description" : "Load Scenario Awaken, PMT PAYLOAD",
+                "02":    {"description" : "Load Scenario Awaken, PMT PAYLOAD",
                         "number_in_graph" : 11,
                         "cmd_number" : 27},
 
-                "4":    {"description" : "Reboot PMT Payload",
+                "04":    {"description" : "Reboot PMT Payload",
                         "number_in_graph" : 13,
                         "cmd_number" : 29}
                 },
@@ -163,19 +163,19 @@ CMND_LIST = {
         },
 
 "13" : { 
-        "4": {  "8":    {"description" : "Suspend Payload as well SiPM",
+        "4": {  "08":    {"description" : "Suspend Payload as well SiPM",
                         "number_in_graph" : 12,
                         "cmd_number" : 37},
 
-                "1":    {"description" : "Load Scenario Suspended, SiPM PAYLOAD",
+                "01":    {"description" : "Load Scenario Suspended, SiPM PAYLOAD",
                         "number_in_graph" : 12,
                         "cmd_number" : 26},
 
-                "2":    {"description" : "Load Scenario Awaken, SiPM PAYLOAD",
+                "02":    {"description" : "Load Scenario Awaken, SiPM PAYLOAD",
                         "number_in_graph" : 11,
                         "cmd_number" : 28},
 
-                "4":    {"description" : "Reboot SiPM Payload",
+                "04":    {"description" : "Reboot SiPM Payload",
                         "number_in_graph" : 13,
                         "cmd_number" : 30},
                 },

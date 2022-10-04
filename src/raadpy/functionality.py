@@ -1240,10 +1240,15 @@ def get_cmd_number(cmdline:str):
     value = -1                          # Initialize the value to be -1 so that if the function faces commands that are not in the CMND_LIST it will give it a -1 value
     split_cmdline = cmdline.split(" ")  # Split the cmd by the spaces in between
     if len(split_cmdline) > 1 and 'txrx' in split_cmdline[1]: # If the cmd is a payload cmd, is has txrx
-        if float(split_cmdline[2]) == 4:                      # If the cmd belongs to emergency poweroff then the message is not needed (message is split_cmdline[5])
-            value = CMND_LIST[split_cmdline[2]][split_cmdline[3]]['number_in_graph'] # Grab the cmd number from the CMND_LIST based on the node and port of the cmd ([split_cmdline[2]][split_cmdline[3]])
-        else:
-            value = CMND_LIST[split_cmdline[2]][split_cmdline[3]][split_cmdline[5]]['number_in_graph'] #If not an emergency poweroff use node, port, and message to find the cmd in the CMND_LIST
+        try:
+            if float(split_cmdline[2]) == 4:                      # If the cmd belongs to emergency poweroff then the message is not needed (message is split_cmdline[5])
+                value = CMND_LIST[split_cmdline[2]][split_cmdline[3].strip()]['number_in_graph'] # Grab the cmd number from the CMND_LIST based on the node and port of the cmd ([split_cmdline[2]][split_cmdline[3]])
+            else:
+                value = CMND_LIST[split_cmdline[2]][split_cmdline[3].strip()][split_cmdline[5].strip()]['number_in_graph'] #If not an emergency poweroff use node, port, and message to find the cmd in the CMND_LIST
+        except KeyError:
+            # print(cmdline)
+            value = 14
+
     return value 
         
 
@@ -1273,7 +1278,7 @@ def send_sql_query_over_ssh(query:str):
     return data
 
 
-def get_light1_position(starttime:Time, endtime:Time=None, n_events:int=None, SHORT_TIME:float=10):
+def get_light1_position(starttime=None, endtime:Time=None, n_events:int=None, SHORT_TIME:float=10):
     """Give me a start and end time in astropy objects, I give you light-1 position. 
     I can also interpolate if you give me anumber of events
 
