@@ -1342,3 +1342,106 @@ def get_light1_position(starttime=None, endtime:Time=None, n_events:int=None, SH
         ))
 
     return(locs)
+
+def get_lightning_time_ranges(start_time, end_time):
+    """Generates a list of time ranges for each day encompassed within start_time and end_time
+
+    Args:
+        start_time (Time): start time
+        end_time (Time): end time
+    
+    Returns:
+        return_list(list): A list of time ranges. The first element is the start time, the second element is the end time, and the third element is the day corresponding to the time range. If the first element is 0, the start time is at the start of the day. If the second element is zero, the end time is the end of the day.
+    """
+    # Calculating the number of days between the given start and end times by rounding them down and subtracting start time from end time
+    rounded_start = start_time.to_datetime().replace(hour = 0, minute = 0, second = 0, microsecond = 0)
+    rounded_end = end_time.to_datetime().replace(hour = 0, minute = 0, second = 0, microsecond = 0)
+    days = (rounded_end - rounded_start).days
+
+    # Creating start and end days using the start and end times    
+    full_start_day = start_time.to_value("isot")
+    start_day = full_start_day[:4] + full_start_day[5:7] + full_start_day[8:10]
+    
+    full_end_day = end_time.to_value("isot")
+    end_day = full_end_day[:4] + full_end_day[5:7] + full_end_day[8:10]
+    
+    # Creating a list of time ranges which is to be returned
+    return_list = []
+    if days ==0:
+        # If the start and end time are within the same day, simply add the start and end times to the start day element in return_list
+        return_list.append([start_time, end_time, start_day])
+    else:
+        # If start and end time are on different days, then first of all add an element corresponding to the start time and start day
+        return_list.append([start_time, 0, start_day])
+        
+        # Create a counter variable to keep track of which day's element is being added to retrun_list
+        current_day = start_time.to_datetime()
+
+        for i in range(days-1):
+            # For each day in between start day and end day, increment the current day by one day and add an element that corresponds to all the timestamps in that day to return_list
+            current_day = current_day + datetime.timedelta(days=1)
+            temp_day = str(current_day)
+            return_list.append([0, 0, temp_day[:4] + temp_day[5:7] + temp_day[8:10]])
+        
+        # Finally add an element to return_list correspond to the end time and end day
+        return_list.append([0, end_time, end_day])
+    
+    return(return_list)
+
+def get_lightning_strikes(starttime:Time, endtime:Time):
+    """Downloads lightning strikes within the given start and end times and loads them into a rp.array
+
+    Args:
+        starttime (Time): Start time 
+        endtime (Time): End time
+
+    Raises:
+        Exception: Start time and end time must be astropy.Time objects
+
+    Returns:
+        locs (rp.array): raadpy array consisting of lightning strikes between the given start and end times
+    """
+
+    # Input Processing on start and end times
+    if (type(starttime) != Time) or (type(endtime) != Time):
+        try:
+            starttime = Time(starttime)
+            endtime = Time(endtime)
+        except:
+            raise Exception("Start time and end time must be astropy.Time objects")
+
+    # converting the give start and end times to a list of time ranges       
+    time_ranges = get_lightning_time_ranges(starttime, endtime) 
+
+    # Initialising the rp.array that will be returned
+    locs = array(event_type="en-lightning") 
+
+    # Requesting the lightning data for each time range
+    for i in time_ranges:
+        if (i[0] != 0) & (i[1] != 0):
+            data = send_sql_query_over_ssh(f"SELECT timestamp,latitude,longitude FROM LightningData.`{i[2]}` WHERE timestamp BETWEEN ' {i[0]}' AND ' {i[1]}';")
+
+        if (i[0] != 0) & (i[1] == 0):
+            data = send_sql_query_over_ssh(f"SELECT timestamp, latitude, longitude FROM LightningData.`{i[2]}` WHERE timestamp >= ' {i[0]}'")
+
+        if (i[0] == 0) & (i[1] != 0):        
+            data = send_sql_query_over_ssh(f"SELECT timestamp, latitude, longitude FROM LightningData.`{i[2]}` WHERE timestamp <= ' {i[1]}'")
+
+        times = [i for i in data['timestamp']]
+        latitudes = [i for i in data['latitude']]
+        longitudes = [i for i in data['longitude']]
+
+        # Creating a rp.event object for each lightning strike and adding that to locs
+        for i in range(len(times)):
+            locs.append(event(
+                timestamp   = Time(times[i].strip(), format="isot"),
+                longitude   = longitudes[i],
+                latitude    = latitudes[i],
+                detector_id = "EN",
+                mission     = "Earth Networks",
+                time_format = "isot",
+                event_type  ="en-lightning"
+            ))
+
+    return(locs)
+    
