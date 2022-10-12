@@ -5,7 +5,7 @@
 from .core import *
 
 # Event Class
-class event: 
+class event:
     # Constructor ###############################################################
     def __init__(self,timestamp,latitude:float,longitude:float,detector_id:str,event_id:str='',mission:str='',time_format:str='mjd',event_type:str='TGF'):
         """Event: A point with longitude and latitude over the earth with a timestamp

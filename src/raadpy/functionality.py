@@ -1133,7 +1133,7 @@ def log_line_timestamp(logline:list,time:float=0):
     return time
 
 # Now we can define an error correction pass
-def find_closest(x,array):
+def find_closest(x,array,return_idx:bool=False):
     """Helper function that returns the two closest values to x in a list
 
     Args:
@@ -1150,21 +1150,20 @@ def find_closest(x,array):
     prevmid = -float('inf')
 
     # Handle edge cases
-    if x <= array[s]: return (-float('inf'),array[s])
-    if x >= array[e]: return (array[e],float('inf'))
+    if x <= array[s]: return (-float('inf'),array[s]) if not return_idx else [(-float('inf'),array[s]),(-float('inf'),s)]
+    if x >= array[e]: return (array[e],float('inf'))  if not return_idx else [(array[e],float('inf')), (e,float('inf'))]
 
     # Flag that will update condition to exit
-    found = False
     while prevmid != mid:
-        if x == array[mid]: return (array[mid-1],array[mid])
+        if x == array[mid]: return (array[mid-1],array[mid]) if not return_idx else [(array[mid-1],array[mid]),(mid-1,mid)]
         if x < array[mid]:  e = mid
         if x > array[mid]:  s = mid
 
         prevmid = mid
         mid     = (s+e)//2
 
-    if (s==e): return (array[s],array[s+1])
-    return (array[s],array[e])
+    if (s==e): return (array[s],array[s+1]) if not return_idx else [(array[s],array[s+1]),(s,s+1)]
+    return (array[s],array[e]) if not return_idx else [(array[s],array[e]),(s,e)]
 
 
 
