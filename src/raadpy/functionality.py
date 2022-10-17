@@ -2,6 +2,8 @@
 #     RAAD Functionality    #
 #############################
 
+from cmath import log
+from os import cpu_count, remove
 from .core import *
 from .rparray import array
 from .event import *
@@ -860,7 +862,7 @@ def log_to_ascii(data,fileName:str=None):
     return full_text
 
 # Parse a logfile and obtain metadata
-def log_expand(filename:str=None,text:str=None):
+def log_expand(filename:str=None,text:str=None,remove_comments:bool=False):
     """Gets a logfile and decodes it to a list of commands. 
     If a text value is given then it decodes the text, if not, it then decodes the value from the filename
 
@@ -895,9 +897,9 @@ def log_expand(filename:str=None,text:str=None):
     if "SE0>" not in loglines[-1]: loglines.append("SE0>")
 
     # Decode the file
-    # Find the indices of hte command lines
-    commands_idx = [i for i,line in enumerate(loglines) if 'SE0>' in line]
-    
+    # Find the indices of the command lines
+    commands_idx = [i for i,line in enumerate(loglines) if ('SE0>' in line) and (('#' not in line) or not remove_comments)]
+
     # Collect the outputs of the commands
     decoded_log = [{
         'command':loglines[commands_idx[i]],
@@ -1115,20 +1117,24 @@ def log_line_timestamp(logline:list,time:float=0):
         time (float): Time increment after the execution of the command
     """
 
-    splt = logline['command'].split(' ')                # Split the cmnd line (logline[0]) by the spaces 
-    if "SE0>\n" not in splt[0]:                         # If the cmnd is not the end of the log file: 
+    splt = logline['command'].split(' ')                        # Split the cmnd line (logline[0]) by the spaces 
+    if "SE0>\n" not in splt[0]:                                 # If the cmnd is not the end of the log file: 
         
-        if "read" in splt[1]:                           # If cmnd is read time
-            time = float (logline['output'][0].split(" ")[3])  # Replace time with the time read
+        try:
+            if "FAIL\n" in logline['output']:                       # if it was a payload cmnd and it failed (there will be delays)
+                if "txrx" in splt[1]:time + float(splt[4])/1000     # take the time a payload cmnd takes to be excuted 
 
-        if splt[1] == "delay":                          # If the cmnd is a delay
-            time = time + (float(splt[2])/1000)         # Add time delay to previous time
+            elif "read" in splt[1]:                                 # If cmnd is read time
+                time = float (logline['output'][0].split(" ")[3])   # Replace time with the time read
 
-        if splt[1] == "delayuntil":                     # If cmnd is delayuntil 
-            time = float(splt[2])                       # Replace time by new time
+            elif splt[1] == "delay":                                # If the cmnd is a delay
+                time = time + (float(splt[2])/1000)                 # Add time delay to previous time
 
-        if "FAIL\n" in logline['output']:               # if it was a payload cmnd and it failed (there will be delays)
-            time = time + float(splt[4])/1000                # take the time a payload cmnd takes to be excuted 
+            elif splt[1] == "delayuntil":                           # If cmnd is delayuntil 
+                time = float(splt[2])                               # Replace time by new time
+        
+        except ValueError:
+            print('Found weird command\n', logline)
 
     return time
 
