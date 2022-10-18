@@ -1380,11 +1380,11 @@ def get_lightning_time_ranges(start_time, end_time):
         return_list.append([start_time, 0, start_day])
         
         # Create a counter variable to keep track of which day's element is being added to retrun_list
-        current_day = start_time.to_datetime()
+        current_day = start_time
 
         for i in range(days-1):
             # For each day in between start day and end day, increment the current day by one day and add an element that corresponds to all the timestamps in that day to return_list
-            current_day = current_day + datetime.timedelta(days=1)
+            current_day = current_day + TimeDelta(days=1)
             temp_day = str(current_day)
             return_list.append([0, 0, temp_day[:4] + temp_day[5:7] + temp_day[8:10]])
         
