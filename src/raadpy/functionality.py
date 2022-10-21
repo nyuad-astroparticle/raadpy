@@ -682,7 +682,7 @@ def download_range(url:str,token,limit:int=5000,VERBOSE:bool=False):
             cnt+=1
 
         # Do the REST stuff
-        rest = RestOperations(url+f'&limit={limit}&seq_nr=gte.{seq}', authType = 'token', token = token)
+        rest = RestOperations(url+f'&limit={limit}&seq_nr=gt.{seq}', authType = 'token', token = token)
        
         # Download the data
         last_data   = rest.SendGetReq()
