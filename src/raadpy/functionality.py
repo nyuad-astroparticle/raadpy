@@ -684,14 +684,15 @@ def download_range(url:str,token,limit:int=5000,VERBOSE:bool=False):
             cnt+=1
 
         # Do the REST stuff
-        rest = RestOperations(url+f'&limit={limit}&seq_nr=gt.{seq}', authType = 'token', token = token)
+        append = f'&limit={limit}&seq_nr=gt.{seq}' if url[-1] != '?' else f'limit={limit}&seq_nr=gt.{seq}'
+        rest = RestOperations(url+append, authType = 'token', token = token)
        
         # Download the data
         last_data   = rest.SendGetReq()
         data        += last_data
 
         # If there are no more data exit
-        if len(last_data) < limit or seq == max([datum['seq_nr'] for datum in data]):
+        if len(last_data) < limit: # or seq == max([datum['seq_nr'] for datum in data]):
             return data
         
         # Find the last sequence number
@@ -777,8 +778,8 @@ def download_time_delta(buffer:int = 1, start:str=None, end:str=None):
 
     Args:
         buffer (int, optional): The buffer number. Defaults to 1.
-        start (str, optional): String with iso date to start. Defaults to '2022-06-01T00:00:00'.
-        end (str, optional): String with iso date to end. Defaults to '2022-06-07T00:00:00'.
+        start (str, optional): String with iso date to start. Defaults to None.
+        end (str, optional): String with iso date to end. Defaults to None.
 
     Returns:
         data: list of dictionaries with the rows
