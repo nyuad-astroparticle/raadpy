@@ -25,7 +25,6 @@ import csv
 from IPython.display import clear_output as clear
 import pymysql
 from sshtunnel import SSHTunnelForwarder
-import cython
 from .get_dict_module import get_dict
 
 ##################################################################################
