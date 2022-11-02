@@ -304,7 +304,7 @@ def get_bits(start:int,length:int,string,STUPID:bool=False):
         digit_sum += 2**(i-start) * bit
 
     return digit_sum
-
+'''
 # Create a dictionary of orbits from a file
 def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID:bool=False,VERIFY=False,threshold=5e-5):
     """Decode the data of a buffer with a given structure into a dictionary
@@ -422,7 +422,7 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
     
     # Return the dictionary
     return data
-
+'''
 # Corrects the timestamp based on orbit rate
 def correct_time_orbit(orbit:dict,key:str='rate0',TIME:int=20,RANGE=(0,100)):
     """Corrects the time of events based on the data of the orbit buffer
