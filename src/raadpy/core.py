@@ -14,7 +14,7 @@ import numpy as np
 import datetime as dt
 from lxml import html
 from gzip import decompress
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 import json
 import requests
 from requests.auth import HTTPBasicAuth
@@ -54,7 +54,6 @@ VETO_STRUCT     = {
     'veto'          : 8,
     'stimestamp'    : 40, 
 }
-
 NONVETO_STRUCT  = {
     'channel'       : 2,
     'adc_counts'    : 10,

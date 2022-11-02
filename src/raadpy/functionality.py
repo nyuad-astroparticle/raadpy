@@ -305,7 +305,6 @@ def get_bits(start:int,length:int,string,STUPID:bool=False):
 
     return digit_sum
 
-# Create a dictionary of orbits from a file
 def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID:bool=False,VERIFY=False,threshold=5e-5):
     """Decode the data of a buffer with a given structure into a dictionary
 
@@ -325,15 +324,12 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
     file = open(filename,'rb')  # Open the file in read binary mode
     raw = file.read()           # Read all the file
     file.close()                # Close the file
-
     # Initialize the dictionary
-    data = dict(zip(struct.keys(),[np.array(list()) for _ in range(len(ORBIT_STRUCT.keys()))]))
-
+    data = dict(zip(struct.keys(),[ [] for _ in range(len(ORBIT_STRUCT.keys()))]))
     # Number of bytes per line
     bytes_per_line  = sum(list(struct.values()))//8
     length          = len(raw)//bytes_per_line
     if MAX is None or MAX > length: MAX = length
-
     # Check if VERIFICATION can occur
     if VERIFY:
         # If you can't correct then don't
@@ -347,7 +343,6 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
             THRESHOLD *= threshold
         else:
             THRESHOLD = threshold
-
     # Current byte index in the file
     curr = 0
     with tqdm(total=MAX,desc='Line: ') as pbar:
@@ -366,10 +361,9 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
 
             # Keep track of the number of bits read
             bits_read = 0
-
             # If not create an orbit
             for name,length in struct.items():
-                data[name] = np.append(data[name],[get_bits(bits_read,length,event,STUPID=STUPID)])
+                data[name].append(get_bits(bits_read,length,event,STUPID=STUPID))
                 bits_read += length
 
             # Verify the datum makes sense
@@ -382,7 +376,6 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
                         # remove the previous datapoint
                         for key in data.keys():
                             data[key] = np.delete(data[key],-1)
-
                         # Move forward by two bytes
                         curr   -= bytes_per_line - 2
                         i      -= 1
@@ -393,7 +386,8 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
             i       += 1
             pbar.update(update)
 
-        
+    for name, value in data.items():
+        data[name] = np.array(value) 
     # If you want to filter, then apply the filter to the loaded data directly
     if condition is not None:
         try:
@@ -401,10 +395,9 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
             data    = dict(zip(struct.keys(),[arr[idx] for arr in data.values()]))
         except:
             print(bcolors.WARNING+'WARNING!' + bcolors.ENDC +' Condition ' + condition + ' is not valid for the dataset you requested. The data returned will not be filtered')
-
     # Specific loading changes
     if 'temperature' in struct.keys():
-        data['temperature'] -= 55
+        data['temperature'] = [i - 55 for i in data['temperature']]
         
 
     # If we can do a bit flip verification perform it
