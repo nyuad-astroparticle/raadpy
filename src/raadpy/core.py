@@ -14,7 +14,7 @@ import numpy as np
 import datetime as dt
 from lxml import html
 from gzip import decompress
-from tqdm import tqdm
+from tqdm.notebook import tqdm
 import json
 import requests
 from requests.auth import HTTPBasicAuth
