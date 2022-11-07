@@ -677,7 +677,7 @@ def download_range(url:str,token,limit:int=5000,VERBOSE:bool=False):
             cnt+=1
 
         # Do the REST stuff
-        append = f'&limit={limit}&seq_nr=gt.{seq}' if url[-1] != '?' else f'limit={limit}&seq_nr=gt.{seq}'
+        append = (f'&limit={limit}&seq_nr=gt.{seq}' if url[-1] != '?' else f'limit={limit}&seq_nr=gt.{seq}') if limit >= 0 else ''
         rest = RestOperations(url+append, authType = 'token', token = token)
        
         # Download the data
@@ -685,7 +685,7 @@ def download_range(url:str,token,limit:int=5000,VERBOSE:bool=False):
         data        += last_data
 
         # If there are no more data exit
-        if len(last_data) < limit: # or seq == max([datum['seq_nr'] for datum in data]):
+        if len(last_data) < limit or limit == -1: # or seq == max([datum['seq_nr'] for datum in data]):
             return data
         
         # Find the last sequence number
