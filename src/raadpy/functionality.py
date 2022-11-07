@@ -1111,8 +1111,8 @@ def log_line_timestamp(logline:list,time:float=0):
         time (float): Time increment after the execution of the command
     """
 
-    splt = logline['command'].split(' ')                        # Split the cmnd line (logline[0]) by the spaces 
-    if "SE0>\n" not in splt[0]:                                 # If the cmnd is not the end of the log file: 
+    splt = logline['command'].split(' ')                            # Split the cmnd line (logline[0]) by the spaces 
+    if "SE0>\n" not in splt[0] and len(splt) > 1:                   # If the cmnd is not the end of the log file: 
         
         try:
             if "FAIL\n" in logline['output']:                       # if it was a payload cmnd and it failed (there will be delays)
@@ -1129,6 +1129,9 @@ def log_line_timestamp(logline:list,time:float=0):
         
         except ValueError:
             print('Found weird command\n', logline)
+        
+        except IndexError:
+            print("Index Error in command\n",logline)
 
     return time
 

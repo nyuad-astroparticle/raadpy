@@ -277,6 +277,13 @@ def get_msb(x:int,BITS=48):
         x |= x >> int(2**i)
     return (x+1) >> 1
 
+# Get the subdict from an array dict
+def subdict(dict:dict,min:int=None,max:int=None):
+    new_dict = {}
+    for key in dict: new_dict[key] = dict[key][min:max]
+    
+    return new_dict
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
