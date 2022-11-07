@@ -646,7 +646,7 @@ def correct_time(data:dict,orbit:dict,key:str='rate0',TIME:int=20,RANGE_ORBIT=(0
 
 
 # Download a range of data based on some limit
-def download_range(url:str,token,limit:int=5000,VERBOSE:bool=False):
+def download_range(url:str,token,limit:int=5000,VERBOSE:bool=False,clear=clear):
     """Downloads a range of data given a url and a token from the NA servers. 
     Automatically handles large file sizes.
 
