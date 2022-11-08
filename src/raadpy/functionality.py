@@ -1119,7 +1119,7 @@ def log_line_timestamp(logline:list,time:float=0):
                 if "txrx" in splt[1]:time + float(splt[4])/1000     # take the time a payload cmnd takes to be excuted 
 
             elif "read" in splt[1]:                                 # If cmnd is read time
-                time = float (logline['output'][0].split(" ")[3])   # Replace time with the time read
+                time = float(logline['output'][0].split(" ")[3])   # Replace time with the time read
 
             elif splt[1] == "delay":                                # If the cmnd is a delay
                 time = time + (float(splt[2])/1000)                 # Add time delay to previous time
