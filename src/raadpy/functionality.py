@@ -1447,3 +1447,101 @@ def get_lightning_strikes(starttime:Time, endtime:Time):
 
     return(locs)
     
+def decode_buffer_data_from_mysql_database(start_id:int=None, end_id:int=None, struct=ORBIT_STRUCT, condition:str=None, MAX=None, STUPID:bool=False, VERIFY=False, threshold=5e-5, buffer:str="new_buff1"):
+    
+    # get the data
+    raw_data = send_sql_query_over_ssh(f"SELECT * FROM buffer_data.{buffer} WHERE id BETWEEN {start_id} AND {end_id};")['data'].to_list()
+    raw_data = [bytes.fromhex(i) for i in raw_data]
+    raw = b""
+    for i in raw_data:
+        raw+= i
+    #initialize the dictionary
+    data = dict(zip(struct.keys(),[ [] for _ in range(len(ORBIT_STRUCT.keys()))]))
+    bytes_per_line  = sum(list(struct.values()))//8
+    length          = len(raw)//bytes_per_line
+    if MAX is None or MAX > length: MAX = length
+    # Check if VERIFICATION can occur
+    if VERIFY:
+        # If you can't correct then don't
+        if 'stimestamp' not in struct.keys():
+            VERIFY = False
+            
+        # Define the threshold where a tiemstamp difference is just too much
+        THRESHOLD = 0
+        for i in range(struct['stimestamp']+1):THRESHOLD += 2**i
+        if threshold <= 1:
+            THRESHOLD *= threshold
+        else:
+            THRESHOLD = threshold
+    curr = 0
+    with tqdm(total=MAX,desc='Line: ') as pbar:
+        # Index of line
+        i = 0
+        while i < MAX:
+            update = 1
+            # Get the required number of bytes to an event
+            # event = raw[i*bytes_per_line:(i+1)*bytes_per_line]
+            event = raw[curr:curr + bytes_per_line]
+
+            # if you reached the end of the file break
+            if len(event) < bytes_per_line: 
+                pbar.update(MAX-i)
+                break
+
+            # Keep track of the number of bits read
+            bits_read = 0
+            # If not create an orbit
+            for name,length in struct.items():
+                data[name].append(get_bits(bits_read,length,event,STUPID=STUPID))
+                bits_read += length
+
+            # Verify the datum makes sense
+            if VERIFY:
+                # If there are more than two datapoints in the timestamp
+                if len(data['stimestamp'])>=2:
+                    # If the difference between the last two timestmaps is absurd
+                    if abs(data['stimestamp'][-1] - data['stimestamp'][-2]) > THRESHOLD:# or \
+                       #(data['stimestamp'][-1] - data['stimestamp'][-2] < 0) and (abs(data['stimestamp'][-2] - data['stimestamp'][-1]) < THRESHOLD/20):
+                        # remove the previous datapoint
+                        for key in data.keys():
+                            data[key] = np.delete(data[key],-1)
+                        # Move forward by two bytes
+                        curr   -= bytes_per_line - 2
+                        i      -= 1
+                        update  = 0
+
+            # Update reader position
+            curr    += bytes_per_line
+            i       += 1
+            pbar.update(update)
+
+
+    for name, value in data.items():
+        data[name] = np.array(value) 
+    # If you want to filter, then apply the filter to the loaded data directly
+    if condition is not None:
+        try:
+            idx     = np.where(eval(condition))[0]
+            data    = dict(zip(struct.keys(),[arr[idx] for arr in data.values()]))
+        except:
+            print(bcolors.WARNING+'WARNING!' + bcolors.ENDC +' Condition ' + condition + ' is not valid for the dataset you requested. The data returned will not be filtered')
+    # Specific loading changes
+    if 'temperature' in struct.keys():
+        data['temperature'] = [i - 55 for i in data['temperature']]
+        
+
+    # If we can do a bit flip verification perform it
+    if VERIFY:
+        # Split to channels
+        channels, cnt = split_channels(data,struct)
+        
+        # Apply correction to each channel
+        for channel in channels: channel['stimestamp'] = invert_flips(channel['stimestamp'],struct['stimestamp'])
+
+        # Put it back together
+        for i, channel in enumerate(channels):
+            for j, time in enumerate(channel['stimestamp']):
+                data['stimestamp'][cnt[i][j]] = time
+
+    # Return the dictionary
+    return data
