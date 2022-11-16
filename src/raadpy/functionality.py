@@ -327,9 +327,6 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
     raw = file.read()           # Read all the file
     file.close()                # Close the file
     
-    # Initialize the dictionary
-    data = dict(zip(struct.keys(),[ [] for _ in range(len(struct.keys()))]))
-    
     # Number of bytes per line
     bytes_per_line  = sum(list(struct.values()))//8
     length          = len(raw)//bytes_per_line
@@ -352,6 +349,10 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
     
     # Current byte index in the file
     curr = 0 if LAST is None else len(raw) - LAST * bytes_per_line
+
+    # Initialize the dictionary
+    data = dict(zip(struct.keys(),[ [0]*MAX for _ in range(len(struct.keys()))]))
+
     with tqdm(total=MAX,desc='Line: ', miniters=10) as pbar:
     
         # Index of line
@@ -371,20 +372,22 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
             bits_read = 0
             # If not create an orbit
             for name,length in struct.items():
-                data[name].append(get_bits(bits_read,length,event,STUPID=STUPID))
+                # data[name].append(get_bits(bits_read,length,event,STUPID=STUPID))
+                data[name][i] = get_bits(bits_read,length,event,STUPID=STUPID)
                 bits_read += length
 
             # Verify the datum makes sense
             if VERIFY:
                 # If there are more than two datapoints in the timestamp
-                if len(data['stimestamp'])>=2:
+                if i>=1:#len(data['stimestamp'])>=2:
                     # If the difference between the last two timestmaps is absurd
-                    if data['stimestamp'][-1] - data['stimestamp'][-2] > THRESHOLD:# or (data['adc_counts'][-1] <= 3):
+                    if data['stimestamp'][i] - data['stimestamp'][i-1] > THRESHOLD:# or (data['adc_counts'][-1] <= 3):
+                    # if data['stimestamp'][-1] - data['stimestamp'][-2] > THRESHOLD:# or (data['adc_counts'][-1] <= 3):
                         # tqdm.write(f"{curr}: {data['stimestamp'][-1]} - {data['stimestamp'][-2]} = {abs(data['stimestamp'][-1] - data['stimestamp'][-2])} > {THRESHOLD} {abs(data['stimestamp'][-1] - data['stimestamp'][-2]) > THRESHOLD}")
                         # remove the previous datapoint
-                        for key in data.keys():
-                            # print(data[key][-1])
-                            data[key] = data[key][:-1]
+                        # for key in data.keys():
+                        #     # print(data[key][-1])
+                        #     data[key] = data[key][:-1]
                         # Move forward by two bytes
                         curr   -= - 1 + bytes_per_line
                         i      -= 1
@@ -394,10 +397,11 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
 
                 # elif data['stimestamp'][-2] - data['stimestamp'][-1] > THRESHOLD:
 
-                elif len(data['stimestamp'])==1 and (data['stimestamp'][0] > THRESHOLD or data['adc_counts'][0] <= 3) :
-                    for key in data.keys():
-                        # print(data[key][-1])
-                        data[key] = data[key][:-1]
+                elif i==0 and (data['stimestamp'][0] > THRESHOLD or data['adc_counts'][0] <= 3) :
+                # elif len(data['stimestamp'])==1 and (data['stimestamp'][0] > THRESHOLD or data['adc_counts'][0] <= 3) :
+                    # for key in data.keys():
+                    #     # print(data[key][-1])
+                    #     data[key] = data[key][:-1]
                     # Move forward by two bytes
                     # tqdm.write(f"{curr}: {data['stimestamp'][-1]} - {data['stimestamp'][-2]} = {abs(data['stimestamp'][-1] - data['stimestamp'][-2])} > {THRESHOLD} \n\t{data['adc_counts'][0]}")
                     curr   -= - 1 + bytes_per_line
