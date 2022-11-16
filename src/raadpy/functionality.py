@@ -206,7 +206,7 @@ def correct_bit(x:int, MEAN:float, BITS:int=48):
 
 
 # Find pairs
-def find_pairs(diffs,MEAN,STD):
+def find_pairs(diffs,MEAN,STD,BITS:int=50):
     """Helper function to find the pairs of bit flips occuring in a timestring, Use invert_flips instead!
     """
     candidates  = np.array([])
@@ -214,20 +214,22 @@ def find_pairs(diffs,MEAN,STD):
     round_msb = lambda data,BITS: get_msb((3*abs(data)).astype(int) >> 1,BITS)*np.sign(data)
 
     pairs = []    
-    for i,d in enumerate(round_msb(diffs,50)):
+    for i,d in enumerate(tqdm(round_msb(diffs,BITS),desc='Bit Flipper')):
         # If this is a candidate for a thing 
-        if d < -MEAN - 3*STD:
+        if abs(d) > MEAN + 2*STD:
             candidates = np.append(candidates,[d])
             idxs       = np.append(idxs      ,[i])
-        
+
         if len(candidates) > 0:
             # candidates += d
             idx = np.where(abs(candidates + d) == 0)[0]
             if len(idx) > 0:
-                index = idx[0]
-                pairs.append((idxs[index],i))
-                candidates = np.delete(candidates,[index,int(-1)],axis=0)
-                idxs       = np.delete(idxs      ,[index,int(-1)],axis=0)
+                for index in idx:
+                    if abs(i-idxs[index]) < 5000:
+                        pairs.append((idxs[index],i))
+                        candidates = np.delete(candidates,[index,int(-1)],axis=0)
+                        idxs       = np.delete(idxs      ,[index,int(-1)],axis=0)
+                        break
 
     return np.array(pairs)
 
@@ -250,8 +252,8 @@ def invert_flips(timestamp:np.array,BITS:int=NONVETO_STRUCT['stimestamp']):
     STD  = np.std(abs(timestamp_deltas))
 
     # Identify the pairs of points where you get bit flips
-    pairs = find_pairs(timestamp_deltas,MEAN,STD)
-    
+    pairs = find_pairs(timestamp_deltas,MEAN,STD,BITS)
+
     # For each bit flip region
     for pair in pairs:
         ADD = 0
@@ -305,7 +307,7 @@ def get_bits(start:int,length:int,string,STUPID:bool=False):
 
     return digit_sum
 
-def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID:bool=False,VERIFY=False,threshold=5e-5):
+def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID:bool=False,VERIFY=False,threshold=5e-5,LAST:int=None):
     """Decode the data of a buffer with a given structure into a dictionary
 
     Args:
@@ -324,12 +326,16 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
     file = open(filename,'rb')  # Open the file in read binary mode
     raw = file.read()           # Read all the file
     file.close()                # Close the file
+    
     # Initialize the dictionary
-    data = dict(zip(struct.keys(),[ [] for _ in range(len(ORBIT_STRUCT.keys()))]))
+    data = dict(zip(struct.keys(),[ [] for _ in range(len(struct.keys()))]))
+    
     # Number of bytes per line
     bytes_per_line  = sum(list(struct.values()))//8
     length          = len(raw)//bytes_per_line
     if MAX is None or MAX > length: MAX = length
+    if LAST is not None: MAX = LAST
+    
     # Check if VERIFICATION can occur
     if VERIFY:
         # If you can't correct then don't
@@ -343,9 +349,11 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
             THRESHOLD *= threshold
         else:
             THRESHOLD = threshold
+    
     # Current byte index in the file
-    curr = 0
-    with tqdm(total=MAX,desc='Line: ') as pbar:
+    curr = 0 if LAST is None else len(raw) - LAST * bytes_per_line
+    with tqdm(total=MAX,desc='Line: ', miniters=10) as pbar:
+    
         # Index of line
         i = 0
         while i < MAX:
@@ -371,20 +379,40 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
                 # If there are more than two datapoints in the timestamp
                 if len(data['stimestamp'])>=2:
                     # If the difference between the last two timestmaps is absurd
-                    if abs(data['stimestamp'][-1] - data['stimestamp'][-2]) > THRESHOLD:# or \
-                       #(data['stimestamp'][-1] - data['stimestamp'][-2] < 0) and (abs(data['stimestamp'][-2] - data['stimestamp'][-1]) < THRESHOLD/20):
+                    if data['stimestamp'][-1] - data['stimestamp'][-2] > THRESHOLD:# or (data['adc_counts'][-1] <= 3):
+                        # tqdm.write(f"{curr}: {data['stimestamp'][-1]} - {data['stimestamp'][-2]} = {abs(data['stimestamp'][-1] - data['stimestamp'][-2])} > {THRESHOLD} {abs(data['stimestamp'][-1] - data['stimestamp'][-2]) > THRESHOLD}")
                         # remove the previous datapoint
                         for key in data.keys():
-                            data[key] = np.delete(data[key],-1)
+                            # print(data[key][-1])
+                            data[key] = data[key][:-1]
                         # Move forward by two bytes
-                        curr   -= bytes_per_line - 2
+                        curr   -= - 1 + bytes_per_line
                         i      -= 1
-                        update  = 0
+                        update  = 1.1
+                        pbar.colour = '#ff0000'
+                        pbar.total += 1
+
+                # elif data['stimestamp'][-2] - data['stimestamp'][-1] > THRESHOLD:
+
+                elif len(data['stimestamp'])==1 and (data['stimestamp'][0] > THRESHOLD or data['adc_counts'][0] <= 3) :
+                    for key in data.keys():
+                        # print(data[key][-1])
+                        data[key] = data[key][:-1]
+                    # Move forward by two bytes
+                    # tqdm.write(f"{curr}: {data['stimestamp'][-1]} - {data['stimestamp'][-2]} = {abs(data['stimestamp'][-1] - data['stimestamp'][-2])} > {THRESHOLD} \n\t{data['adc_counts'][0]}")
+                    curr   -= - 1 + bytes_per_line
+                    i      -= 1
+                    update  = 1.1
+                    pbar.colour = '#ff0000'
+                    pbar.total += 1
+                    
 
             # Update reader position
             curr    += bytes_per_line
             i       += 1
-            pbar.update(update)
+            # print(curr,update)
+            pbar.update(np.floor(update))
+            if update == 1: pbar.colour = '#0000ff'
 
     for name, value in data.items():
         data[name] = np.array(value) 
@@ -402,16 +430,18 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
 
     # If we can do a bit flip verification perform it
     if VERIFY:
-        # Split to channels
-        channels, cnt = split_channels(data,struct)
-        
-        # Apply correction to each channel
-        for channel in channels: channel['stimestamp'] = invert_flips(channel['stimestamp'],struct['stimestamp'])
+        # # Split to channels
+        # channels, cnt = split_channels(data,struct)
 
-        # Put it back together
-        for i, channel in enumerate(channels):
-            for j, time in enumerate(channel['stimestamp']):
-                data['stimestamp'][cnt[i][j]] = time
+        # # Apply correction to each channel
+        # for channel in channels: channel['stimestamp'] = invert_flips(channel['stimestamp'],struct['stimestamp'])
+
+        # # Put it back together
+        # for i, channel in enumerate(channels):
+        #     for j, time in enumerate(channel['stimestamp']):
+        #         data['stimestamp'][cnt[i][j]] = time
+
+        data['stimestamp'] = invert_flips(data['stimestamp'],struct['stimestamp'])
     
     # Return the dictionary
     return data
@@ -1316,13 +1346,13 @@ def get_light1_position(starttime=None, endtime:Time=None, n_events:int=None, SH
 
     # Request the data from sql for this time period
     data =(send_sql_query_over_ssh("SELECT * FROM `LIGHT-1_Position_Data`.PositionData WHERE `Time (ModJDate)` BETWEEN " + str(starttime.to_value("mjd")) + " AND " + str(endtime.to_value("mjd")) + ";"))
+    print("SELECT * FROM `LIGHT-1_Position_Data`.PositionData WHERE `Time (ModJDate)` BETWEEN " + str(starttime.to_value("mjd")) + " AND " + str(endtime.to_value("mjd")) + ";")
     
     # Get the data from the dataframe
     latitudes   = [i for i in data['Lat (deg)']]
     longitudes  = [i for i in data['Lon (deg)']]
     times       = [i for i in data['Time (ModJDate)']]
     
-
     # Interpolation if needed
     if n_events is not None:
         times_tmp  = np.linspace(starttime.to_value(format="mjd"), endtime.to_value(format="mjd"), n_events) if n_events > 0 else np.array([(starttime.mjd+endtime.mjd)/2])
