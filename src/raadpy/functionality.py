@@ -45,7 +45,8 @@ def get_nearby_lightning(tgf,lightnings:array,threshold:float=1):
     # If we are given an array of TGFs
     if type(tgf) == array:
         # Create a list to output the lighning arrays for each event
-        lights = []
+        tgf = cp.asarray(tgf)
+        lights = cp.array([])
 
         # For all the events
         for T in tqdm(tgf,desc='Event'):
@@ -64,13 +65,14 @@ def get_nearby_lightning(tgf,lightnings:array,threshold:float=1):
         tgf_time = tgf.timestamp
 
         # Get all the timestamps
-        timestamps = lightnings.get_timestamps()
+        timestamps = cp.asarray(lightnings.get_timestamps())
 
         # find the indices where the timedifference is less than threshold
-        idx = [i for i,time in enumerate(timestamps) if abs(time - tgf_time) < threshold]
-
+        # idx = [i for i,time in enumerate(timestamps) if abs(time - tgf_time) < threshold]
+        idx = cp.asarray((abs(timestamps -tgf_time.to_value(format="unix")) < threshold.to_value(format="sec")).nonzero())
+        idx = idx.get()[0]
         # Get the appropriate subarray
-        return array(lightnings[idx])
+        return array(lightnings[idx.to_list()])
 
     # if it is not of type event of array then raise an error
     else:
