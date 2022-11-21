@@ -307,7 +307,7 @@ def get_bits(start:int,length:int,string,STUPID:bool=False):
 
     return digit_sum
 
-def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID:bool=False,VERIFY=False,threshold=5e-5,LAST:int=None):
+def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID:bool=False,VERIFY=False,threshold=5e-5,LAST:int=None,min_streak:int=-1):
     """Decode the data of a buffer with a given structure into a dictionary
 
     Args:
@@ -355,6 +355,10 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
 
     with tqdm(total=MAX,desc='Line: ', miniters=10) as pbar:
     
+        # Counter for streaks of zero
+        zero_streak = 0
+        last_curr   = 0
+        last_i      = 0
         # Index of line
         i = 0
         while i < MAX:
@@ -378,10 +382,31 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
 
             # Verify the datum makes sense
             if VERIFY:
+                # Update the zero streak counter
+                if min_streak >= 0:
+                    if data['channel'][i] == 0: zero_streak += 1
+                    elif zero_streak > min_streak:
+                        tqdm.write(f'ZERO COUNTS TRIGGERED AT {i} with zero_streak = {zero_streak}, curr = {curr}')
+                        # i          -= zero_streak - 1
+                        # curr       -= -2 + bytes_per_line * (zero_streak)
+                        i           = last_i - 10
+                        curr        = last_curr + 1 - 10*bytes_per_line
+                        last_curr   = curr
+                        update      = 0.1
+                        pbar.colour = '#ffff00'
+                        pbar.total += 2
+                        zero_streak = 0
+                        tqdm.write(f'\t     RETRYING AT {i} with zero_streak = {zero_streak}, curr = {curr}')
+                        continue
+                    else: 
+                        zero_streak = 0
+                        last_curr   = curr
+                        last_i      = i
+
                 # If there are more than two datapoints in the timestamp
                 if i>=1:#len(data['stimestamp'])>=2:
                     # If the difference between the last two timestmaps is absurd
-                    if data['stimestamp'][i] - data['stimestamp'][i-1] > THRESHOLD:# or (data['adc_counts'][-1] <= 3):
+                    if (data['stimestamp'][i] - data['stimestamp'][i-1] > THRESHOLD) or (THRESHOLD*0.05 < data['stimestamp'][i-1] -  data['stimestamp'][i] < THRESHOLD*0.3):# or data['stimestamp'][i] > 2*THRESHOLD:# or (data['adc_counts'][-1] <= 3):
                     # if data['stimestamp'][-1] - data['stimestamp'][-2] > THRESHOLD:# or (data['adc_counts'][-1] <= 3):
                         # tqdm.write(f"{curr}: {data['stimestamp'][-1]} - {data['stimestamp'][-2]} = {abs(data['stimestamp'][-1] - data['stimestamp'][-2])} > {THRESHOLD} {abs(data['stimestamp'][-1] - data['stimestamp'][-2]) > THRESHOLD}")
                         # remove the previous datapoint
