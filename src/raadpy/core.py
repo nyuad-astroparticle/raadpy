@@ -25,7 +25,23 @@ import csv
 from IPython.display import clear_output as clear
 import pymysql
 from sshtunnel import SSHTunnelForwarder
-import cupy as cp
+CUPY_AVAILABLE = False
+try:
+    import cupy as cp
+    CUPY_AVAILABLE = True
+except ModuleNotFoundError:
+    print('\033[93mWarning!\033[95m Cupy not found! GPU accelleration is not available\033[0m\n')
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 ##################################################################################
 # Useful Constants

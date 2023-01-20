@@ -41,6 +41,8 @@ def get_nearby_lightning(tgf,lightnings:array,threshold:float=1):
     Returns:
         lightnings (array): A filtered array of lightnings
     """
+    # If hardware accelleration is not available use numpy instead
+    if not CUPY_AVAILABLE:cp = np
 
     # If we are given an array of TGFs
     if type(tgf) == array:
