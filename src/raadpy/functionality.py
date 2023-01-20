@@ -1438,13 +1438,13 @@ def get_lightning_time_ranges(start_time, end_time):
         return_list.append([start_time, 0, start_day])
         
         # Create a counter variable to keep track of which day's element is being added to retrun_list
-        current_day = start_time
+        current_day = dt.datetime(int(start_day[0:4]), int(start_day[4:6]), int(start_day[6:]))
 
         for i in range(days-1):
             # For each day in between start day and end day, increment the current day by one day and add an element that corresponds to all the timestamps in that day to return_list
-            current_day = current_day + TimeDelta(days=1)
+            current_day = current_day + dt.timedelta(days=1)
             temp_day = str(current_day)
-            return_list.append([0, 0, temp_day[:4] + temp_day[5:7] + temp_day[8:10]])
+            return_list.append([0, 0, Time(temp_day)])
         
         # Finally add an element to return_list correspond to the end time and end day
         return_list.append([0, end_time, end_day])
@@ -1480,22 +1480,23 @@ def get_lightning_strikes(starttime:Time, endtime:Time):
     locs = array(event_type="en-lightning") 
 
     # Requesting the lightning data for each time range
-    for i in time_ranges:
+    for i in tqdm(time_ranges):
         if (i[0] != 0) & (i[1] != 0):
-            data = send_sql_query_over_ssh(f"SELECT timestamp,latitude,longitude FROM LightningData.`{i[2]}` WHERE timestamp BETWEEN ' {i[0]}' AND ' {i[1]}';")
+            data = send_sql_query_over_ssh(f"SELECT timestamp,latitude,longitude, peakcurrent FROM LightningData.`{i[2]}` WHERE timestamp BETWEEN ' {i[0]}' AND ' {i[1]}';")
 
         if (i[0] != 0) & (i[1] == 0):
-            data = send_sql_query_over_ssh(f"SELECT timestamp, latitude, longitude FROM LightningData.`{i[2]}` WHERE timestamp >= ' {i[0]}'")
+            data = send_sql_query_over_ssh(f"SELECT timestamp, latitude, longitude, peakcurrent FROM LightningData.`{i[2]}` WHERE timestamp >= ' {i[0]}'")
 
         if (i[0] == 0) & (i[1] != 0):        
-            data = send_sql_query_over_ssh(f"SELECT timestamp, latitude, longitude FROM LightningData.`{i[2]}` WHERE timestamp <= ' {i[1]}'")
+            data = send_sql_query_over_ssh(f"SELECT timestamp, latitude, longitude, peakcurrent FROM LightningData.`{i[2]}` WHERE timestamp <= ' {i[1]}'")
 
         times = [i for i in data['timestamp']]
         latitudes = [i for i in data['latitude']]
         longitudes = [i for i in data['longitude']]
+        currents = [i for i in data['peakcurrent']]
 
         # Creating a rp.event object for each lightning strike and adding that to locs
-        for i in range(len(times)):
+        for i in tqdm(range(len(times)),leave=False,desc=f'Day:',colour='#57068c'):
             locs.append(event(
                 timestamp   = Time(times[i].strip(), format="isot"),
                 longitude   = longitudes[i],
@@ -1503,7 +1504,8 @@ def get_lightning_strikes(starttime:Time, endtime:Time):
                 detector_id = "EN",
                 mission     = "Earth Networks",
                 time_format = "isot",
-                event_type  ="en-lightning"
+                event_type  = "en-lightning",
+                property    = float(currents[i])
             ))
 
     return(locs)

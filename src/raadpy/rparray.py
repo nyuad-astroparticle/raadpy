@@ -76,9 +76,7 @@ class array:
         Returns:
             Coordinates (np.array): List of tuples of type (long,lat) for all the events in the array
         """
-        coords = []
-        for event in self.events:
-            coords.append([event.longitude,event.latitude])
+        coords = [[event.longitude,event.latitude] for event in self.events]
         
         return np.array(coords)
 
@@ -100,6 +98,12 @@ class array:
                 times.append(event.get_timestamp(format))
 
         return np.array(times)
+
+    def get_property(self):
+
+        property = [event.property for event in self.events]
+        
+        return np.array(property)
 
     # To list function
     def to_list(self):
