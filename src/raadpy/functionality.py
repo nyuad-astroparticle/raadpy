@@ -2,8 +2,6 @@
 #     RAAD Functionality    #
 #############################
 
-from cmath import log
-from os import cpu_count, remove
 from .core import *
 from .rparray import array
 from .event import *
@@ -960,7 +958,8 @@ def log_expand(filename:str=None,text:str=None,remove_comments:bool=False):
     # Collect the outputs of the commands
     decoded_log = [{
         'command':loglines[commands_idx[i]],
-        'output' :loglines[commands_idx[i]+1:commands_idx[i+1]]
+        'output' :loglines[commands_idx[i]+1:commands_idx[i+1]],
+        'index'  :commands_idx[i]
         } for i in range(len(commands_idx)-1)]
 
     # Return
@@ -1269,7 +1268,7 @@ def reorder_log(logfile:list):
     return logfile
 
 
-def log_with_timestamp(logfile:list):                        
+def log_with_timestamp(logfile:list,reorder=True):                        
     """Given a log file from the function log_expand
     return a list of log lines with the time increment of each line
 
@@ -1286,10 +1285,11 @@ def log_with_timestamp(logfile:list):
         log_timestamp_list.append ({
             'command':      logline['command'],
             'output':       logline['output'],
+            'index':        logline['index'],
             'timestamp':    time
         })
 
-    return reorder_log(log_timestamp_list)
+    return reorder_log(log_timestamp_list) if reorder else log_timestamp_list
 
 
 def get_cmd_number(cmdline:str):

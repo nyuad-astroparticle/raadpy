@@ -65,6 +65,9 @@ ORBIT_STRUCT    = {
     'scenario'      : 4,
 }
 
+PWR_ON_CMD              = 'txrx 4 14 600 0007010100'
+PWR_OFF_CMD             = 'txrx 4 14 600 0007000000'
+
 VETO_STRUCT     = {
     'channel'       : 2,
     'adc_counts'    : 14,
@@ -300,6 +303,73 @@ def subdict(dict:dict,min:int=None,max:int=None):
     for key in dict: new_dict[key] = dict[key][min:max]
     
     return new_dict
+
+# Get the two arrays of different size and match their elements
+def match(*arrays,from_end=True):
+    # Length of the final arrays
+    length = min([len(array) for array in arrays])
+
+    # Concatenate the arrays
+    if from_end:
+        return [array[-length:] for array in arrays]
+    else: 
+        return [array[:length] for array in arrays]
+
+# Collect timestamps of command execution
+def collect_time_cmd(log:dict,cmd,include_end:bool=True):
+    return np.array([line['timestamp'] for line in log if cmd in line['command']])
+
+# Go through the logfile and check if the starts and ends match
+def get_unmatched_cycles(log:list):
+    EXPECT = None
+    UNMATCHED = []
+    for i in range(len(log)-1,-1,-1):
+        # If this is a power command
+        if PWR_OFF_CMD in log[i]['command'] or PWR_ON_CMD in log[i]['command']:
+            if EXPECT is None: EXPECT = PWR_OFF_CMD if PWR_OFF_CMD in log[i]['command'] else PWR_ON_CMD
+
+            # If you see something out of cycle
+            if EXPECT not in log[i]['command']:
+                # Add it to the mismatched commands
+                UNMATCHED.append(log[i])
+                EXPECT = PWR_OFF_CMD if EXPECT == PWR_ON_CMD else PWR_ON_CMD
+
+            # Change what you expect
+            EXPECT = PWR_OFF_CMD if EXPECT == PWR_ON_CMD else PWR_ON_CMD
+    
+    return UNMATCHED
+
+# Get the subfiles and put the in a dictionary
+def get_filenames(raw_dir:str = './'):
+    fnames      = os.listdir(raw_dir)
+    filenames   = {}
+    for i in range(1,10): 
+        res = [name for name in fnames if f'buff{i}' in name]
+        if len(res)>0: filenames[f'buff{i}'] = res[0]
+    for name in fnames: 
+        if 'log.txt' in name: filenames['log'] = name
+
+    return filenames
+
+# Plot Logfile timestamps for testing (particularly the analysis workshop)
+def plot_timestamps_log(start_timestamps_log,end_timestamps_log,UNMATCHED = [],fig=None,ax=None):
+    if fig is None: fig = plt.figure(figsize=(13,5))
+    if ax  is None: ax  = fig.add_subplot(111)
+
+    # Plot the stuff
+    ax.plot(start_timestamps_log,c='g',lw=0.5,label='POWER ON TIME')
+    ax.plot(end_timestamps_log,  c='r',lw=0.5, label='POWER OFF TIME')
+    ax.scatter(list(range(len(start_timestamps_log))),start_timestamps_log,c='g',lw=0.5,s=0.5)
+    ax.scatter(list(range(len(end_timestamps_log))),end_timestamps_log,  c='r',lw=0.5,s=0.5)
+    for line in UNMATCHED:
+        ax.axhline(line['timestamp'],ls=':',c='lightgreen',lw=0.5)
+
+    # Prettify
+    ax.set_xlabel("Cycle Number")
+    ax.set_ylabel("Timestamp")
+    ax.legend(frameon=False,loc='upper left')
+
+    return fig, ax
 
 class bcolors:
     HEADER = '\033[95m'
