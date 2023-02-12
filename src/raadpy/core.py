@@ -353,8 +353,8 @@ def get_filenames(raw_dir:str = './'):
     return filenames
 
 # Plot Logfile timestamps for testing (particularly the analysis workshop)
-def plot_timestamps_log(start_timestamps_log,end_timestamps_log,UNMATCHED = [],fig=None,ax=None):
-    if fig is None: fig = plt.figure(figsize=(13,5))
+def plot_timestamps_log(start_timestamps_log,end_timestamps_log,UNMATCHED = [],fig=None,ax=None,figsize=(9,5),**kwargs):
+    if fig is None: fig = plt.figure(figsize=figsize,**kwargs)
     if ax  is None: ax  = fig.add_subplot(111)
 
     # Plot the stuff

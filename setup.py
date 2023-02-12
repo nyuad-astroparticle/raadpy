@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="raadpy",
-    version="2.1.0",
+    version="2.1.4",
     author="NYUAD Astroparticle Lab (Panos Oikonomou, Danish Khan, Lolowa AlKindi)",
     author_email="po524@nyu.edu",
     description="Python wrapper for data analysis of the RAAD detector",
@@ -30,10 +30,12 @@ setuptools.setup(
         'astropy>=5.0.2',
         'pandas>=1.4.1',
         'requests>=2.27.1',
+        'requests-oauthlib>=1.0.0',
         'tqdm>=4.64',
         'lxml>=4.8.0',
 	    'plotly>=5.8.2',
         'sshtunnel>=0.4.0',
-        'pymysql>=1.0.2'
+        'pymysql>=1.0.2',
+        'IPython>=1.0.0'
     ],
 )
