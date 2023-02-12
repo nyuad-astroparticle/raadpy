@@ -25,6 +25,7 @@ import csv
 from IPython.display import clear_output as clear
 import pymysql
 from sshtunnel import SSHTunnelForwarder
+import paramiko
 CUPY_AVAILABLE = False
 try:
     import cupy as cp
@@ -370,6 +371,31 @@ def plot_timestamps_log(start_timestamps_log,end_timestamps_log,UNMATCHED = [],f
     ax.legend(frameon=False,loc='upper left')
 
     return fig, ax
+
+# Analysis workshop function
+def get_log_by_number(number:int):
+    '''Returns the ith log file and saves it to the current working directory and another .backup directory'''
+    
+    # Check if the file already exists
+    if os.path.exists(os.path.join('.',f'RAAD-{number}-log.txt')): 
+        print(bcolors.WARNING+"You have already downloaded this file! Delete it and run again if you want to replace it!")
+        return
+
+    # Download the logfile and save
+    request = requests.get(f'http://arneodolab.abudhabi.nyu.edu:8000/logfix/split/RAAD-{number}-log.txt')
+    with open(f'RAAD-{number}-log.txt','w') as file: file.write(request.content.decode('utf-8'))
+
+def log_submit(number:int):
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+    client.connect('arneodolab.abudhabi.nyu.edu', username='raad',password='nyuad123$')
+
+    #Setup sftp connection and transmit this script 
+    sftp = client.open_sftp() 
+    sftp.put(f'./RAAD-{number}-log.txt', f'/home/raad/logfix/results/RAAD-{number}-log.txt')
+
+    sftp.close()
 
 class bcolors:
     HEADER = '\033[95m'
