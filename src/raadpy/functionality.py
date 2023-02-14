@@ -1512,3 +1512,29 @@ def get_lightning_strikes(starttime:Time, endtime:Time):
 
     return(locs)
     
+def parse_command(cmd:str):
+    '''
+    Parses a string payload command from the logfile and returns a human readable version for it
+
+    Input:
+        - cmd (str): The command string from the logfile
+    
+    Output:
+        - str: Human readable version of command
+    '''
+    if 'txrx' in cmd:
+        # Decompose the command
+        e           = cmd.strip().split(' ')
+        elements    = [e[2],e[3]]
+        if e[2] != '4': elements.append(e[-1])
+
+        # Read the nested dictionary
+        d = CMND_LIST
+        for el in elements:
+            d = d[el]
+
+        # Get the output
+        return d['description']
+    
+    else:
+        return 'Not a Payload Command'
