@@ -882,6 +882,8 @@ def save_raw_data(data,filepath:str='./',buffer:int=1):
         entry = bytes.fromhex(row['entry_data'][2:])
         file.write(entry)
     
+    if len(data)>=2: print(data[0]['archived_ts'],data[-1]['archived_ts'])
+
     # Close the file
     file.close()
 
