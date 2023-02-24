@@ -317,8 +317,11 @@ def match(*arrays,from_end=True):
         return [array[:length] for array in arrays]
 
 # Collect timestamps of command execution
-def collect_time_cmd(log:dict,cmd,include_end:bool=True):
-    return np.array([line['timestamp'] for line in log if cmd in line['command']])
+def collect_time_cmd(log:dict,cmd,include_idx:bool=True):
+    if include_idx:
+        return np.array([[line['timestamp'],i] for i,line in enumerate(log) if cmd in line['command']])
+    else:
+        return np.array([line['timestamp'] for line in log if cmd in line['command']])
 
 # Go through the logfile and check if the starts and ends match
 def get_unmatched_cycles(log:list):
