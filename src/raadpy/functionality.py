@@ -309,7 +309,7 @@ def get_bits(start:int,length:int,string,STUPID:bool=False):
 
     return digit_sum
 
-def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID:bool=False,VERIFY=False,threshold=5e-5,LAST:int=None,min_streak:int=-1):
+def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID:bool=False,VERIFY=False,threshold=5e-5,LAST:int=None,START_LINE:int=None, END_LINE:int=None,min_streak:int=-1,BIT_FLIP:bool=True):
     """Decode the data of a buffer with a given structure into a dictionary
 
     Args:
@@ -334,6 +334,9 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
     length          = len(raw)//bytes_per_line
     if MAX is None or MAX > length: MAX = length
     if LAST is not None: MAX = LAST
+    if (START_LINE is not None) and (END_LINE is not None): MAX = END_LINE - START_LINE
+
+    print(bcolors.BOLD+f"The length of the file is {length} lines."+bcolors.ENDC)
     
     # Check if VERIFICATION can occur
     if VERIFY:
@@ -351,6 +354,7 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
     
     # Current byte index in the file
     curr = 0 if LAST is None else len(raw) - LAST * bytes_per_line
+    if START_LINE is not None: curr = START_LINE * bytes_per_line
 
     # Initialize the dictionary
     data = dict(zip(struct.keys(),[ [0]*MAX for _ in range(len(struct.keys()))]))
@@ -460,7 +464,7 @@ def get_dict(filename:str,struct=ORBIT_STRUCT,condition:str=None,MAX=None,STUPID
         
 
     # If we can do a bit flip verification perform it
-    if VERIFY:
+    if VERIFY and BIT_FLIP:
         # # Split to channels
         # channels, cnt = split_channels(data,struct)
 
@@ -1540,3 +1544,59 @@ def parse_command(cmd:str):
     
     else:
         return 'Not a Payload Command'
+
+def get_light1_positions_list(times: list, SHORT_TIME:float=0.9):
+    # Initialising the rp.array that will be returned
+
+    locs = array(event_type="location")
+    tunnel  = SSHTunnelForwarder(('arneodolab.abudhabi.nyu.edu', 22), ssh_password="nyuad123$", ssh_username="raad", remote_bind_address=('127.0.0.1', 3306), allow_agent=False,)
+    tunnel.start()
+
+    # Connect to PYSQl Host
+    conn    = pymysql.connect(host='127.0.0.1', user='raad', passwd="nyuad123$", port=tunnel.local_bind_port)
+    new_times = np.empty([2*len(times)]).tolist()
+    for i in range(len(times)):
+        starttime   = times[i]
+        starttime  -= TimeDelta(SHORT_TIME,format='sec')
+        endtime     = starttime + TimeDelta(2*SHORT_TIME,format='sec')
+        n_events    = -1
+        starttime   = Time(starttime.value, format=starttime.format, precision=0)
+        endtime     = Time(endtime.value, format=endtime.format, precision=0)
+        new_times[2*i] = starttime
+        new_times[2*i + 1] = endtime
+    sub_query = ""
+    for i in range(int(len(new_times)/2)):
+        sub_query += " (`Time (ModJDate)` BETWEEN '" + str(new_times[2*i].to_value("mjd")) + "' AND '" + str(new_times[2*i+1].to_value("mjd")) + "') OR"
+    print(sub_query)
+    
+    query = "SELECT * FROM `LIGHT-1_Position_Data`.PositionData WHERE" + sub_query[:len(sub_query)-2] + ";"
+
+    data        = pd.read_sql_query(query, conn)    # Request Data
+    print(data)
+    latitudes   = [i for i in data['Lat (deg)']]
+    longitudes  = [i for i in data['Lon (deg)']]
+    data_times       = [i for i in data['Time (ModJDate)']]
+
+    for i in range(len(times)):
+        temp_latitudes = latitudes[2*i:2*i + 2]
+        temp_longitudes = longitudes[2*i:2*i + 2]
+        temp_times = data_times[2*i:2*i+2]
+
+        times_tmp  = np.array([times[i]])
+        temp_temp_latitudes  = np.interp(times_tmp, temp_times, temp_latitudes)
+        temp_temp_longitudes = np.interp(times_tmp, temp_times, temp_longitudes)
+        
+    
+        locs.append(event(
+            timestamp   = times_tmp[0],
+            longitude   = in_range(float(longitudes[i])),
+            latitude    = float(latitudes[i]),
+            detector_id = 'NA',
+            mission     = 'NanoAvionics',
+            time_format = "mjd",
+            event_type  = "cubesat-location"
+        ))
+
+    tunnel.close()                              # Close tunnel
+    return(locs)
+    
